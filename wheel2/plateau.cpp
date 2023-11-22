@@ -40,7 +40,7 @@ void Plateau::func() {
       pwmPhase(_outBuff / 100.0, PLATEAU_MOTOR_N_PIN, PLATEAU_MOTOR_P_PIN);
     } else {
       pwmPhase(0, PLATEAU_MOTOR_P_PIN, PLATEAU_MOTOR_N_PIN);
-      _basic = 0; // reset I
+      _basicVoltage = 0; // reset I
     }
     update();
   } // _interval.tick()
@@ -118,7 +118,7 @@ void Plateau::motorStart() {
   motorOn = true;
   setRpm(RPM_33);
 
-  _basic = 30; // 50; //40; //60; //75;
+  _basicVoltage = 30; // 50; //40; //60; //75;
 
   Serial.println("PLATEAU: ON");
 } // motorStart
@@ -188,11 +188,11 @@ float Plateau::pid(float rpm) {
 
   if (unbalanceCompensation) {
     pp = diffTargetRpm * P;
-    _basic += diffTargetRpm * I; // bring basic voltage back to average for proper speed
-    _basic = limitFloat(_basic, 40, 80);
+    _basicVoltage += diffTargetRpm * I; // bring basic voltage back to average for proper speed
+    _basicVoltage = limitFloat(_basicVoltage, 40, 80);
     pd = diffRpm * D;
   }
-  return  pp + _basic + pd;
+  return  pp + _basicVoltage + pd;
 } // pid()
 
 
