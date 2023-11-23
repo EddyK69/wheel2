@@ -93,7 +93,7 @@ void Plateau::update() {
       }
     }
   } else { // motorOn = false
-    if (turnInterval.duration() > 1000 && !spinningDown) { // spinned by swing
+    if (turnInterval.duration() > 1000 && !_spinningDown) { // spinned by swing
       if (speed > (PLATEAU_RPM33 * 0.666) && (_shared.state == S_HOME 
         || _shared.state == S_HOMING || _shared.state == S_PARKING)) { // 50% of 33.3 speed
         // LOG_INFO("plateau.cpp", "[update] Started by swing");
@@ -102,14 +102,14 @@ void Plateau::update() {
         return;
       }
     }
-    if (spinningDown && speed < (PLATEAU_RPM33 * 0.05)) { // <5% of 33.3 speed (spinning down)
-      spinningDown = false;
+    if (_spinningDown && speed < (PLATEAU_RPM33 * 0.05)) { // <5% of 33.3 speed (spinning down)
+      _spinningDown = false;
       turnInterval.reset();
       // LOG_INFO("plateau.cpp", "[update] Stopped");
       Serial.println("PLATEAU: STOPPED");
       return;
     }
-  }
+  } // motorOn
 } // update()
 
 
@@ -130,7 +130,7 @@ void Plateau::motorStop() {
   targetRpm = 0;
 
   turnInterval.reset();
-  spinningDown = true;
+  _spinningDown = true;
   atSpeed = false;
 
   Serial.println("PLATEAU: OFF");

@@ -24,7 +24,7 @@ class Plateau {
     float _outBuff;
     float _outBuffPrev;
     float _rpmPrev = 0;
-    bool spinningDown;
+    bool _spinningDown;
     float pid(float rpmIn);
     void update();
   public:
