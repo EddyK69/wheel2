@@ -5,7 +5,11 @@
   Author: Piet Kolkman (MiniotBV), refactored by Eduard Kuijt (EddyK69)
   Many thanks to Piet, Peter & Greet from Miniot!
 
-  Sourecode:
+  Based on offical Miniot Wheel2 Firmware:
+    https://drive.google.com/drive/folders/1BKKGxrlx6HUjvCHgJyVHJfkWcCUIp_lk
+    https://pietk.com/wheel2/
+
+  New sourecode on GitHub:
     https://github.com/MiniotBV/wheel2
 
   Install board (Raspberry Pi Pico, rp2040):
