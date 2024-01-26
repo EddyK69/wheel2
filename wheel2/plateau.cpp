@@ -32,13 +32,17 @@ void Plateau::func() {
     float speed = _speedcomp.speedCenterComp;
 
     if (motorOn) {
-      _outBuff = pid(speed); // calculate motor power
-      _outBuffPrev = _outBuff;
-      _outBuff += _speedcomp.unbalanceComp;
-      _outBuff = limitFloat(_outBuff, -100, 100);
-      
-      pwmPhase(_outBuff / 100.0, PLATEAU_MOTOR_N_PIN, PLATEAU_MOTOR_P_PIN);
-    } else {
+      if (_aligning) {
+        pwmPhase(0.1, PLATEAU_MOTOR_P_PIN, PLATEAU_MOTOR_N_PIN, true);
+      } else { // _aligning == false
+        _outBuff = pid(speed); // calculate motor power
+        _outBuffPrev = _outBuff;
+        _outBuff += _speedcomp.unbalanceComp;
+        _outBuff = limitFloat(_outBuff, -100, 100);
+        
+        pwmPhase(_outBuff / 100.0, PLATEAU_MOTOR_N_PIN, PLATEAU_MOTOR_P_PIN);
+      }
+    } else { // motorOn == false
       pwmPhase(0, PLATEAU_MOTOR_P_PIN, PLATEAU_MOTOR_N_PIN);
       _basicVoltage = 0; // reset I
     }
@@ -54,6 +58,15 @@ void Plateau::update() {
   float speed = _speedcomp.speed;
 
   if (motorOn) { // is motor on?
+    if (_aligning) {
+      if (roundTrip(_startPosition - 25, _speedcomp.pulsesPerRev) == _speedcomp.rotationPosition) {
+      // if (_startPosition == _speedcomp.rotationPosition) {
+        Serial.println("PLATEAU: ALIGNED!!!");
+        _aligning = false;
+        motorStop();
+      }
+      return;
+    }
     if (_shared.state == S_BAD_ORIENTATION
       || _shared.state == S_HOME
       // || _shared.state == S_PARKING
@@ -99,6 +112,7 @@ void Plateau::update() {
         // LOG_INFO("plateau.cpp", "[update] Started by swing");
         Serial.println("PLATEAU: STARTED BY SWING");
         play();
+        _startPosition = -1; // disable align after stop
         return;
       }
     }
@@ -107,6 +121,7 @@ void Plateau::update() {
       turnInterval.reset();
       // LOG_INFO("plateau.cpp", "[update] Stopped");
       Serial.println("PLATEAU: STOPPED");
+      LOG_DEBUG("plateau.cpp", "[update] currentPosition: " + String(_speedcomp.rotationPosition));
       return;
     }
   } // motorOn
@@ -115,7 +130,12 @@ void Plateau::update() {
 
 void Plateau::motorStart() {
   LOG_DEBUG("plateau.cpp", "[motorStart]");
+
+  _startPosition = _speedcomp.rotationPosition; // Saving start position
+  LOG_DEBUG("plateau.cpp", "[motorStart] startPosition: " + String(_startPosition));
+
   motorOn = true;
+  _aligning = false;
   setRpm(RPM_33);
 
   _basicVoltage = 30; // 50; //40; //60; //75;
@@ -124,16 +144,24 @@ void Plateau::motorStart() {
 } // motorStart
 
 
-void Plateau::motorStop() {
+void Plateau::motorStop(bool align) {
   LOG_DEBUG("plateau.cpp", "[motorStop]");
-  motorOn = false;
-  targetRpm = 0;
 
-  turnInterval.reset();
-  _spinningDown = true;
-  atSpeed = false;
+  if (align && _startPosition >= 0) {
+    LOG_DEBUG("plateau.cpp", "[motorStop] currentPosition: " + String(_speedcomp.rotationPosition));
+    _aligning = true;
 
-  Serial.println("PLATEAU: OFF");
+    Serial.println("PLATEAU: ALIGNING");
+  } else {
+    motorOn = false;
+    targetRpm = 0;
+
+    turnInterval.reset();
+    _spinningDown = true;
+    atSpeed = false;
+
+    Serial.println("PLATEAU: OFF");
+  }
 } // motorStop
 
 
@@ -207,14 +235,14 @@ void Plateau::play() {
 } // play()
 
 
-void Plateau::stop() {
+void Plateau::stop(bool align) {
   LOG_DEBUG("plateau.cpp", "[stop]");
   if (_shared.state == S_HOMING_BEFORE_PLAYING) { // To prevent error triggers when stopping during homing
     _shared.state = S_HOMING; // Seems extreme, but otherwise state-change timer will change
   } else {
     _shared.setState(S_STOPPING);
   }
-  motorStop();
+  motorStop(align);
   if (_shared.puristMode) {
     _shared.puristMode = false;
     Serial.println("PURIST MODE: OFF");

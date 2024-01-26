@@ -89,6 +89,7 @@ void SerialComm::checkReceivedLine(String line, eCheckMode mode) {
   if (checkLineCommand( "<<",     "Previous track",             mode)) { _carriage.gotoPreviousTrack();       return; }
   if (checkLineCommand( "HOK",    "Home",                       mode)) { _shared.setState(S_HOME);            return; }
   if (checkLineCommand( "STOP",   "Stop",                       mode)) { _plateau.stop();                     return; }
+  if (checkLineCommand( "STOPR",  "Stop & align",               mode)) { _plateau.stop(true);                 return; }
   if (checkLineCommand( "SPEEL",  "Play",                       mode)) { _plateau.play();                     return; }
   if (checkLineCommand( "PAUZE",  "Pause",                      mode)) { _carriage.pause();                   return; }
   if (checkLineCommand( "NAALD",  "Clean needle",               mode)) { _shared.setState(S_NEEDLE_CLEAN);    return; }

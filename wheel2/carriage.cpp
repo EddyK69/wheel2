@@ -508,7 +508,7 @@ void Carriage::stopOrRepeat() {
   if (repeat) {
     gotoRecordStart();
   } else {
-    _plateau.stop();
+    _plateau.stop(_plateau.alignAfterStop);
   }
 } // stopOrRepeat()
 
