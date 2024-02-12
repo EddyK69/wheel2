@@ -17,7 +17,8 @@ SerialComm::SerialComm(Shared& shared, Amplifier& amplifier, Arm& arm, Bluetooth
       _scanner(scanner),
       _speedcomp(speedcomp),
       _storage(storage),
-      _interval(10000, TM_MICROS) {
+      _interval(10000, TM_MICROS),
+      _uptimeInterval(60000, TM_MILLIS) {
 } // SerialComm()
 
 
@@ -64,6 +65,10 @@ void SerialComm::func() {
         _line += letter;
       }
     }
+  }
+  if (_uptimeInterval.tick()) {
+    Serial.println("UPTIME: " + uptime());
+    // Serial.println("TEMPERATURE: " + String(analogReadTemp(), 2) + " °C");
   }
 } // func()
 
@@ -162,6 +167,7 @@ void SerialComm::checkReceivedLine(String line, eCheckMode mode) {
   if (checkLineCommand( "CW",     "Show values",                mode)) { checkReceivedLine(line, CM_VALUE);   return; }
   if (checkLineCommand( "?",      "Report",                     mode)) { report();                            return; }
   if (checkLineCommand( "INFO",   "Info",                       mode)) { info();                              return; }
+  if (checkLineCommand( "VER",    "HW/FW version",              mode)) { version();                           return; }
 
   if (mode == CM_NONE) {
     line.toUpperCase();
@@ -404,6 +410,18 @@ void SerialComm::info() {
   _buttons.info();
   Serial.println("----------------------------------------------");
 } // info()
+
+
+void SerialComm::version() {
+  int padR = 25;
+  Serial.println("-------------------- V" + String(_shared.version, 0) + " --------------------");
+  Serial.println();
+  Serial.println(padRight("WHEEL_HW_VERSION", padR) +       ": " + String(BOARD_DESCRIPTION));
+  Serial.println(padRight("WHEEL_FW_VERSION", padR) +       ": V" + String(_shared.version, 0) + " [" + __DATE__ + " " + __TIME__ + "]");
+  Serial.println(padRight("WHEEL_WIRELESS_VERSION", padR) + ": " + String(_bluetooth.wirelessVersion ? "YES" : "NO"));
+  Serial.println(padRight("WHEEL_UPTIME", padR) +           ": " + uptime());
+  Serial.println(padRight("WHEEL_TEMPERATURE", padR) +      ": " + String(analogReadTemp(), 2) + " °C");
+} // version()
 
 
 //             bytes   cycles                
