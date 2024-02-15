@@ -7,21 +7,26 @@
 #include "carriage.h"
 #include "orientation.h"
 
-#define EEPROM_VERSION            0
-#define EEPROM_ARM_FORCE_500MG    100
-#define EEPROM_ARM_FORCE_4000MG   110
-#define EEPROM_ARM_TARGETWEIGHT   120
-#define EEPROM_ARM_FORCE_DOCKED   130
+#define EEPROM_VERSION               0
+#define EEPROM_ARM_FORCE_500MG       100
+#define EEPROM_ARM_FORCE_4000MG      110
+#define EEPROM_ARM_TARGETWEIGHT      120
+#define EEPROM_ARM_FORCE_DOCKED      130
 
-#define EEPROM_LEVEL_OFFSET_X     200
-#define EEPROM_LEVEL_OFFSET_Y     210
-#define EEPROM_LEVEL_OFFSET_Z     220
+#define EEPROM_LEVEL_OFFSET_X        200
+#define EEPROM_LEVEL_OFFSET_Y        210
+#define EEPROM_LEVEL_OFFSET_Z        220
 
-#define EEPROM_TRACK_OFFSET       300
+#define EEPROM_TRACK_OFFSET          300
 
-#define EEPROM_ARM_ANGLE_MIN      400
-#define EEPROM_ARM_ANGLE_MAX      410
+#define EEPROM_ARM_ANGLE_MIN         400
+#define EEPROM_ARM_ANGLE_MAX         410
 
+#define EEPROM_SCANNER_DETECTION_TH  500
+
+#define EEPROM_CARRIAGE_12INCH_START 600
+#define EEPROM_CARRIAGE_10INCH_START 610
+#define EEPROM_CARRIAGE_7INCH_START  620
 
 class Storage {
   private:
@@ -35,6 +40,10 @@ class Storage {
     float _trackOffset = 0;
     float _armAngleMin = 0;
     float _armAngleMax = 0;
+    float _scannerDetectionTh = 0;
+    float _carriage12inchStart = 0;
+    float _carriage10inchStart = 0;
+    float _carriage7inchStart = 0;
     Shared& _shared;
     Arm& _arm;
     Carriage& _carriage;

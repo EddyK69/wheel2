@@ -5,7 +5,7 @@
    If not defined the the level will default to LOG_LEVEL_DEBUG. Everything will get logged
 */
 
-#define LOG_LEVEL LOG_LEVEL_NONE
+#define LOG_LEVEL LOG_LEVEL_DEBUG
 
 /* Use the LOG_FILTER definition with a comma separated list of services you want to show.
    Every service in this list will get logged
