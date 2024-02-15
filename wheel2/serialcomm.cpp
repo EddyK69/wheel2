@@ -111,7 +111,7 @@ void SerialComm::checkReceivedLine(String line, eCheckMode mode) {
   if (checkLineFloat(   "KP",     "Carriage P",                 mode, _carriage.P)) {                         return; }
   if (checkLineFloat(   "KI",     "Carriage I",                 mode, _carriage.I)) {                         return; }
   if (checkLineFloat(   "KD",     "Carriage D",                 mode, _carriage.D)) {                         return; }
-  if (checkLineFloat(   "TNP",    "Target track",               mode, _carriage.targetTrack)) { _carriage.targetTrack = limitFloat(_carriage.targetTrack, CARRIAGE_HOME, CARRIAGE_12INCH_START); return; }
+  if (checkLineFloat(   "TNP",    "Target track",               mode, _carriage.targetTrack)) { _carriage.targetTrack = limitFloat(_carriage.targetTrack, CARRIAGE_HOME, _carriage.r12inchStart); return; }
 
   //-------------------------------------------------- PLATEAU --------------------------------------------------
   println(mode);

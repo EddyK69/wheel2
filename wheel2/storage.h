@@ -6,6 +6,7 @@
 #include "arm.h"
 #include "carriage.h"
 #include "orientation.h"
+#include "scanner.h"
 
 #define EEPROM_VERSION               0
 #define EEPROM_ARM_FORCE_500MG       100
@@ -27,6 +28,7 @@
 #define EEPROM_CARRIAGE_12INCH_START 600
 #define EEPROM_CARRIAGE_10INCH_START 610
 #define EEPROM_CARRIAGE_7INCH_START  620
+#define EEPROM_CARRIAGE_RECORD_END   630
 
 class Storage {
   private:
@@ -40,21 +42,23 @@ class Storage {
     float _trackOffset = 0;
     float _armAngleMin = 0;
     float _armAngleMax = 0;
-    float _scannerDetectionTh = 0;
+    float _scannerDetectionThreshold = 0;
     float _carriage12inchStart = 0;
     float _carriage10inchStart = 0;
     float _carriage7inchStart = 0;
+    float _carriageRecordEnd = 0;
     Shared& _shared;
     Arm& _arm;
     Carriage& _carriage;
     Orientation& _orientation;
+    Scanner& _scanner;
     void readAddress(int address, float& value);
     void writeAddress(int address, float value);
     void commit();
   public:
     float eepromVersion = 0;
     bool saveRequired = false;
-    Storage(Shared& shared, Arm& arm, Carriage& carriage, Orientation& orientation);
+    Storage(Shared& shared, Arm& arm, Carriage& carriage, Orientation& orientation, Scanner& scanner);
     void init();
     void read();
     void write();

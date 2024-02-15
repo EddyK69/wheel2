@@ -19,10 +19,10 @@
 #define CARRIAGE_PARK CARRIAGE_HOME - 1.5 // 2.5 //2
 #define CARRIAGE_CLEAN_POS 75 
 
-#define CARRIAGE_12INCH_START 146.5 //147
-#define CARRIAGE_10INCH_START 124 //125
-#define CARRIAGE_7INCH_START 84 //85
-#define CARRIAGE_RECORD_END 52.5
+// #define CARRIAGE_12INCH_START 146.5 //147
+// #define CARRIAGE_10INCH_START 124 //125
+// #define CARRIAGE_7INCH_START 84 //85
+// #define CARRIAGE_RECORD_END 52.5
 
 #define CARRIAGE_BACKTRACK_OFFSET 1 // how many mm the carriage can move before skipping to start track instead of previous track 
 #define CARRIAGE_MAX_SPEED 0.02
@@ -78,6 +78,10 @@ class Carriage {
     float positionFilter = CARRIAGE_HOME;
     float realPosition = CARRIAGE_HOME;
     float sensorPosition;
+    float r12inchStart = 146.5;
+    float r10inchStart = 124;
+    float r7inchStart = 84;
+    float recordEnd = 52.5;
     Carriage(Shared& shared, Arm& arm, Plateau& plateau, Scanner& scanner);
     void init(SpeedComp* speedcomp);
     void func();

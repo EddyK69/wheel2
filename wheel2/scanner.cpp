@@ -105,9 +105,9 @@ void Scanner::check() {
 void Scanner::setTracksAs7inch() {
   LOG_DEBUG("scanner.cpp", "[setTracksAs7inch]");
   trackCount = 1;
-  tracks[1] = CARRIAGE_7INCH_START;
+  tracks[1] = _carriage->r7inchStart;
 
-  if (tracks[0] > (CARRIAGE_7INCH_START - 12)) {
+  if (tracks[0] > (_carriage->r7inchStart - 12)) {
     tracks[0] = 55;
     // LOG_NOTICE("scanner.cpp", "[setTracksAs7inch] Adjusted record-end");
     Serial.println("Adjusted record-end");
@@ -137,7 +137,7 @@ void Scanner::recordDetection() {
   // LOG_DEBUG("scanner.cpp", "[recordDetection]");
 
   // when enough amplitude, a record is detected
-  recordPresent = _absDiff > SCANNER_DETECTION_THRESHOLD;
+  recordPresent = _absDiff > detectionThreshold;
   _recordPresentFiltered += (recordPresent - _recordPresentFiltered) / 10;
 
   // still a record present?
@@ -158,7 +158,7 @@ bool Scanner::isRecordPresent() {
 void Scanner::scanForTracks() {
   // LOG_DEBUG("scanner.cpp", "[scanForTracks]");
 
-  if (_carriage->sensorPosition < (CARRIAGE_RECORD_END + 2) || _shared.state != S_GOTO_RECORD_START) {
+  if (_carriage->sensorPosition < (_carriage->recordEnd + 2) || _shared.state != S_GOTO_RECORD_START) {
     _bufferCounter = 0;
     return;
   }

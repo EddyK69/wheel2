@@ -6,7 +6,7 @@
 #include "shared.h"
 #include "plateau.h"
 
-#define SCANNER_DETECTION_THRESHOLD 200
+// #define SCANNER_DETECTION_THRESHOLD 200
 
 
 class Carriage; // pre-declare class
@@ -52,6 +52,7 @@ class Scanner {
     float tracks[100];
     float recordStart = 0;
     float current = 10;
+    float detectionThreshold = 200;
     int trackCount = 0;
     int currentTrack = 0;
     Scanner(Shared& shared, Plateau& plateau);

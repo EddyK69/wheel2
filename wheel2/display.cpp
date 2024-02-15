@@ -43,7 +43,7 @@ void Display::update() {
     int needle = mapRealPos2Display(_carriage.positionFilter);
     int target = mapRealPos2Display(_carriage.targetTrack);
     int sensor = mapRealPos2Display(_carriage.sensorPosition);
-    int sensorMaxRange = mapRealPos2Display(CARRIAGE_12INCH_START - CARRIAGE_SENSOR_OFFSET) + 3;
+    int sensorMaxRange = mapRealPos2Display(_carriage.r12inchStart - CARRIAGE_SENSOR_OFFSET) + 3;
     int recordSize = mapRealPos2Display(_scanner.recordStart);
     int _dispHalf = DISPLAY_LENGTH / 2;
 
@@ -291,7 +291,7 @@ void Display::clear() {
 
 
 int Display::mapRealPos2Display(float pos) {
-  return mapFloat(pos, CARRIAGE_RECORD_END, CARRIAGE_12INCH_START, 0, DISPLAY_LENGTH - 1);
+  return mapFloat(pos, _carriage.recordEnd, _carriage.r12inchStart, 0, DISPLAY_LENGTH - 1);
 } // mapRealPos2Display()
 
 

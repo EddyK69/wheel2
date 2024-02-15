@@ -204,7 +204,7 @@ void Carriage::stateUpdate() {
       _scanner.recordStart = 1000;
     }
 
-    if (!_scanner.recordPresent && sensorPosition > CARRIAGE_RECORD_END + 1) { // record present?
+    if (!_scanner.recordPresent && sensorPosition > recordEnd + 1) { // record present?
       float recordDiaInch = (sensorPosition / 25.4) * 2;
 
       if (recordDiaInch < 6) { // stop when smaller than 6"
@@ -216,13 +216,13 @@ void Carriage::stateUpdate() {
         // LOG_DEBUG("carriage.cpp", "[stateUpdate] RecordDiameter: " + String(recordDiaInch) + " : ±7\" ");
         Serial.println("RecordDiameter: " + String(recordDiaInch) + " : ±7\" ");
         _plateau.setRpm(RPM_45);
-        _scanner.recordStart = CARRIAGE_7INCH_START;
+        _scanner.recordStart = r7inchStart;
         _scanner.setTracksAs7inch();
       } else if (recordDiaInch < 11) { 
         // LOG_DEBUG("carriage.cpp", "[stateUpdate] RecordDiameter: " + String(recordDiaInch) + " : ±10\" ");
         Serial.println("RecordDiameter: " + String(recordDiaInch) + " : ±10\" ");
         _plateau.setRpm(RPM_33);
-        _scanner.recordStart = CARRIAGE_10INCH_START;
+        _scanner.recordStart = r10inchStart;
         _scanner.check();
       } else {
         // LOG_DEBUG("carriage.cpp", "[stateUpdate] RecordDiameter: " + String(recordDiaInch) + " : ???\" ");
@@ -236,8 +236,8 @@ void Carriage::stateUpdate() {
     }
 
     // when arrived at carriage endrange
-    if (movetoPosition(CARRIAGE_12INCH_START, CARRIAGE_MAX_SPEED)) { 
-      _scanner.recordStart = CARRIAGE_12INCH_START;
+    if (movetoPosition(r12inchStart, CARRIAGE_MAX_SPEED)) { 
+      _scanner.recordStart = r12inchStart;
       targetTrack = _scanner.recordStart;
       // LOG_DEBUG("carriage.cpp", "[stateUpdate] RecordDiameter: 12\" ");
       Serial.println("RecordDiameter: 12\" ");
@@ -280,7 +280,7 @@ void Carriage::stateUpdate() {
       movetoPosition(_newPosition, CARRIAGE_MAX_SPEED);
       
       //---------------------------------------- events during playing
-      if (realPosition <= CARRIAGE_RECORD_END) {
+      if (realPosition <= recordEnd) {
         // LOG_NOTICE("carriage.cpp", "[stateUpdate] Carriage reached limit!");
         Serial.println("Carriage reached limit!");
         stopOrRepeat();
@@ -342,7 +342,7 @@ void Carriage::stateUpdate() {
 
   if (_shared.state == S_SKIP_FORWARD) {
     if (_arm.dockNeedle()) {
-      movetoPosition(CARRIAGE_RECORD_END, CARRIAGE_MAX_SPEED / 4);
+      movetoPosition(recordEnd, CARRIAGE_MAX_SPEED / 4);
     }
     targetTrack = position; // to clean display
   }
@@ -374,7 +374,7 @@ void Carriage::stateUpdate() {
       _arm.putNeedleInGrove();
     }
 
-    if (sensorPosition > (CARRIAGE_RECORD_END + 2) && sensorPosition < (CARRIAGE_RECORD_END + 12) && _scanner.recordPresent) {
+    if (sensorPosition > (recordEnd + 2) && sensorPosition < (recordEnd + 12) && _scanner.recordPresent) {
       // record present? stop!
       // LOG_ALERT("carriage.cpp", "[stateUpdate] Cannot clean needle; Record present?");
       Serial.println("Cannot clean needle; Record present? Clean record instead");
