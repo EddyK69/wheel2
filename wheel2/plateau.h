@@ -25,6 +25,8 @@ class Plateau {
     float _outBuffPrev;
     float _rpmPrev = 0;
     bool spinningDown;
+    bool _aligning = false;
+    int _startPosition = -1;
     float pid(float rpmIn);
     void update();
   public:
@@ -38,15 +40,16 @@ class Plateau {
     bool unbalanceCompensation = true;
     bool atSpeed;
     bool motorOn = false;
+    bool alignAfterStop = true;
     Plateau(Shared& shared, SpeedComp& speedcomp);
     void init();
     void func();
     void motorStart();
     void updateRpm();
     void setRpm(eRpmMode rpm);
-    void motorStop();
+    void motorStop(bool align = false);
     void play();
-    void stop();
+    void stop(bool align = false);
     void cleanMode();
     void info();
 }; // Plateau

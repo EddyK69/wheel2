@@ -201,7 +201,7 @@ void Buttons::logic(int button) {
     }
 
     if (button == BUTTON_PLAY && _shared.state != S_HOME) {
-      _plateau.stop();
+      _plateau.stop(_plateau.alignAfterStop);
     }
 
     //--------------------------------------------- BLUETOOTH RESET

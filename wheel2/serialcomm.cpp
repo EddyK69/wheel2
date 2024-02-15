@@ -89,6 +89,7 @@ void SerialComm::checkReceivedLine(String line, eCheckMode mode) {
   if (checkLineCommand( "<<",     "Previous track",             mode)) { _carriage.gotoPreviousTrack();       return; }
   if (checkLineCommand( "HOK",    "Home",                       mode)) { _shared.setState(S_HOME);            return; }
   if (checkLineCommand( "STOP",   "Stop",                       mode)) { _plateau.stop();                     return; }
+  if (checkLineCommand( "STOPR",  "Stop & align",               mode)) { _plateau.stop(true);                 return; }
   if (checkLineCommand( "SPEEL",  "Play",                       mode)) { _plateau.play();                     return; }
   if (checkLineCommand( "PAUZE",  "Pause",                      mode)) { _carriage.pause();                   return; }
   if (checkLineCommand( "NAALD",  "Clean needle",               mode)) { _shared.setState(S_NEEDLE_CLEAN);    return; }
@@ -291,10 +292,10 @@ void SerialComm::printGraphicData() {
   // Serial.print(", ");
   // Serial.print(_speedcomp.speed, 3);
   Serial.print(", ");
-  Serial.print((float)_speedcomp.counter / _speedcomp.pulsesPerRev, 3);
+  Serial.print((float)_speedcomp.rotationPosition / _speedcomp.pulsesPerRev, 3);
 
   // Serial.print(", ");
-  // Serial.print(_speedcomp._unbalanceFilterCurve[_speedcomp.counter]);
+  // Serial.print(_speedcomp._unbalanceFilterCurve[_speedcomp.rotationPosition]);
 
   // Serial.print(", ");
   // Serial.print(_speedcomp.speedLowPass, 3);
@@ -316,7 +317,7 @@ void SerialComm::printGraphicData() {
   Serial.print(_speedcomp.centerCompTargetRpm - _plateau.targetRpm, 3);
 
   // Serial.print(", ");
-  // Serial.print(_speedcomp.counter / float(_speedcomp.pulsesPerRev));
+  // Serial.print(_speedcomp.rotationPosition / float(_speedcomp.pulsesPerRev));
 
   // Serial.print(", ");
   // Serial.print(_speedcomp.preComp, 4);
