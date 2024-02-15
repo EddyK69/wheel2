@@ -108,6 +108,11 @@ void SerialComm::checkReceivedLine(String line, eCheckMode mode) {
  
   //-------------------------------------------------- CARRIAGE --------------------------------------------------
   println(mode);
+  if (checkLineFloat(   "K12",    "Carriage 12"" start",        mode, _carriage.r12inchStart)) {              return; }
+  if (checkLineFloat(   "K10",    "Carriage 10"" start",        mode, _carriage.r10inchStart)) {              return; }
+  if (checkLineFloat(   "K7",     "Carriage 7"" start",         mode, _carriage.r7inchStart)) {               return; }
+  if (checkLineFloat(   "KE",     "Carriage record end",        mode, _carriage.recordEnd)) {                 return; }
+
   if (checkLineFloat(   "KP",     "Carriage P",                 mode, _carriage.P)) {                         return; }
   if (checkLineFloat(   "KI",     "Carriage I",                 mode, _carriage.I)) {                         return; }
   if (checkLineFloat(   "KD",     "Carriage D",                 mode, _carriage.D)) {                         return; }
@@ -151,6 +156,7 @@ void SerialComm::checkReceivedLine(String line, eCheckMode mode) {
 
   //-------------------------------------------------- CARRIAGE SENSORS --------------------------------------------------
   println(mode);
+  if(checkLineFloat(    "STH",    "Scanner detection threshold",mode, _scanner.detectionThreshold)) {         return; }
   // if(checkLineFloat(    "PLS",    "Scanner current",            mode, _scanner.current)) {                    return; }
   if (checkLineInt(     "VOLUME", "Volume w/o override",        mode, _amplifier.volume)) { _amplifier.volumeOverRide = false; return; }
   if (checkLineInt(     "VOL",    "Volume",                     mode, _amplifier.volume)) { _amplifier.volumeOverRide = true; return; }

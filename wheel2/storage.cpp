@@ -117,23 +117,23 @@ void Storage::commit() {
 
 void Storage::info() {
   int padR = 25;
-  Serial.println(padRight("EEPROM_VERSION", padR) +               ": " + String(eepromVersion, 0));
-  Serial.println(padRight("EEPROM_ARM_FORCE_500MG", padR) +       ": " + String(_armForceLow, 5));
-  Serial.println(padRight("EEPROM_ARM_FORCE_4000MG", padR) +      ": " + String(_armForceHigh, 5));
-  // Serial.println(padRight("EEPROM_ARM_TARGETWEIGHT", padR) +      ": " + String(_armTargetWeight, 5));
-  Serial.println(padRight("EEPROM_ARM_FORCE_DOCKED", padR) +      ": " + String(_armForceDocked, 5));
-  Serial.println(padRight("EEPROM_LEVEL_OFFSET_X", padR) +        ": " + String(_levelOffsetX, 5));
-  Serial.println(padRight("EEPROM_LEVEL_OFFSET_Y", padR) +        ": " + String(_levelOffsetY, 5));
-  Serial.println(padRight("EEPROM_LEVEL_OFFSET_Z", padR) +        ": " + String(_levelOffsetZ, 5));
-  Serial.println(padRight("EEPROM_TRACK_OFFSET", padR) +          ": " + String(_trackOffset, 5));
-  Serial.println(padRight("EEPROM_ARM_ANGLE_MIN", padR) +         ": " + String(_armAngleMin, 5));
-  Serial.println(padRight("EEPROM_ARM_ANGLE_MAX", padR) +         ": " + String(_armAngleMax, 5));
-  Serial.println(padRight("EEPROM_SCANNER_DETECTION_TH", padR) +  ": " + String(_scannerDetectionThreshold, 5));
-  Serial.println(padRight("EEPROM_CARRIAGE_12INCH_START", padR) + ": " + String(_carriage12inchStart, 5));
-  Serial.println(padRight("EEPROM_CARRIAGE_10INCH_START", padR) + ": " + String(_carriage10inchStart, 5));
-  Serial.println(padRight("EEPROM_CARRIAGE_7INCH_START", padR) +  ": " + String(_carriage7inchStart, 5));
-  Serial.println(padRight("EEPROM_CARRIAGE_RECORD_END", padR) +   ": " + String(_carriageRecordEnd, 5));
-  // Serial.println(padRight("EEPROM_SAVE_REQUIRED", padR) +         ": " + String(saveRequired ? "YES" : "NO"));
+  Serial.println(padRight("EEPROM_VERSION", padR) +            ": " + String(eepromVersion, 0));
+  Serial.println(padRight("EEPROM_ARM_FORCE_500MG", padR) +    ": " + String(_armForceLow, 5));
+  Serial.println(padRight("EEPROM_ARM_FORCE_4000MG", padR) +   ": " + String(_armForceHigh, 5));
+  // Serial.println(padRight("EEPROM_ARM_TARGETWEIGHT", padR) +   ": " + String(_armTargetWeight, 5));
+  Serial.println(padRight("EEPROM_ARM_FORCE_DOCKED", padR) +   ": " + String(_armForceDocked, 5));
+  Serial.println(padRight("EEPROM_LEVEL_OFFSET_X", padR) +     ": " + String(_levelOffsetX, 5));
+  Serial.println(padRight("EEPROM_LEVEL_OFFSET_Y", padR) +     ": " + String(_levelOffsetY, 5));
+  Serial.println(padRight("EEPROM_LEVEL_OFFSET_Z", padR) +     ": " + String(_levelOffsetZ, 5));
+  Serial.println(padRight("EEPROM_TRACK_OFFSET", padR) +       ": " + String(_trackOffset, 5));
+  Serial.println(padRight("EEPROM_ARM_ANGLE_MIN", padR) +      ": " + String(_armAngleMin, 5));
+  Serial.println(padRight("EEPROM_ARM_ANGLE_MAX", padR) +      ": " + String(_armAngleMax, 5));
+  Serial.println(padRight("EEPROM_SCAN_DETECTION_TH", padR) +  ": " + String(_scannerDetectionThreshold, 5));
+  Serial.println(padRight("EEPROM_CARR_12INCH_START", padR) +  ": " + String(_carriage12inchStart, 5));
+  Serial.println(padRight("EEPROM_CARR_10INCH_START", padR) +  ": " + String(_carriage10inchStart, 5));
+  Serial.println(padRight("EEPROM_CARR_7INCH_START", padR) +   ": " + String(_carriage7inchStart, 5));
+  Serial.println(padRight("EEPROM_CARR_RECORD_END", padR) +    ": " + String(_carriageRecordEnd, 5));
+  // Serial.println(padRight("EEPROM_SAVE_REQUIRED", padR) +      ": " + String(saveRequired ? "YES" : "NO"));
   Serial.println();
 } // info()
 

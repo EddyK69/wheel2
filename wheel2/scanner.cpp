@@ -237,6 +237,7 @@ void Scanner::printGraphicData() {
 
 void Scanner::info() {
   int padR = 25;
+  Serial.println(padRight("SCANNER_DETECTION_TH", padR) +  ": " + String(detectionThreshold, 5));
   Serial.println(padRight("SCANNER_TOTAL_TRACKS", padR) +  ": " + String(trackCount));
   Serial.println(padRight("SCANNER_CURRENT_TRACK", padR) + ": " + String(currentTrack));
   if (trackCount > 0 ) {
