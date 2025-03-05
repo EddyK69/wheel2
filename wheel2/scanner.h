@@ -15,7 +15,6 @@ class Carriage; // pre-declare class
 class Scanner {
   private:
     Interval _interval;
-    Shared& _shared;
     Plateau _plateau;
     Carriage* _carriage;
     bool _cut;
@@ -54,7 +53,7 @@ class Scanner {
     float current = 10;
     int trackCount = 0;
     int currentTrack = 0;
-    Scanner(Shared& shared, Plateau& plateau);
+    Scanner(Plateau& plateau);
     void init(Carriage* carriage);
     void func();
     void check();

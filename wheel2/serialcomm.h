@@ -1,7 +1,7 @@
 #ifndef SERIALCOMM_H
 #define SERIALCOMM_H
 
-#define SERIAL_BAUDRATE 115400
+#define SERIAL_BAUDRATE 115200
 
 #include <Arduino.h>
 #include "enums.h"
@@ -21,7 +21,6 @@
 
 class SerialComm {
   private:
-    Shared& _shared;
     Amplifier& _amplifier;
     Arm& _arm;
     Buttons& _buttons;
@@ -54,7 +53,7 @@ class SerialComm {
     void info();
     void version();
   public:
-    SerialComm(Shared& shared, Amplifier& amplifier, Arm& arm, Bluetooth& bluetooth, Buttons& buttons, Carriage& carriage,
+    SerialComm(Amplifier& amplifier, Arm& arm, Bluetooth& bluetooth, Buttons& buttons, Carriage& carriage,
       Orientation& orientation, Plateau& plateau, Scanner& scanner, SpeedComp& speedcomp, Storage& storage);
     void init();
     void func();

@@ -21,7 +21,6 @@ class Plateau; // pre-declare class
 
 class SpeedComp {
   private:
-    Shared& _shared;
     Arm& _arm;
     Carriage* _carriage;
     Plateau* _plateau;
@@ -116,7 +115,7 @@ class SpeedComp {
     float trackSpacing;
     float centerCompTargetRpm;
 
-    SpeedComp(Shared& shared, Arm& arm);
+    SpeedComp(Arm& arm);
     void init(Carriage* carriage, Plateau* plateau);
     void update();
     void clearCompSamples();

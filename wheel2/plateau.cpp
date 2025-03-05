@@ -5,8 +5,7 @@
 #include "helper.h"
 
 
-Plateau::Plateau(Shared& shared, SpeedComp& speedcomp) :
-  _shared(shared),
+Plateau::Plateau(SpeedComp& speedcomp) :
   _speedcomp(speedcomp),
   _interval(5000, TM_MICROS),
   turnInterval(10, TM_MILLIS) {
@@ -52,16 +51,16 @@ void Plateau::func() {
 
 
 void Plateau::update() {
-  if (!logic || _shared.state == S_RECORD_CLEAN) {
+  if (!logic || Shared.state == S_RECORD_CLEAN) {
     return;
   }
   float speed = _speedcomp.speed;
 
   if (motorOn) { // is motor on?
-    if (_shared.state == S_BAD_ORIENTATION
-      || _shared.state == S_HOME
-      // || _shared.state == S_PARKING
-      // || _shared.state == S_HOMING
+    if (Shared.state == S_BAD_ORIENTATION
+      || Shared.state == S_HOME
+      // || Shared.state == S_PARKING
+      // || Shared.state == S_HOMING
       ) {
       // LOG_ALERT("plateau.cpp", "[update] Seems that plateau is still turning!!");
       Serial.println("PLATEAU: STILL TURNING!");
@@ -98,8 +97,8 @@ void Plateau::update() {
     }
   } else { // motorOn = false
     if (turnInterval.duration() > 1000 && !_spinningDown) { // spinned by swing
-      if (speed > (PLATEAU_RPM33 * 0.666) && (_shared.state == S_HOME 
-        || _shared.state == S_HOMING || _shared.state == S_PARKING)) { // 50% of 33.3 speed
+      if (speed > (PLATEAU_RPM33 * 0.666) && (Shared.state == S_HOME 
+        || Shared.state == S_HOMING || Shared.state == S_PARKING)) { // 50% of 33.3 speed
         // LOG_INFO("plateau.cpp", "[update] Started by swing");
         Serial.println("PLATEAU: STARTED BY SWING");
         play();
@@ -218,10 +217,10 @@ float Plateau::pid(float rpm) {
 
 void Plateau::play() {
   LOG_DEBUG("plateau.cpp", "[play]");
-  _shared.setState(S_HOMING_BEFORE_PLAYING); // Home first
+  Shared.setState(S_HOMING_BEFORE_PLAYING); // Home first
   motorStart();
-  if (_shared.puristMode) {
-    _shared.puristMode = false;
+  if (Shared.puristMode) {
+    Shared.puristMode = false;
     Serial.println("PURIST MODE: OFF");
   }
 } // play()
@@ -229,14 +228,14 @@ void Plateau::play() {
 
 void Plateau::stop() {
   LOG_DEBUG("plateau.cpp", "[stop]");
-  if (_shared.state == S_HOMING_BEFORE_PLAYING) { // To prevent error triggers when stopping during homing
-    _shared.state = S_HOMING; // Seems extreme, but otherwise state-change timer will change
+  if (Shared.state == S_HOMING_BEFORE_PLAYING) { // To prevent error triggers when stopping during homing
+    Shared.state = S_HOMING; // Seems extreme, but otherwise state-change timer will change
   } else {
-    _shared.setState(S_STOPPING);
+    Shared.setState(S_STOPPING);
   }
   motorStop();
-  if (_shared.puristMode) {
-    _shared.puristMode = false;
+  if (Shared.puristMode) {
+    Shared.puristMode = false;
     Serial.println("PURIST MODE: OFF");
   }
 } // stop()
@@ -244,7 +243,7 @@ void Plateau::stop() {
 
 void Plateau::cleanMode() {
   // LOG_DEBUG("plateau.cpp", "[cleanMode]");
-  _shared.setState(S_HOMING_BEFORE_CLEANING);
+  Shared.setState(S_HOMING_BEFORE_CLEANING);
 } // cleanMode()
 
 

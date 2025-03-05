@@ -3,15 +3,14 @@
 #include "helper.h"
 
 
-Shared::Shared(int appversion, String appdate) :
-  appversion(appversion),
-  appdate(appdate),
-  stateChangedInterval(1000, TM_MILLIS),
-  errorChangedInterval(0, TM_MILLIS) {
-} // Shared()
+void Shared_::init(int app_version, String app_date) {
+  LOG_DEBUG("shared.cpp", "[init]");
+  appversion = app_version;
+  appdate = app_date;
+}
 
 
-void Shared::setState(eStates newState) {
+void Shared_::setState(eStates newState) {
   LOG_DEBUG("shared.cpp", "[setState]");
   stateChangedInterval.reset();
   firstTimeStateChange = true;
@@ -22,7 +21,7 @@ void Shared::setState(eStates newState) {
 } // setState()
 
 
-void Shared::setError(eErrors newError) {
+void Shared_::setError(eErrors newError) {
   LOG_DEBUG("shared.cpp", "[setError]");
   error = newError;
   errorChangedInterval.reset();
@@ -33,7 +32,7 @@ void Shared::setError(eErrors newError) {
 } // setError()
 
 
-bool Shared::firstTimeStateChanged() {
+bool Shared_::firstTimeStateChanged() {
   if (firstTimeStateChange) {
     firstTimeStateChange = false;
     return true;
@@ -42,7 +41,7 @@ bool Shared::firstTimeStateChanged() {
 } // firstTimeStateChanged()
 
 
-int Shared::getTotalErrors() {
+int Shared_::getTotalErrors() {
   int totalErrors = 0;
   for (int error = 0; error < E_MAX; error++) {
     totalErrors += errorCount[error];
@@ -51,7 +50,7 @@ int Shared::getTotalErrors() {
 } // getTotalErrors()
 
 
-void Shared::info() {
+void Shared_::info() {
   for (int error = 0; error < E_MAX; error++) {
     String err = getError(static_cast<eErrors>(error));
     if ((err != "E_UNKNOWN") && (err != "E_NONE")) {
@@ -62,3 +61,12 @@ void Shared::info() {
 
   Serial.println();
 } // info()
+
+
+Shared_ &Shared_::getInstance() {
+  static Shared_ instance;
+  return instance;
+} // getInstance()
+
+
+Shared_ &Shared = Shared.getInstance();

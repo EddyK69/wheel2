@@ -13,8 +13,7 @@
 */
 
 
-Storage::Storage(Shared& shared, Arm& arm, Carriage& carriage, Orientation& orientation, Plateau& plateau) :
-  _shared(shared),
+Storage::Storage(Arm& arm, Carriage& carriage, Orientation& orientation, Plateau& plateau) :
   _arm(arm),
   _carriage(carriage),
   _orientation(orientation),
@@ -56,7 +55,7 @@ void Storage::read() {
 
 
 void Storage::write() {
-  eepromVersion        = _shared.appversion;
+  eepromVersion        = Shared.appversion;
   _armForceLow         = _arm.forceLow;
   _armForceHigh        = _arm.forceHigh;
   // _armTargetWeight     = _arm.targetWeight;

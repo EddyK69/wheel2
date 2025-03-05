@@ -5,8 +5,7 @@
 #include "pwm.h"
 
 
-Arm::Arm(Shared& shared) :
-  _shared(shared),
+Arm::Arm() :
   _interval(10, TM_MILLIS),
   _needleDownInterval(0, TM_MILLIS),
   _motorOnInterval(0, TM_MILLIS),
@@ -25,15 +24,15 @@ void Arm::init() {
 
 void Arm::func() {
   if (_interval.tick()) {
-    if (_shared.state == S_CALIBRATE) {
+    if (Shared.state == S_CALIBRATE) {
       weight = pwm2ArmWeight(force);
       pwmWriteFloat(ARM_MOTOR_PIN, force);
       return;
     }
 
-    if (_shared.state == S_HOMING_BEFORE_PLAYING
-      || _shared.state == S_HOMING_BEFORE_CLEANING
-      || _shared.state == S_HOMING) {
+    if (Shared.state == S_HOMING_BEFORE_PLAYING
+      || Shared.state == S_HOMING_BEFORE_CLEANING
+      || Shared.state == S_HOMING) {
       if (motorOn) { // motorOn == true
         // LOG_CRITICAL("arm.cpp", "[func] Needle should not have been turned on!");
         Serial.println("Needle should not have been turned on!");

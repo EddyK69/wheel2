@@ -48,10 +48,10 @@
 #include "hardware/gpio.h"
 
 #include "pins.h"
+#include "shared.h"
 #include "wheel.h"
 
-
-Wheel wheel(APP_VERSION, APP_DATE);
+Wheel wheel;
 
 
 // The normal, core 0 setup
@@ -60,6 +60,7 @@ void setup() {
   analogReadResolution(12);
 
   // Initialize Wheel
+  Shared.init(APP_VERSION, APP_DATE);
   wheel.init();
 
   enableInterupts(true);

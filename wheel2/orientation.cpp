@@ -5,8 +5,7 @@
 #include "i2c.h"
 
 
-Orientation::Orientation(Shared& shared, Arm& arm) :
-  _shared(shared),
+Orientation::Orientation(Arm& arm) :
   _arm(arm),
   _interval(10, TM_MILLIS),
   _isOkInterval(0, TM_MILLIS) {
@@ -43,14 +42,14 @@ void Orientation::update() {
     if (_error) {
       _error = !isApprox(y, 0, 0.6);
     } else {
-      if ((_shared.state == S_HOME) && (_shared.stateChangedInterval.duration() > 1000)) {
+      if ((Shared.state == S_HOME) && (Shared.stateChangedInterval.duration() > 1000)) {
         _error = !isApprox(y, 0, 0.8);
       }
     }
 
     if (_error && !_errorPrev) {
       _errorPrev = _error;
-      _shared.setState(S_BAD_ORIENTATION);
+      Shared.setState(S_BAD_ORIENTATION);
     }
 
     if (!_error) {
@@ -58,8 +57,8 @@ void Orientation::update() {
         _errorPrev = _error;
         _isOkInterval.reset();
       }
-      if (_isOkInterval.duration() > 3000 && _shared.state == S_BAD_ORIENTATION) {
-        _shared.setState(S_HOME);
+      if (_isOkInterval.duration() > 3000 && Shared.state == S_BAD_ORIENTATION) {
+        Shared.setState(S_HOME);
       }
     }
 

@@ -10,7 +10,6 @@
 class Amplifier {
   private:
     Interval _interval;
-    Shared& _shared;
     Arm& _arm;
     int _volumePrev;
     bool _isNeedleDownPrev = false;
@@ -19,7 +18,7 @@ class Amplifier {
   public:
     bool volumeOverRide = false;
     int volume = 22;
-    Amplifier(Shared& shared, Arm& arm);
+    Amplifier(Arm& arm);
     void init();
     void func();
 }; // Amplifier

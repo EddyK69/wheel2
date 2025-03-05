@@ -6,8 +6,7 @@
 #include "helper.h"
 
 
-Scanner::Scanner(Shared& shared, Plateau& plateau) :
-  _shared(shared),
+Scanner::Scanner(Plateau& plateau) :
   _plateau(plateau),
   _interval(10000, TM_MICROS) {
 } // Scanner()
@@ -23,7 +22,7 @@ void Scanner::init(Carriage* carriage) { // to prevent circular reference
 
 void Scanner::func() {
   if (_interval.tick()) {
-    if (_shared.state == S_HOME) { // if carriage @home, stop scanner
+    if (Shared.state == S_HOME) { // if carriage @home, stop scanner
       clearTracks();
       scanLedOff();
       return;
@@ -53,7 +52,7 @@ void Scanner::func() {
     _cut = !_cut; // toggle led
 
     currentTrack = getCurrentTrack();
-    if ((_shared.state == S_PLAYING || _shared.state == S_PAUSE || _shared.state == S_SKIP_FORWARD || _shared.state == S_SKIP_REVERSE) &&
+    if ((Shared.state == S_PLAYING || Shared.state == S_PAUSE || Shared.state == S_SKIP_FORWARD || Shared.state == S_SKIP_REVERSE) &&
       currentTrack > 0 && currentTrack != _currentTrackPrev) {
       Serial.println("TRACK: " + String(currentTrack) + "-" + String(trackCount));
       _currentTrackPrev = currentTrack;
@@ -141,7 +140,7 @@ void Scanner::recordDetection() {
   _recordPresentFiltered += (recordPresent - _recordPresentFiltered) / 10;
 
   // still a record present?
-  if (!isRecordPresent() && (_shared.state == S_PLAYING || _shared.state == S_PAUSE)) {
+  if (!isRecordPresent() && (Shared.state == S_PLAYING || Shared.state == S_PAUSE)) {
     // LOG_NOTICE("scanner.cpp", "[recordDetection] Record removed?");
     Serial.println("Record removed?");
     _plateau.stop();
@@ -158,7 +157,7 @@ bool Scanner::isRecordPresent() {
 void Scanner::scanForTracks() {
   // LOG_DEBUG("scanner.cpp", "[scanForTracks]");
 
-  if (_carriage->sensorPosition < (CARRIAGE_RECORD_END + 2) || _shared.state != S_GOTO_RECORD_START) {
+  if (_carriage->sensorPosition < (CARRIAGE_RECORD_END + 2) || Shared.state != S_GOTO_RECORD_START) {
     _bufferCounter = 0;
     return;
   }

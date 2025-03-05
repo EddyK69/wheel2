@@ -19,7 +19,6 @@
 
 class Wheel {
   public:
-    Shared shared;
     Amplifier amplifier;
     Arm arm;
     Bluetooth bluetooth;
@@ -32,7 +31,7 @@ class Wheel {
     SerialComm serialcomm;
     SpeedComp speedcomp;
     Storage storage;
-    Wheel(int appversion, String appdate);
+    Wheel();
     void init();
 }; // Wheel
 

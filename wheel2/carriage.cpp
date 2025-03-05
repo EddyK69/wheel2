@@ -5,8 +5,7 @@
 #include "pwm.h"
 
 
-Carriage::Carriage(Shared& shared, Arm& arm, Plateau& plateau, Scanner& scanner) :
-  _shared(shared),
+Carriage::Carriage(Arm& arm, Plateau& plateau, Scanner& scanner) :
   _arm(arm),
   _plateau(plateau),
   _scanner(scanner),
@@ -45,16 +44,16 @@ void Carriage::func() {
     _arm.armAngle = _arm.armAngleCall - _arm.armAngleOffset;
 
     //--------------------------------------------- LIMIT ERROR
-    if (_shared.state == S_PLAYING) {
+    if (Shared.state == S_PLAYING) {
       if (_arm.armAngleCall > 0.95) {
-        _shared.setError(E_ARMANGLE_LIMIT_POS);
+        Shared.setError(E_ARMANGLE_LIMIT_POS);
         _arm.dockNeedle();
-        _shared.setState(S_HOME);
+        Shared.setState(S_HOME);
       }
       if (_arm.armAngleCall < -0.95) {
-        _shared.setError(E_ARMANGLE_LIMIT_NEG);
+        Shared.setError(E_ARMANGLE_LIMIT_NEG);
         _arm.dockNeedle();
-        _shared.setState(S_HOME);
+        Shared.setState(S_HOME);
       }
     }
 
@@ -79,7 +78,7 @@ void Carriage::func() {
       pwmDisableStepper(CARRIAGE_STEPPER_AP_PIN, CARRIAGE_STEPPER_AN_PIN, CARRIAGE_STEPPER_BP_PIN, CARRIAGE_STEPPER_BN_PIN);
     }
 
-    if (_shared.state == S_PLAYING && _arm.isNeedleInGrove()) { // carriage pos filter for display
+    if (Shared.state == S_PLAYING && _arm.isNeedleInGrove()) { // carriage pos filter for display
       float div = position - positionFilter;
       if (div < 0) {
         positionFilter += (div) / 1000;
@@ -100,7 +99,7 @@ void Carriage::func() {
 
 
 void Carriage::stateUpdate() {
-  if (_shared.state == S_HOME) {
+  if (Shared.state == S_HOME) {
     _arm.centerArmAngle();
     _motorEnable = false;
     if (repeat) {
@@ -110,17 +109,17 @@ void Carriage::stateUpdate() {
     return;
   }
 
-  if (_shared.state == S_STOPPING) {
+  if (Shared.state == S_STOPPING) {
     if (_arm.dockNeedle() && decelerate()) {
-      _shared.setState(S_HOMING);
+      Shared.setState(S_HOMING);
     }
     return;
   }
 
 
-  if (_shared.state == S_HOMING || _shared.state == S_HOMING_BEFORE_PLAYING || _shared.state == S_HOMING_BEFORE_CLEANING) {
+  if (Shared.state == S_HOMING || Shared.state == S_HOMING_BEFORE_PLAYING || Shared.state == S_HOMING_BEFORE_CLEANING) {
     // wait for stepper to stop shaking after turning on
-    if (_shared.stateChangedInterval.duration() < 300) {
+    if (Shared.stateChangedInterval.duration() < 300) {
       return;
     }
 
@@ -133,12 +132,12 @@ void Carriage::stateUpdate() {
       _offset -= CARRIAGE_PARK - position;
       position = CARRIAGE_PARK;
       
-      if (_shared.error == E_HOMING_FAILED){
-        _shared.setError(E_HOMING_FAILED);
-        _shared.setState(S_PARKING);
+      if (Shared.error == E_HOMING_FAILED){
+        Shared.setError(E_HOMING_FAILED);
+        Shared.setState(S_PARKING);
       } else {
-        _shared.setError(E_HOMING_FAILED);
-        _shared.setState(S_HOMING_FAILED);
+        Shared.setError(E_HOMING_FAILED);
+        Shared.setState(S_HOMING_FAILED);
       }
       return;
     }
@@ -155,12 +154,12 @@ void Carriage::stateUpdate() {
       emergencyStop();
       _speedcomp->clearCompSamples(); // nice moment to stop
 
-      if (_shared.state == S_HOMING_BEFORE_PLAYING) {
-        _shared.setState(S_GOTO_RECORD_START);
-      } else if (_shared.state == S_HOMING_BEFORE_CLEANING) {
-        _shared.setState(S_NEEDLE_CLEAN);
+      if (Shared.state == S_HOMING_BEFORE_PLAYING) {
+        Shared.setState(S_GOTO_RECORD_START);
+      } else if (Shared.state == S_HOMING_BEFORE_CLEANING) {
+        Shared.setState(S_NEEDLE_CLEAN);
       } else {
-        _shared.setState(S_PARKING);
+        Shared.setState(S_PARKING);
       }
       return;
     }
@@ -168,10 +167,10 @@ void Carriage::stateUpdate() {
   }
 
 
-  if (_shared.state == S_PARKING) {
+  if (Shared.state == S_PARKING) {
     if (movetoPosition(CARRIAGE_HOME, CARRIAGE_MAX_SPEED)) {
-      // if (_shared.stateChangedInterval.duration() < 2000) {
-        _shared.setState(S_HOME);
+      // if (Shared.stateChangedInterval.duration() < 2000) {
+        Shared.setState(S_HOME);
       // }
     }
     _Dcomp = 0;
@@ -180,27 +179,27 @@ void Carriage::stateUpdate() {
   }
 
 
-  if (_shared.state == S_HOMING_FAILED) {
+  if (Shared.state == S_HOMING_FAILED) {
     if (movetoPosition(CARRIAGE_HOME + 10, CARRIAGE_MAX_SPEED)) {
-      if (_shared.stateChangedInterval.duration() < 2000) {
+      if (Shared.stateChangedInterval.duration() < 2000) {
         _arm.centerArmAngle();
         return;
       }
-      _shared.setState(S_HOMING);
+      Shared.setState(S_HOMING);
     } 
     return;
   }
 
 
-  if (_shared.state == S_BAD_ORIENTATION) {
+  if (Shared.state == S_BAD_ORIENTATION) {
     _arm.dockNeedle();
     _motorEnable = false;
     return;
   }
 
 
-  if (_shared.state == S_GOTO_RECORD_START) {
-    if (_shared.firstTimeStateChanged()) {
+  if (Shared.state == S_GOTO_RECORD_START) {
+    if (Shared.firstTimeStateChanged()) {
       _scanner.recordStart = 1000;
     }
 
@@ -234,7 +233,7 @@ void Carriage::stateUpdate() {
         _plateau.setPlayCount(R_OTHER);
       }
       targetTrack = _scanner.recordStart;
-      _shared.setState(S_PLAY_TILL_END);
+      Shared.setState(S_PLAY_TILL_END);
       return;
     }
 
@@ -248,15 +247,15 @@ void Carriage::stateUpdate() {
       _plateau.setPlayCount(R_12INCH);
       _scanner.check();
 
-      _shared.setState(S_PLAYING);
+      Shared.setState(S_PLAYING);
       return;
     }
     return;
   }
 
-  if (_shared.state == S_PLAY_TILL_END) {
+  if (Shared.state == S_PLAY_TILL_END) {
     if (movetoPosition(targetTrack, CARRIAGE_MAX_SPEED)) {
-      _shared.setState(S_PLAYING);
+      Shared.setState(S_PLAYING);
       return;
     }
     return;
@@ -266,8 +265,8 @@ void Carriage::stateUpdate() {
   //  ================================================================
   //      PLAY
   //  ================================================================
-  if (_shared.state == S_PLAYING) {
-    if (_shared.stateChangedInterval.duration() < 1000) {
+  if (Shared.state == S_PLAYING) {
+    if (Shared.stateChangedInterval.duration() < 1000) {
       _arm.centerArmAngle();
       movedForwardInterval.reset();
       return;
@@ -297,7 +296,7 @@ void Carriage::stateUpdate() {
         return;
       }
       if (realPosition > positionFilter + 2.5) {
-        _shared.setError(E_NEEDLE_MOVE_BACKWARDS);
+        Shared.setError(E_NEEDLE_MOVE_BACKWARDS);
         _plateau.stop();
         return;
       }
@@ -309,18 +308,18 @@ void Carriage::stateUpdate() {
           stopOrRepeat();
           return;
         } else {
-          _shared.setError(E_NEEDLE_DIDNT_MOVE); // carriage didn't move for a while
+          Shared.setError(E_NEEDLE_DIDNT_MOVE); // carriage didn't move for a while
           movedForwardInterval.reset(); // reset time to prevent another trigger
           gotoTrack(position - 0.25); // move carriage 0.5mm inside to skip the skip
           return;
         }
       } 
 
-      if (_shared.puristMode) {
+      if (Shared.puristMode) {
         if ((_speedcomp->wow < 0.15) || _arm.isNeedleDownFor(10000) ){
           // LOG_NOTICE("carriage.cpp", "[stateUpdate] Seems to runs ok");
           Serial.println("Seems to runs ok");
-          _shared.puristMode = false;
+          Shared.puristMode = false;
           Serial.println("PURIST MODE: OFF");
         // gotoRecordStart();
           gotoTrack(targetTrack);
@@ -334,46 +333,46 @@ void Carriage::stateUpdate() {
   //  ================================================================
   //      TRACKS & SKIPPING
   //  ================================================================
-  if (_shared.state == S_GOTO_TRACK) {
+  if (Shared.state == S_GOTO_TRACK) {
     if (_arm.dockNeedle()) {
       if (movetoPosition(targetTrack, CARRIAGE_MAX_SPEED)) {
-        _shared.setState(S_PLAYING);
+        Shared.setState(S_PLAYING);
         return;
       }
     }
     return;
   }
 
-  if (_shared.state == S_SKIP_FORWARD) {
+  if (Shared.state == S_SKIP_FORWARD) {
     if (_arm.dockNeedle()) {
       movetoPosition(CARRIAGE_RECORD_END, CARRIAGE_MAX_SPEED / 4);
     }
     targetTrack = position; // to clean display
   }
 
-  if (_shared.state == S_SKIP_REVERSE) {
+  if (Shared.state == S_SKIP_REVERSE) {
     if (_arm.dockNeedle()) {
       movetoPosition(_scanner.recordStart, CARRIAGE_MAX_SPEED / 4);
     }
     targetTrack = position; // to clean display
   }
 
-  if (_shared.state == S_RESUME_AFTER_SKIP) {
+  if (Shared.state == S_RESUME_AFTER_SKIP) {
     if (movetoPosition(targetTrack, CARRIAGE_MAX_SPEED / 4)) { 
-      _shared.setState(S_PLAYING);
+      Shared.setState(S_PLAYING);
       return;
     }
     return;
   }
 
-  if (_shared.state == S_PAUSE) {
+  if (Shared.state == S_PAUSE) {
     if (_arm.dockNeedle()) {
       movetoPosition(targetTrack, CARRIAGE_MAX_SPEED);
     }
     return;
   }
 
-  if (_shared.state == S_NEEDLE_CLEAN) {
+  if (Shared.state == S_NEEDLE_CLEAN) {
     if (movetoPosition(CARRIAGE_CLEAN_POS, CARRIAGE_MAX_SPEED)) {
       _arm.putNeedleInGrove();
     }
@@ -382,14 +381,14 @@ void Carriage::stateUpdate() {
       // record present? stop!
       // LOG_ALERT("carriage.cpp", "[stateUpdate] Cannot clean needle; Record present?");
       Serial.println("Cannot clean needle; Record present? Clean record instead");
-      _shared.setState(S_RECORD_CLEAN);
+      Shared.setState(S_RECORD_CLEAN);
       _plateau.motorStart();
       _plateau.setRpm(RPM_33);
     }
     return;
   }
 
-  if (_shared.state == S_RECORD_CLEAN) {
+  if (Shared.state == S_RECORD_CLEAN) {
     decelerate();
     if (!_scanner.recordPresent) {
       // LOG_ALERT("carriage.cpp", "[stateUpdate] Record removed!");
@@ -399,8 +398,8 @@ void Carriage::stateUpdate() {
     return;
   }
 
-  if (_shared.state == S_CALIBRATE) {
-    if (_shared.stateChangedInterval.duration() < 100) {
+  if (Shared.state == S_CALIBRATE) {
+    if (Shared.stateChangedInterval.duration() < 100) {
       targetTrack = CARRIAGE_CLEAN_POS;
     }
     if (movetoPosition(targetTrack, CARRIAGE_MAX_SPEED)) {
@@ -416,7 +415,7 @@ void Carriage::gotoNextTrack() {
 
   float pos = positionFilter;
 
-  if (_shared.state == S_GOTO_TRACK) {
+  if (Shared.state == S_GOTO_TRACK) {
     pos = targetTrack;
   }
 
@@ -442,7 +441,7 @@ void Carriage::gotoPreviousTrack() {
 
   float pos = positionFilter;
 
-  if (_shared.state == S_GOTO_TRACK) {
+  if (Shared.state == S_GOTO_TRACK) {
     pos = targetTrack;
   }
 
@@ -470,7 +469,7 @@ void Carriage::gotoTrack(float pos) {
   targetTrack = pos;
   // LOG_DEBUG("carriage.cpp", "[gotoTrack] To position " + String(targetTrack));
   Serial.println("To position " + String(targetTrack));
-  _shared.setState(S_GOTO_TRACK);
+  Shared.setState(S_GOTO_TRACK);
 } // gotoTrack()
 
 
@@ -519,11 +518,11 @@ void Carriage::stopOrRepeat() {
 
 void Carriage::pause() {
   LOG_DEBUG("carriage.cpp", "[pause]");
-  if (_shared.state == S_PLAYING) {
-    _shared.setState(S_PAUSE);
+  if (Shared.state == S_PLAYING) {
+    Shared.setState(S_PAUSE);
     targetTrack = position;
-  } else if (_shared.state == S_PAUSE) {
-    _shared.setState(S_PLAY_TILL_END);
+  } else if (Shared.state == S_PAUSE) {
+    Shared.setState(S_PLAY_TILL_END);
   }
 } // pause()
 

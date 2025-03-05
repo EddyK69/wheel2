@@ -3,10 +3,8 @@
 #include "pins.h"
 #include "helper.h"
 
-
-Display::Display(Shared& shared, Amplifier& amplifier, Arm& arm, Buttons& buttons, Carriage& carriage,
+Display::Display(Amplifier& amplifier, Arm& arm, Buttons& buttons, Carriage& carriage,
   Orientation& orientation, Plateau& plateau, Scanner& scanner, SpeedComp& speedcomp, Storage& storage) :
-  _shared(shared),
   _amplifier(amplifier),
   _arm(arm),
   _buttons(buttons),
@@ -56,7 +54,7 @@ void Display::update() {
       int spaceLength = 3;
 
       int decimals = 3;
-      int version = _shared.appversion;
+      int version = Shared.appversion;
       int versionDecimals[decimals] = { (version % 10), (version / 10) % 10, (version / 100) % 10 };
 
       for (int i = 0; i < decimals; i++) {
@@ -87,19 +85,19 @@ void Display::update() {
       }
 
     //--------------------------------------------- SHOW ERROR
-    } else if (_shared.errorChangedInterval.duration() < 10000 && _shared.error != E_NONE) { // Blink for 10 sec.
+    } else if (Shared.errorChangedInterval.duration() < 10000 && Shared.error != E_NONE) { // Blink for 10 sec.
       if ((millisSinceBoot() % 1000) < 800) { // Blink
         int blockLength = 0.1 * DISPLAY_LENGTH;
-        int begin = _dispHalf - (blockLength / 2) * _shared.error;
+        int begin = _dispHalf - (blockLength / 2) * Shared.error;
 
-        for (int i = 0; i < _shared.error; i++) {
+        for (int i = 0; i < Shared.error; i++) {
           drawBlock(begin + 1, begin + blockLength - 1, 0.1);
           begin += blockLength;
         }
       }
 
     //--------------------------------------------- CLEAN MODE
-    } else if (_shared.state == S_NEEDLE_CLEAN && _arm.motorOn) {
+    } else if (Shared.state == S_NEEDLE_CLEAN && _arm.motorOn) {
         int volPoint = mapFloat(_arm.targetWeight, 0, 4, 0, DISPLAY_LENGTH) / 2.0;
         // float pointCounter = (_arm.targetWeight / 2);
         float pointCounter = 0.5;
@@ -127,7 +125,7 @@ void Display::update() {
         }
 
     //--------------------------------------------- RECORD CLEAN MODE
-    } else if (_shared.state == S_RECORD_CLEAN) {
+    } else if (Shared.state == S_RECORD_CLEAN) {
       int rpmPoint = mapFloat(_speedcomp.speed - _plateau.targetRpm, 10, -10, 0, DISPLAY_LENGTH - 1);
       drawBlock(rpmPoint - 2, rpmPoint + 2, 0.9);
 
@@ -136,7 +134,7 @@ void Display::update() {
       }
 
     //--------------------------------------------- CALIBRATE
-    } else if (_shared.state == S_CALIBRATE) {
+    } else if (Shared.state == S_CALIBRATE) {
         int volPoint = mapFloat(_arm.force, 0, 1, DISPLAY_LENGTH - 1, 0);
         int forceLowPoint = mapFloat(_arm.forceLow, 0, 1, DISPLAY_LENGTH - 1, 0);
         int forceHighPoint = mapFloat(_arm.forceHigh, 0, 1, DISPLAY_LENGTH - 1, 0);
@@ -148,7 +146,7 @@ void Display::update() {
         drawPoint(forceHighPoint, 0.9);
 
     //--------------------------------------------- LEVEL MODE
-    } else if (_shared.state == S_BAD_ORIENTATION) {
+    } else if (Shared.state == S_BAD_ORIENTATION) {
       if ((millisSinceBoot() % 1000) < 800) {
         drawBlock(0, DISPLAY_LENGTH / 4, 0.1);
         drawBlock(DISPLAY_LENGTH - (DISPLAY_LENGTH / 4), DISPLAY_LENGTH, 0.1);
@@ -181,20 +179,20 @@ void Display::update() {
 
     //--------------------------------------------- VOLUME
     } else if (_buttons.volumeDisplayActionInterval.duration() < 2000
-        && _shared.state != S_SKIP_FORWARD && _shared.state != S_SKIP_REVERSE
-        &&  _shared.state != S_GOTO_TRACK && _shared.state != S_PAUSE) {
+        && Shared.state != S_SKIP_FORWARD && Shared.state != S_SKIP_REVERSE
+        &&  Shared.state != S_GOTO_TRACK && Shared.state != S_PAUSE) {
       int volPoint = mapFloat(_amplifier.volume, 0, 63, 1, _dispHalf);
       drawBlock(_dispHalf + volPoint, _dispHalf - volPoint, 0.1);
 
     //--------------------------------------------- TRACK & CARRIAGE DISPLAY
     } else {
       for (int i = 0; i < DISPLAY_LENGTH; i++) {
-        if (!(_shared.state == S_STOPPING || _shared.state == S_PARKING || _shared.state == S_HOMING || _shared.state == S_HOME )) {
+        if (!(Shared.state == S_STOPPING || Shared.state == S_PARKING || Shared.state == S_HOMING || Shared.state == S_HOME )) {
           int nextTrack = mapRealPos2Display(_scanner.tracks[_trackCounter]);
 
           if (i > recordSize) {
             _data[i] = 0;
-          } else if (_shared.state == S_GOTO_RECORD_START && i > sensor && _scanner.recordStart == 1000) {
+          } else if (Shared.state == S_GOTO_RECORD_START && i > sensor && _scanner.recordStart == 1000) {
             _data[i] = 0;
           } else if (i > sensorMaxRange) {
             _data[i] = 0;
@@ -213,20 +211,20 @@ void Display::update() {
 
 
       //--------------------------------------------- CURSOR
-      if (_shared.state == S_GOTO_TRACK || _shared.state ==  S_SKIP_FORWARD || _shared.state == S_SKIP_REVERSE || _shared.state == S_PAUSE) { 
+      if (Shared.state == S_GOTO_TRACK || Shared.state ==  S_SKIP_FORWARD || Shared.state == S_SKIP_REVERSE || Shared.state == S_PAUSE) { 
         drawPoint((needle - 1), 0.9);
         drawPoint((needle + 1), 0.9);
         
         if (needle != target) { // target dot
           drawPoint(target, 0.9);
         }
-      } else if (_shared.state == S_PLAYING && !_arm.isNeedleInGrove() && (_shared.stateChangedInterval.duration() % 1000 < 250) && !_shared.puristMode) {
+      } else if (Shared.state == S_PLAYING && !_arm.isNeedleInGrove() && (Shared.stateChangedInterval.duration() % 1000 < 250) && !Shared.puristMode) {
         // Nothing
       } else if (_carriage.repeat) {
         drawPoint(needle, 0.9);
         drawPoint((needle - 2), 0.9);
         drawPoint((needle + 2), 0.9);
-      } else if (_shared.puristMode && (millisSinceBoot() % 1000 < 500)) {
+      } else if (Shared.puristMode && (millisSinceBoot() % 1000 < 500)) {
         drawPoint((needle - 1), 0.9);
         drawPoint((needle + 1), 0.9);
       } else {

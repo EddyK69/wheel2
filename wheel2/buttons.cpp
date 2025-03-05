@@ -4,8 +4,7 @@
 #include "helper.h"
 
 
-Buttons::Buttons(Shared& shared, Amplifier& amplifier, Arm& arm, Bluetooth& bluetooth, Carriage& carriage, Orientation& orientation, Plateau& plateau, Scanner& scanner) :
-  _shared(shared),
+Buttons::Buttons(Amplifier& amplifier, Arm& arm, Bluetooth& bluetooth, Carriage& carriage, Orientation& orientation, Plateau& plateau, Scanner& scanner) :
   _amplifier(amplifier),
   _arm(arm),
   _bluetooth(bluetooth),
@@ -56,7 +55,7 @@ void Buttons::update() {
         return;
       }
 
-      if (_shared.state == S_NEEDLE_CLEAN && _arm.motorOn) {
+      if (Shared.state == S_NEEDLE_CLEAN && _arm.motorOn) {
         _arm.targetWeight += beltDiff * 0.0333;
         _arm.targetWeight = limitFloat(_arm.targetWeight, ARM_MIN_WEIGHT, ARM_MAX_WEIGHT);
       }
@@ -64,17 +63,17 @@ void Buttons::update() {
         beltDiff = -beltDiff; // flip
       }
 
-      if (_shared.state == S_CALIBRATE) {
+      if (Shared.state == S_CALIBRATE) {
         _arm.force += beltDiff * 0.001;
         _arm.force = limitFloat(_arm.force, 0, 1);
 
-      } else if(_shared.state == S_PAUSE) {
+      } else if(Shared.state == S_PAUSE) {
         _carriage.targetTrack -= beltDiff * 0.25;
         _carriage.targetTrack = limitFloat(_carriage.targetTrack, CARRIAGE_RECORD_END, _scanner.recordStart);
 
       } else {
         // to prevent volume popping up after button press while skipping
-        if (_shared.state != S_SKIP_FORWARD && _shared.state != S_SKIP_REVERSE && _shared.state != S_GOTO_TRACK && _shared.state != S_PAUSE) { 
+        if (Shared.state != S_SKIP_FORWARD && Shared.state != S_SKIP_REVERSE && Shared.state != S_GOTO_TRACK && Shared.state != S_PAUSE) { 
           volumeDisplayActionInterval.reset();
         }
 
@@ -115,18 +114,18 @@ void Buttons::logic(int button) {
     log(button, "PRESS");
 
     if (button == BUTTON_PLAY) {
-      if (_shared.state == S_HOMING_BEFORE_PLAYING || _shared.state == S_GOTO_RECORD_START) {
-        _shared.puristMode = true;
+      if (Shared.state == S_HOMING_BEFORE_PLAYING || Shared.state == S_GOTO_RECORD_START) {
+        Shared.puristMode = true;
         Serial.println("PURIST MODE: ON");
       }
 
-      if (_shared.state == S_HOME ) {
+      if (Shared.state == S_HOME ) {
         _plateau.play();
         state[button] = BUTTON_LONG_PRESS; // To prevent stopping by long press
       }
     }
 
-    if (_shared.state == S_NEEDLE_CLEAN || _shared.state == S_RECORD_CLEAN) { // Stop clean mode
+    if (Shared.state == S_NEEDLE_CLEAN || Shared.state == S_RECORD_CLEAN) { // Stop clean mode
       _plateau.stop();
     }
     return;
@@ -139,25 +138,25 @@ void Buttons::logic(int button) {
     log(button, "RELEASE");
 
     if (isButtonNext(button)) {
-      if (_shared.state == S_PLAYING || _shared.state == S_PAUSE || _shared.state == S_GOTO_TRACK) {
+      if (Shared.state == S_PLAYING || Shared.state == S_PAUSE || Shared.state == S_GOTO_TRACK) {
         _carriage.gotoNextTrack();
       }
     }
 
     if (isButtonPrev(button)) {
-      if (_shared.state == S_PLAYING || _shared.state == S_PAUSE || _shared.state == S_GOTO_TRACK) {
+      if (Shared.state == S_PLAYING || Shared.state == S_PAUSE || Shared.state == S_GOTO_TRACK) {
         _carriage.gotoPreviousTrack();
       }
     }
 
     if (button == BUTTON_PLAY) {
-      if (_shared.state == S_PAUSE || _shared.state == S_PLAYING) {
+      if (Shared.state == S_PAUSE || Shared.state == S_PLAYING) {
         _carriage.pause();
       }
     }
 
     //--------------------------------------------- RPM
-    if (button == BUTTON_PREV && _shared.state == S_HOME) {
+    if (button == BUTTON_PREV && Shared.state == S_HOME) {
       if (_plateau.rpmMode == RPM_AUTO) {
         _plateau.rpmMode = RPM_33;
       } else if (_plateau.rpmMode == RPM_33) {
@@ -176,7 +175,7 @@ void Buttons::logic(int button) {
     }
 
     //--------------------------------------------- BLUETOOTH
-    if (button == BUTTON_NEXT && _shared.state == S_HOME) {
+    if (button == BUTTON_NEXT && Shared.state == S_HOME) {
        LOG_DEBUG("buttons.cpp", "[logic] Bluetooth");
       _bluetooth.write("AT+DELVMLINK");
     }
@@ -191,21 +190,21 @@ void Buttons::logic(int button) {
     log(button, "LONG_PRESS");
 
     // >> FORWARD
-    if ((_shared.state == S_PLAYING || _shared.state == S_PAUSE || _shared.state == S_GOTO_TRACK) && isButtonNext(button)) {
-      _shared.setState(S_SKIP_FORWARD);
+    if ((Shared.state == S_PLAYING || Shared.state == S_PAUSE || Shared.state == S_GOTO_TRACK) && isButtonNext(button)) {
+      Shared.setState(S_SKIP_FORWARD);
     }
 
     // << REVERSE
-    if ((_shared.state == S_PLAYING || _shared.state == S_PAUSE || _shared.state == S_GOTO_TRACK) && isButtonPrev(button)) {
-      _shared.setState(S_SKIP_REVERSE);
+    if ((Shared.state == S_PLAYING || Shared.state == S_PAUSE || Shared.state == S_GOTO_TRACK) && isButtonPrev(button)) {
+      Shared.setState(S_SKIP_REVERSE);
     }
 
-    if (button == BUTTON_PLAY && _shared.state != S_HOME) {
+    if (button == BUTTON_PLAY && Shared.state != S_HOME) {
       _plateau.stop();
     }
 
     //--------------------------------------------- BLUETOOTH RESET
-    if (button == BUTTON_NEXT && _shared.state == S_HOME) {
+    if (button == BUTTON_NEXT && Shared.state == S_HOME) {
       LOG_DEBUG("buttons.cpp", "[logic] Bluetooth reset");
       _bluetooth.write("AT+REST");
     }
@@ -219,10 +218,10 @@ void Buttons::logic(int button) {
 
     log(button, "LONG_PRESS RELEASE");
 
-    if ((_shared.state == S_SKIP_FORWARD || _shared.state == S_SKIP_REVERSE) &&
+    if ((Shared.state == S_SKIP_FORWARD || Shared.state == S_SKIP_REVERSE) &&
       (button == BUTTON_NEXT || button == BUTTON_PREV)) { // Resume after forward/reverse
       _carriage.targetTrack = _carriage.position;
-      _shared.setState(S_RESUME_AFTER_SKIP);
+      Shared.setState(S_RESUME_AFTER_SKIP);
     }
     return;
   }
@@ -235,13 +234,13 @@ void Buttons::logic(int button) {
     log(button, "SUPERLONG_PRESS");
 
     if (button == BUTTON_PLAY) {
-      if (_shared.state == S_HOMING_BEFORE_PLAYING || _shared.state == S_GOTO_RECORD_START) { // Repeat
+      if (Shared.state == S_HOMING_BEFORE_PLAYING || Shared.state == S_GOTO_RECORD_START) { // Repeat
         _carriage.repeat = true;
         Serial.println("REPEAT: ON");
       }
     }
 
-    if (_shared.state == S_HOME && button == BUTTON_PREV) { // Clean mode
+    if (Shared.state == S_HOME && button == BUTTON_PREV) { // Clean mode
       _plateau.cleanMode();
       ledBlink();
     }
@@ -255,10 +254,10 @@ void Buttons::logic(int button) {
 
     log(button, "SUPERLONG_PRESS RELEASE");
 
-    if ((_shared.state == S_SKIP_FORWARD || _shared.state == S_SKIP_REVERSE)  &&  
+    if ((Shared.state == S_SKIP_FORWARD || Shared.state == S_SKIP_REVERSE)  &&  
       (button == BUTTON_NEXT || button == BUTTON_PREV)) { // Resume after forward/reverse
       _carriage.targetTrack = _carriage.position;
-      _shared.setState(S_RESUME_AFTER_SKIP);
+      Shared.setState(S_RESUME_AFTER_SKIP);
     }
     return;
   }

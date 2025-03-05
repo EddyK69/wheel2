@@ -4,8 +4,7 @@
 #include "helper.h"
 
 
-Bluetooth::Bluetooth(Shared& shared, Carriage& carriage, Plateau& plateau) :
-  _shared(shared),
+Bluetooth::Bluetooth(Carriage& carriage, Plateau& plateau) :
   _carriage(carriage),
   _plateau(plateau),
   _interval(200, TM_MILLIS),
@@ -99,29 +98,29 @@ void Bluetooth::encode() {
       LOG_DEBUG("bluetooth.cpp", "[encode] KNOP_IN:" + _buffer);
 
       // if (_buffer == BT_PLAY) {
-      //   if (_shared.state == S_PAUSE || _shared.state == S_PLAYING) { // maybe remove S_PLAYING?
+      //   if (Shared.state == S_PAUSE || Shared.state == S_PLAYING) { // maybe remove S_PLAYING?
       //     _carriage.pause();
-      //   } else if(_shared.state == S_HOME) {
+      //   } else if(Shared.state == S_HOME) {
       //     _plateau.play();
       //   }
       // }
 
       if (_buffer == BT_PLAY) {
-        if (_shared.state == S_PAUSE) { 
+        if (Shared.state == S_PAUSE) { 
           _carriage.pause();
-        } else if (_shared.state == S_HOME) {
+        } else if (Shared.state == S_HOME) {
           _plateau.play();
         }
       } else if (_buffer == BT_PAUSE) {
-        if (_shared.state == S_PAUSE || _shared.state == S_PLAYING) { // maybe remove S_PLAYING?
+        if (Shared.state == S_PAUSE || Shared.state == S_PLAYING) { // maybe remove S_PLAYING?
           _carriage.pause();
         }
       } else if (_buffer == BT_NEXT_TRACK) {
-        if (_shared.state == S_PLAYING || _shared.state == S_PAUSE || _shared.state == S_GOTO_TRACK) {
+        if (Shared.state == S_PLAYING || Shared.state == S_PAUSE || Shared.state == S_GOTO_TRACK) {
           _carriage.gotoNextTrack();
         }
       } else if (_buffer == BT_PREV_TRACK) {
-        if (_shared.state == S_PLAYING || _shared.state == S_PAUSE || _shared.state == S_GOTO_TRACK) {
+        if (Shared.state == S_PLAYING || Shared.state == S_PAUSE || Shared.state == S_GOTO_TRACK) {
           _carriage.gotoPreviousTrack();
         }
       }

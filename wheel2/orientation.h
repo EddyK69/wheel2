@@ -18,7 +18,6 @@ class Orientation {
   private:
     Interval _interval;
     Interval _isOkInterval;
-    Shared& _shared;
     Arm& _arm;
     const byte _i2cAdress = 0b0010010;
     bool _firstTime = true;
@@ -35,7 +34,7 @@ class Orientation {
     float offsetX = 0;
     float offsetY = 0;
     float offsetZ = 0;
-    Orientation(Shared& shared, Arm& arm);
+    Orientation(Arm& arm);
     void init();
     void calibrate();
     void reset();

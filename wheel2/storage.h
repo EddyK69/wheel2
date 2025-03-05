@@ -38,7 +38,6 @@ class Storage {
     float _armAngleMin = 0;
     float _armAngleMax = 0;
     float _plateauMotorReverse = 0;
-    Shared& _shared;
     Arm& _arm;
     Carriage& _carriage;
     Orientation& _orientation;
@@ -49,7 +48,7 @@ class Storage {
   public:
     float eepromVersion = 0;
     bool saveRequired = false;
-    Storage(Shared& shared, Arm& arm, Carriage& carriage, Orientation& orientation, Plateau& plateau);
+    Storage(Arm& arm, Carriage& carriage, Orientation& orientation, Plateau& plateau);
     void init();
     void read();
     void write();

@@ -18,7 +18,6 @@ class Arm {
     Interval _needleDownInterval;
     Interval _motorOnInterval;
     Interval _motorOffInterval;
-    Shared& _shared;
     float _speedUp = 1000; //ms;
     float _speedDown = 500; //ms;
     float _justInGroveWeight = 0.5; //0.25;
@@ -43,7 +42,7 @@ class Arm {
     float armAngle;
     float armAngleSlow;
     float armAngleOffset;
-    Arm(Shared& shared);
+    Arm();
     void init();
     void func();
     bool putNeedleInGrove();

@@ -3,20 +3,19 @@
 #include "pins.h"
 
 
-Wheel::Wheel(int appversion, String appdate) :
-    shared(appversion, appdate),
-    arm(shared),
-    amplifier(shared, arm),
-    orientation(shared, arm),
-    speedcomp(shared, arm), // carriage & plateau are passed via init()
-    plateau(shared, speedcomp),
-    scanner(shared, plateau), // carriage is passed via init()
-    carriage(shared, arm, plateau, scanner), // speedcomp is passed via init()
-    buttons(shared, amplifier, arm, bluetooth, carriage, orientation, plateau, scanner),
-    storage(shared, arm, carriage, orientation, plateau),
-    display(shared, amplifier, arm, buttons, carriage, orientation, plateau, scanner, speedcomp, storage),
-    serialcomm(shared, amplifier, arm, bluetooth, buttons, carriage, orientation, plateau, scanner, speedcomp, storage),
-    bluetooth(shared, carriage, plateau) {
+Wheel::Wheel() :
+    arm(),
+    amplifier(arm),
+    orientation(arm),
+    speedcomp(arm), // carriage & plateau are passed via init()
+    plateau(speedcomp),
+    scanner(plateau), // carriage is passed via init()
+    carriage(arm, plateau, scanner), // speedcomp is passed via init()
+    buttons(amplifier, arm, bluetooth, carriage, orientation, plateau, scanner),
+    storage(arm, carriage, orientation, plateau),
+    display(amplifier, arm, buttons, carriage, orientation, plateau, scanner, speedcomp, storage),
+    serialcomm(amplifier, arm, bluetooth, buttons, carriage, orientation, plateau, scanner, speedcomp, storage),
+    bluetooth(carriage, plateau) {
 } // Wheel()
 
 

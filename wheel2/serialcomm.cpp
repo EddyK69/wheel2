@@ -4,9 +4,8 @@
 #include "helper.h"
 
 
-SerialComm::SerialComm(Shared& shared, Amplifier& amplifier, Arm& arm, Bluetooth& bluetooth, Buttons& buttons, Carriage& carriage,
+SerialComm::SerialComm(Amplifier& amplifier, Arm& arm, Bluetooth& bluetooth, Buttons& buttons, Carriage& carriage,
       Orientation& orientation, Plateau& plateau, Scanner& scanner, SpeedComp& speedcomp, Storage& storage) :
-      _shared(shared),
       _amplifier(amplifier),
       _arm(arm),
       _bluetooth(bluetooth),
@@ -93,12 +92,12 @@ void SerialComm::checkReceivedLine(String line, eCheckMode mode) {
   println(mode);
   if (checkLineCommand( ">>",     "Next track",                 mode)) { _carriage.gotoNextTrack();           return; }
   if (checkLineCommand( "<<",     "Previous track",             mode)) { _carriage.gotoPreviousTrack();       return; }
-  if (checkLineCommand( "HOK",    "Home",                       mode)) { _shared.setState(S_HOME);            return; }
+  if (checkLineCommand( "HOK",    "Home",                       mode)) { Shared.setState(S_HOME);             return; }
   if (checkLineCommand( "STOP",   "Stop",                       mode)) { _plateau.stop();                     return; }
   if (checkLineCommand( "SPEEL",  "Play",                       mode)) { _plateau.play();                     return; }
   if (checkLineCommand( "PAUZE",  "Pause",                      mode)) { _carriage.pause();                   return; }
-  if (checkLineCommand( "NAALD",  "Clean needle",               mode)) { _shared.setState(S_NEEDLE_CLEAN);    return; }
-  if (checkLineCommand( "CAL",    "Calibrate",                  mode)) { _shared.setState(S_CALIBRATE);       return; }
+  if (checkLineCommand( "NAALD",  "Clean needle",               mode)) { Shared.setState(S_NEEDLE_CLEAN);     return; }
+  if (checkLineCommand( "CAL",    "Calibrate",                  mode)) { Shared.setState(S_CALIBRATE);        return; }
   if (checkLineBool(    "REP",    "Repeat",                     mode, _carriage.repeat)) {                    return; }
 
   //-------------------------------------------------- ARM --------------------------------------------------
@@ -378,7 +377,7 @@ void SerialComm::printGraphicData() {
 
 
 void SerialComm::report() {
-  Serial.println("-------------------- V" + String(_shared.appversion) + " --------------------");
+  Serial.println("-------------------- V" + String(Shared.appversion) + " --------------------");
   Serial.println();
   Serial.println(padRight("WHEEL_TEMPERATURE", PADR) + ": " + String(analogReadTemp(), 2) + " °C");
   Serial.println();
@@ -393,7 +392,7 @@ void SerialComm::info() {
   version();
   Serial.println(padRight("WHEEL_UPTIME", PADR) +           ": " + msToString(millisSinceBoot()));
   Serial.println(padRight("WHEEL_TEMPERATURE", PADR) +      ": " + String(analogReadTemp(), 2) + " °C");
-  Serial.println(padRight("WHEEL_STATE", PADR) +            ": " + getState(_shared.state));
+  Serial.println(padRight("WHEEL_STATE", PADR) +            ": " + getState(Shared.state));
   Serial.println(padRight("WHEEL_VOLUME", PADR) +           ": " + String(_amplifier.volume));
   Serial.println();
   _storage.info();
@@ -404,16 +403,16 @@ void SerialComm::info() {
   _scanner.info();
   _arm.info();
   _buttons.info();
-  _shared.info();
+  Shared.info();
   Serial.println("----------------------------------------------");
 } // info()
 
 
 void SerialComm::version() {
-  Serial.println("-------------------- V" + String(_shared.appversion) + " --------------------");
+  Serial.println("-------------------- V" + String(Shared.appversion) + " --------------------");
   Serial.println();
   Serial.println(padRight("WHEEL_HW_VERSION", PADR) +       ": " + String(BOARD_DESCRIPTION) + String(_bluetooth.wirelessVersion ? " [BT]" : ""));
-  Serial.println(padRight("WHEEL_FW_VERSION", PADR) +       ": V" + String(_shared.appversion) + " [" + _shared.appdate + "]");
+  Serial.println(padRight("WHEEL_FW_VERSION", PADR) +       ": V" + String(Shared.appversion) + " [" + Shared.appdate + "]");
   // Serial.println(padRight("WHEEL_WIRELESS_VERSION", PADR) + ": " + String(_bluetooth.wirelessVersion ? "YES" : "NO"));
 } // version()
 

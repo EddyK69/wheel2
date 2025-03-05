@@ -4,8 +4,7 @@
 #include "i2c.h"
 
 
-Amplifier::Amplifier(Shared& shared, Arm& arm) :
-  _shared(shared),
+Amplifier::Amplifier(Arm& arm) :
   _arm(arm),
   _interval(20, TM_MILLIS) {
 } // Amplifier()
@@ -56,5 +55,5 @@ void Amplifier::func() {
 
 bool Amplifier::isNeedeDownLongEnough() {
   // no sound when in puristMode
-  return _arm.isNeedleDownFor(2000) && _shared.state == S_PLAYING && !_shared.puristMode;
+  return _arm.isNeedleDownFor(2000) && Shared.state == S_PLAYING && !Shared.puristMode;
 } // isNeedeDownLongEnough
