@@ -5,8 +5,7 @@
 #include "i2c.h"
 
 
-Orientation::Orientation(Arm& arm) :
-  _arm(arm),
+Orientation::Orientation() :
   _interval(10, TM_MILLIS),
   _isOkInterval(0, TM_MILLIS) {
 } // Orientation()
@@ -36,7 +35,7 @@ void Orientation::update() {
 
     x += ((_rawX - offsetX) - x) / 10;
     // y += ((_rawY - offsetY) - y) / 10;
-    y += (_arm.armAngleCall - y) / 20;
+    y += (Arm.armAngleCall - y) / 20;
     z += ((_rawZ - offsetZ) - z) / 10;
 
     if (_error) {

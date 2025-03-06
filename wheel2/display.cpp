@@ -3,9 +3,8 @@
 #include "pins.h"
 #include "helper.h"
 
-Display::Display(Arm& arm, Buttons& buttons, Carriage& carriage,
+Display::Display(Buttons& buttons, Carriage& carriage,
   Orientation& orientation, Plateau& plateau, Scanner& scanner, SpeedComp& speedcomp, Storage& storage) :
-  _arm(arm),
   _buttons(buttons),
   _carriage(carriage),
   _orientation(orientation),
@@ -96,9 +95,9 @@ void Display::update() {
       }
 
     //--------------------------------------------- CLEAN MODE
-    } else if (Shared.state == S_NEEDLE_CLEAN && _arm.motorOn) {
-        int volPoint = mapFloat(_arm.targetWeight, 0, 4, 0, DISPLAY_LENGTH) / 2.0;
-        // float pointCounter = (_arm.targetWeight / 2);
+    } else if (Shared.state == S_NEEDLE_CLEAN && Arm.motorOn) {
+        int volPoint = mapFloat(Arm.targetWeight, 0, 4, 0, DISPLAY_LENGTH) / 2.0;
+        // float pointCounter = (Arm.targetWeight / 2);
         float pointCounter = 0.5;
 
         for (int i = 0; i < DISPLAY_LENGTH; i++) {
@@ -134,10 +133,10 @@ void Display::update() {
 
     //--------------------------------------------- CALIBRATE
     } else if (Shared.state == S_CALIBRATE) {
-        int volPoint = mapFloat(_arm.force, 0, 1, DISPLAY_LENGTH - 1, 0);
-        int forceLowPoint = mapFloat(_arm.forceLow, 0, 1, DISPLAY_LENGTH - 1, 0);
-        int forceHighPoint = mapFloat(_arm.forceHigh, 0, 1, DISPLAY_LENGTH - 1, 0);
-        int armAnglePoint = mapFloat(_arm.armAngleCall, 1, -1, 0, DISPLAY_LENGTH - 1);
+        int volPoint = mapFloat(Arm.force, 0, 1, DISPLAY_LENGTH - 1, 0);
+        int forceLowPoint = mapFloat(Arm.forceLow, 0, 1, DISPLAY_LENGTH - 1, 0);
+        int forceHighPoint = mapFloat(Arm.forceHigh, 0, 1, DISPLAY_LENGTH - 1, 0);
+        int armAnglePoint = mapFloat(Arm.armAngleCall, 1, -1, 0, DISPLAY_LENGTH - 1);
 
         drawBlock(DISPLAY_LENGTH, volPoint, 0.1);
         drawPoint(armAnglePoint, 0.9);
@@ -217,7 +216,7 @@ void Display::update() {
         if (needle != target) { // target dot
           drawPoint(target, 0.9);
         }
-      } else if (Shared.state == S_PLAYING && !_arm.isNeedleInGrove() && (Shared.stateChangedInterval.duration() % 1000 < 250) && !Shared.puristMode) {
+      } else if (Shared.state == S_PLAYING && !Arm.isNeedleInGrove() && (Shared.stateChangedInterval.duration() % 1000 < 250) && !Shared.puristMode) {
         // Nothing
       } else if (_carriage.repeat) {
         drawPoint(needle, 0.9);

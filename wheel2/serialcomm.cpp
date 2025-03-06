@@ -4,9 +4,8 @@
 #include "helper.h"
 
 
-SerialComm::SerialComm(Arm& arm, Bluetooth& bluetooth, Buttons& buttons, Carriage& carriage,
+SerialComm::SerialComm(Bluetooth& bluetooth, Buttons& buttons, Carriage& carriage,
       Orientation& orientation, Plateau& plateau, Scanner& scanner, SpeedComp& speedcomp, Storage& storage) :
-      _arm(arm),
       _bluetooth(bluetooth),
       _buttons(buttons),
       _carriage(carriage),
@@ -101,14 +100,14 @@ void SerialComm::checkReceivedLine(String line, eCheckMode mode) {
 
   //-------------------------------------------------- ARM --------------------------------------------------
   println(mode);
-  if (checkLineCommand( "NE",     "Needle down",                mode)) { _arm.putNeedleInGrove();             return; }
-  if (checkLineCommand( "NA",     "Needle up",                  mode)) { _arm.dockNeedle();                   return; }
-  if (checkLineFloat(   "ATG",    "Arm targetweight",           mode, _arm.targetWeight)) { _storage.saveRequired  = true; return; }
-  if (checkLineFloat(   "AG",     "Arm weight",                 mode, _arm.weight)) {                         return; }
-  if (checkLineCommand( "AKHOK",  "Arm force Docked calibrate", mode)) { _arm.justDockedWeight = _arm.weight; Serial.println(padRight("AKHOK", 8) + " " + padRight("Arm force Docked calibrate", 26) + " SET: " + String(_arm.justDockedWeight, 5)); _storage.saveRequired = true; return; }
-  if (checkLineCommand( "AKL",    "Arm force 500mg calibrate",  mode)) { _arm.forceLow = _arm.force;          Serial.println(padRight("AKL", 8)   + " " + padRight("Arm force 500mg calibrate", 26)  + " SET: " + String(_arm.forceLow, 5));         _storage.saveRequired = true; return; }
-  if (checkLineCommand( "AKH",    "Arm force 4000mg calibrate", mode)) { _arm.forceHigh = _arm.force;         Serial.println(padRight("AKH", 8)   + " " + padRight("Arm force 4000mg calibrate", 26) + " SET: " + String(_arm.forceHigh, 5));        _storage.saveRequired = true; return; }
-  if (checkLineFloat(   "AK",     "Arm force",                  mode, _arm.force)) { _arm.force = limitFloat(_arm.force, 0, 1); return;}
+  if (checkLineCommand( "NE",     "Needle down",                mode)) { Arm.putNeedleInGrove();              return; }
+  if (checkLineCommand( "NA",     "Needle up",                  mode)) { Arm.dockNeedle();                    return; }
+  if (checkLineFloat(   "ATG",    "Arm targetweight",           mode, Arm.targetWeight)) { _storage.saveRequired  = true; return; }
+  if (checkLineFloat(   "AG",     "Arm weight",                 mode, Arm.weight)) {                          return; }
+  if (checkLineCommand( "AKHOK",  "Arm force Docked calibrate", mode)) { Arm.justDockedWeight = Arm.weight;   Serial.println(padRight("AKHOK", 8) + " " + padRight("Arm force Docked calibrate", 26) + " SET: " + String(Arm.justDockedWeight, 5)); _storage.saveRequired = true; return; }
+  if (checkLineCommand( "AKL",    "Arm force 500mg calibrate",  mode)) { Arm.forceLow = Arm.force;            Serial.println(padRight("AKL", 8)   + " " + padRight("Arm force 500mg calibrate", 26)  + " SET: " + String(Arm.forceLow, 5));         _storage.saveRequired = true; return; }
+  if (checkLineCommand( "AKH",    "Arm force 4000mg calibrate", mode)) { Arm.forceHigh = Arm.force;           Serial.println(padRight("AKH", 8)   + " " + padRight("Arm force 4000mg calibrate", 26) + " SET: " + String(Arm.forceHigh, 5));        _storage.saveRequired = true; return; }
+  if (checkLineFloat(   "AK",     "Arm force",                  mode, Arm.force)) { Arm.force = limitFloat(Arm.force, 0, 1); return;}
  
   //-------------------------------------------------- CARRIAGE --------------------------------------------------
   println(mode);
@@ -154,14 +153,14 @@ void SerialComm::checkReceivedLine(String line, eCheckMode mode) {
   if (checkLineCommand( "EL",     "Read EEPROM",                mode)) { _storage.read();                     return; }
   if (checkLineCommand( "OC",     "Orientation calibrate",      mode)) { _orientation.calibrate(); _storage.saveRequired  = true; return; }
   if (checkLineFloat(   "TO",     "Track offset",               mode, _carriage.trackOffset)) { _storage.saveRequired  = true; return; }
-  if (checkLineCommand( "AHCal",  "Calibrate arm angle",        mode)) { _arm.calibrateAngle(); _storage.saveRequired = true; return; }
+  if (checkLineCommand( "AHCal",  "Calibrate arm angle",        mode)) { Arm.calibrateAngle(); _storage.saveRequired = true; return; }
 
   //-------------------------------------------------- CARRIAGE SENSORS --------------------------------------------------
   println(mode);
   // if(checkLineFloat(    "PLS",    "Scanner current",            mode, _scanner.current)) {                    return; }
   if (checkLineInt(     "VOLUME", "Volume w/o override",        mode, Amplifier.volume)) { Amplifier.volumeOverRide = false; return; }
   if (checkLineInt(     "VOL",    "Volume",                     mode, Amplifier.volume)) { Amplifier.volumeOverRide = true; return; }
-  if (checkLineCommand( "AHCent", "Center Arm Angle",           mode)) { _arm.centerArmAngle();               return; }
+  if (checkLineCommand( "AHCent", "Center Arm Angle",           mode)) { Arm.centerArmAngle();                return; }
 
   //-------------------------------------------------- HELP --------------------------------------------------
   println(mode);
@@ -339,17 +338,17 @@ void SerialComm::printGraphicData() {
   // Serial.print(_plateau._outBuffPrev, 2);
 
   // Serial.print(", ");
-  // Serial.print(_arm.armAngleRaw); // 1696);
+  // Serial.print(Arm.armAngleRaw); // 1696);
 
   // Serial.print(", ");
   // Serial.print(_carriage._Dcomp, 4); // 1696);
   Serial.print(", ");
-  Serial.print(_arm.armAngleCall, 4); // 1696);
+  Serial.print(Arm.armAngleCall, 4); // 1696);
 
   // Serial.print(", ");
-  // Serial.print(_arm.armAngleSlow, 5); // 1696);
+  // Serial.print(Arm.armAngleSlow, 5); // 1696);
   // Serial.print(", ");
-  // Serial.print(_arm.armAngleOffset, 5); // 1696);
+  // Serial.print(Arm.armAngleOffset, 5); // 1696);
 
   // Serial.print(", ");
   // Serial.print(_carriage.position, 3);
@@ -369,7 +368,7 @@ void SerialComm::printGraphicData() {
   Serial.print(_speedcomp.trackSpacing, 3);
 
   Serial.print(", ");
-  Serial.print(_arm.weight, 3);
+  Serial.print(Arm.weight, 3);
 
  Serial.println();
 } // printGraphicData()
@@ -400,7 +399,7 @@ void SerialComm::info() {
   _speedcomp.info();
   _carriage.info();
   _scanner.info();
-  _arm.info();
+  Arm.info();
   _buttons.info();
   Shared.info();
   Serial.println("----------------------------------------------");

@@ -37,7 +37,6 @@ class SpeedComp;
 class Carriage {
   private:
     Interval _interval;
-    Arm& _arm;
     Plateau& _plateau;
     Scanner& _scanner;
     SpeedComp* _speedcomp;
@@ -77,7 +76,7 @@ class Carriage {
     float positionFilter = CARRIAGE_HOME;
     float realPosition = CARRIAGE_HOME;
     float sensorPosition;
-    Carriage(Arm& arm, Plateau& plateau, Scanner& scanner);
+    Carriage(Plateau& plateau, Scanner& scanner);
     void init(SpeedComp* speedcomp);
     void func();
     void gotoNextTrack();

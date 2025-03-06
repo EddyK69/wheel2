@@ -49,7 +49,7 @@ void Amplifier_::func() {
 
 bool Amplifier_::isNeedeDownLongEnough() {
   // no sound when in puristMode
-  return _arm.isNeedleDownFor(2000) && Shared.state == S_PLAYING && !Shared.puristMode;
+  return Arm.isNeedleDownFor(2000) && Shared.state == S_PLAYING && !Shared.puristMode;
 } // isNeedeDownLongEnough
 
 

@@ -50,6 +50,7 @@
 #include "pins.h"
 #include "shared.h"
 #include "amplifier.h"
+#include "arm.h"
 #include "wheel.h"
 
 
@@ -94,7 +95,7 @@ void loop1() {
   wheel.display.update();
   wheel.serialcomm.func();
   wheel.buttons.update();
-  wheel.arm.func();
+  Arm.func();
 } // loop1()
 
 

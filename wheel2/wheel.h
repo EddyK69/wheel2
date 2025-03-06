@@ -19,7 +19,6 @@
 
 class Wheel {
   public:
-    Arm arm;
     Bluetooth bluetooth;
     Buttons buttons;
     Carriage carriage;

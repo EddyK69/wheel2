@@ -4,8 +4,7 @@
 #include "helper.h"
 
 
-Buttons::Buttons(Arm& arm, Bluetooth& bluetooth, Carriage& carriage, Orientation& orientation, Plateau& plateau, Scanner& scanner) :
-  _arm(arm),
+Buttons::Buttons(Bluetooth& bluetooth, Carriage& carriage, Orientation& orientation, Plateau& plateau, Scanner& scanner) :
   _bluetooth(bluetooth),
   _carriage(carriage),
   _orientation(orientation),
@@ -54,17 +53,17 @@ void Buttons::update() {
         return;
       }
 
-      if (Shared.state == S_NEEDLE_CLEAN && _arm.motorOn) {
-        _arm.targetWeight += beltDiff * 0.0333;
-        _arm.targetWeight = limitFloat(_arm.targetWeight, ARM_MIN_WEIGHT, ARM_MAX_WEIGHT);
+      if (Shared.state == S_NEEDLE_CLEAN && Arm.motorOn) {
+        Arm.targetWeight += beltDiff * 0.0333;
+        Arm.targetWeight = limitFloat(Arm.targetWeight, ARM_MIN_WEIGHT, ARM_MAX_WEIGHT);
       }
       if (!_orientation.isStanding) {
         beltDiff = -beltDiff; // flip
       }
 
       if (Shared.state == S_CALIBRATE) {
-        _arm.force += beltDiff * 0.001;
-        _arm.force = limitFloat(_arm.force, 0, 1);
+        Arm.force += beltDiff * 0.001;
+        Arm.force = limitFloat(Arm.force, 0, 1);
 
       } else if(Shared.state == S_PAUSE) {
         _carriage.targetTrack -= beltDiff * 0.25;

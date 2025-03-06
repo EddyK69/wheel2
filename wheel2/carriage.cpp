@@ -5,8 +5,7 @@
 #include "pwm.h"
 
 
-Carriage::Carriage(Arm& arm, Plateau& plateau, Scanner& scanner) :
-  _arm(arm),
+Carriage::Carriage(Plateau& plateau, Scanner& scanner) :
   _plateau(plateau),
   _scanner(scanner),
   _interval(1000, TM_MICROS),
@@ -27,32 +26,32 @@ void Carriage::init(SpeedComp* speedcomp) { // to prevent circular reference
 void Carriage::func() {
   if (_interval.tick()) {
     //--------------------------------------------- ARM ANGLE
-    _arm.armAngleRaw += (analogRead(ARM_ANGLE_SENSOR_PIN) - _arm.armAngleRaw ) / 6;
+    Arm.armAngleRaw += (analogRead(ARM_ANGLE_SENSOR_PIN) - Arm.armAngleRaw ) / 6;
 
     if (millisSinceBoot() > 1000) {
-        if (_arm.armAngleRaw < _arm.armAngleMinCall) {
-          _arm.armAngleMinCall = _arm.armAngleRaw;
+        if (Arm.armAngleRaw < Arm.armAngleMinCall) {
+          Arm.armAngleMinCall = Arm.armAngleRaw;
         }
-        if (_arm.armAngleRaw > _arm.armAngleMaxCall) {
-          _arm.armAngleMaxCall = _arm.armAngleRaw;
+        if (Arm.armAngleRaw > Arm.armAngleMaxCall) {
+          Arm.armAngleMaxCall = Arm.armAngleRaw;
         }
     }
-    _arm.armAngleCall = mapFloat(_arm.armAngleRaw, _arm.armAngleMin, _arm.armAngleMax, 1, -1);
-    _arm.armAngleDiff = _arm.armAngleCall - _arm.armAnglePrev;
-    _arm.armAnglePrev = _arm.armAngleCall;
-    _arm.armAngleSlow += (_arm.armAngleCall - _arm.armAngleSlow) / 100;
-    _arm.armAngle = _arm.armAngleCall - _arm.armAngleOffset;
+    Arm.armAngleCall = mapFloat(Arm.armAngleRaw, Arm.armAngleMin, Arm.armAngleMax, 1, -1);
+    Arm.armAngleDiff = Arm.armAngleCall - Arm.armAnglePrev;
+    Arm.armAnglePrev = Arm.armAngleCall;
+    Arm.armAngleSlow += (Arm.armAngleCall - Arm.armAngleSlow) / 100;
+    Arm.armAngle = Arm.armAngleCall - Arm.armAngleOffset;
 
     //--------------------------------------------- LIMIT ERROR
     if (Shared.state == S_PLAYING) {
-      if (_arm.armAngleCall > 0.95) {
+      if (Arm.armAngleCall > 0.95) {
         Shared.setError(E_ARMANGLE_LIMIT_POS);
-        _arm.dockNeedle();
+        Arm.dockNeedle();
         Shared.setState(S_HOME);
       }
-      if (_arm.armAngleCall < -0.95) {
+      if (Arm.armAngleCall < -0.95) {
         Shared.setError(E_ARMANGLE_LIMIT_NEG);
-        _arm.dockNeedle();
+        Arm.dockNeedle();
         Shared.setState(S_HOME);
       }
     }
@@ -62,7 +61,7 @@ void Carriage::func() {
     stateUpdate();
 
     _Dcomp *= 0.999;
-    _Dcomp += limitFloat(_arm.armAngleDiff * D, -CARRIAGE_MAX_SPEED, CARRIAGE_MAX_SPEED); // to prevent oscillation
+    _Dcomp += limitFloat(Arm.armAngleDiff * D, -CARRIAGE_MAX_SPEED, CARRIAGE_MAX_SPEED); // to prevent oscillation
     realPosition = position + _Dcomp;
 
     if (offCenterCompensation) {
@@ -78,7 +77,7 @@ void Carriage::func() {
       pwmDisableStepper(CARRIAGE_STEPPER_AP_PIN, CARRIAGE_STEPPER_AN_PIN, CARRIAGE_STEPPER_BP_PIN, CARRIAGE_STEPPER_BN_PIN);
     }
 
-    if (Shared.state == S_PLAYING && _arm.isNeedleInGrove()) { // carriage pos filter for display
+    if (Shared.state == S_PLAYING && Arm.isNeedleInGrove()) { // carriage pos filter for display
       float div = position - positionFilter;
       if (div < 0) {
         positionFilter += (div) / 1000;
@@ -100,7 +99,7 @@ void Carriage::func() {
 
 void Carriage::stateUpdate() {
   if (Shared.state == S_HOME) {
-    _arm.centerArmAngle();
+    Arm.centerArmAngle();
     _motorEnable = false;
     if (repeat) {
       repeat = false;
@@ -110,7 +109,7 @@ void Carriage::stateUpdate() {
   }
 
   if (Shared.state == S_STOPPING) {
-    if (_arm.dockNeedle() && decelerate()) {
+    if (Arm.dockNeedle() && decelerate()) {
       Shared.setState(S_HOMING);
     }
     return;
@@ -123,7 +122,7 @@ void Carriage::stateUpdate() {
       return;
     }
 
-    float speed = mapFloat(_arm.armAngleCall, 0.75, 0.5, 0, CARRIAGE_MAX_SPEED);
+    float speed = mapFloat(Arm.armAngleCall, 0.75, 0.5, 0, CARRIAGE_MAX_SPEED);
     speed = limitFloat(speed, (CARRIAGE_MAX_SPEED / 10), CARRIAGE_MAX_SPEED);
     bool arrived = movetoPosition(-150, speed);
     // bool arrived = movetoPosition(-150, CARRIAGE_MAX_SPEED);
@@ -142,7 +141,7 @@ void Carriage::stateUpdate() {
       return;
     }
 
-    if (_arm.armAngleCall > 0.75) { //75 //-800 //-1000
+    if (Arm.armAngleCall > 0.75) { //75 //-800 //-1000
       // LOG_DEBUG("carriage.cpp", "[stateUpdate] Home diff: " + String(CARRIAGE_PARK - realPosition) + " realPosition: " + String(realPosition) + " CARRIAGE_PARK: " + String(CARRIAGE_PARK) + " Dcomp: " + String(_Dcomp));
       LOG_DEBUG("carriage.cpp", "[stateUpdate] Home diff: " + String(CARRIAGE_PARK - realPosition) + " realPosition: " + String(realPosition));
       // Serial.println("Home diff: " + String(CARRIAGE_PARK - realPosition) + " realPosition: " + String(realPosition));
@@ -182,7 +181,7 @@ void Carriage::stateUpdate() {
   if (Shared.state == S_HOMING_FAILED) {
     if (movetoPosition(CARRIAGE_HOME + 10, CARRIAGE_MAX_SPEED)) {
       if (Shared.stateChangedInterval.duration() < 2000) {
-        _arm.centerArmAngle();
+        Arm.centerArmAngle();
         return;
       }
       Shared.setState(S_HOMING);
@@ -192,7 +191,7 @@ void Carriage::stateUpdate() {
 
 
   if (Shared.state == S_BAD_ORIENTATION) {
-    _arm.dockNeedle();
+    Arm.dockNeedle();
     _motorEnable = false;
     return;
   }
@@ -267,18 +266,18 @@ void Carriage::stateUpdate() {
   //  ================================================================
   if (Shared.state == S_PLAYING) {
     if (Shared.stateChangedInterval.duration() < 1000) {
-      _arm.centerArmAngle();
+      Arm.centerArmAngle();
       movedForwardInterval.reset();
       return;
     }
 
-    // if (_arm.isNeedleDownFor(3000)) { // error 3 fix i think
+    // if (Arm.isNeedleDownFor(3000)) { // error 3 fix i think
     //   movedForwardInterval.reset(); // reset timer to prevent error 3
     // }
 
-    if (_arm.putNeedleInGrove()) {
+    if (Arm.putNeedleInGrove()) {
       //---------------------------------------- transport calculations
-      _newPosition = position + limitFloat(_arm.armAngle * P, -3, 3);
+      _newPosition = position + limitFloat(Arm.armAngle * P, -3, 3);
       _newPosition = limitFloat(_newPosition, 0, _scanner.recordStart);
       movetoPosition(_newPosition, CARRIAGE_MAX_SPEED);
       
@@ -316,7 +315,7 @@ void Carriage::stateUpdate() {
       } 
 
       if (Shared.puristMode) {
-        if ((_speedcomp->wow < 0.15) || _arm.isNeedleDownFor(10000) ){
+        if ((_speedcomp->wow < 0.15) || Arm.isNeedleDownFor(10000) ){
           // LOG_NOTICE("carriage.cpp", "[stateUpdate] Seems to runs ok");
           Serial.println("Seems to runs ok");
           Shared.puristMode = false;
@@ -334,7 +333,7 @@ void Carriage::stateUpdate() {
   //      TRACKS & SKIPPING
   //  ================================================================
   if (Shared.state == S_GOTO_TRACK) {
-    if (_arm.dockNeedle()) {
+    if (Arm.dockNeedle()) {
       if (movetoPosition(targetTrack, CARRIAGE_MAX_SPEED)) {
         Shared.setState(S_PLAYING);
         return;
@@ -344,14 +343,14 @@ void Carriage::stateUpdate() {
   }
 
   if (Shared.state == S_SKIP_FORWARD) {
-    if (_arm.dockNeedle()) {
+    if (Arm.dockNeedle()) {
       movetoPosition(CARRIAGE_RECORD_END, CARRIAGE_MAX_SPEED / 4);
     }
     targetTrack = position; // to clean display
   }
 
   if (Shared.state == S_SKIP_REVERSE) {
-    if (_arm.dockNeedle()) {
+    if (Arm.dockNeedle()) {
       movetoPosition(_scanner.recordStart, CARRIAGE_MAX_SPEED / 4);
     }
     targetTrack = position; // to clean display
@@ -366,7 +365,7 @@ void Carriage::stateUpdate() {
   }
 
   if (Shared.state == S_PAUSE) {
-    if (_arm.dockNeedle()) {
+    if (Arm.dockNeedle()) {
       movetoPosition(targetTrack, CARRIAGE_MAX_SPEED);
     }
     return;
@@ -374,7 +373,7 @@ void Carriage::stateUpdate() {
 
   if (Shared.state == S_NEEDLE_CLEAN) {
     if (movetoPosition(CARRIAGE_CLEAN_POS, CARRIAGE_MAX_SPEED)) {
-      _arm.putNeedleInGrove();
+      Arm.putNeedleInGrove();
     }
 
     if (sensorPosition > (CARRIAGE_RECORD_END + 2) && sensorPosition < (CARRIAGE_RECORD_END + 12) && _scanner.recordPresent) {
@@ -555,9 +554,9 @@ void Carriage::printGraphicData() {
   }
   Serial.print(_Dcomp, 5);
   Serial.print(", ");
-  Serial.print(_arm.armAngleRaw);
+  Serial.print(Arm.armAngleRaw);
   Serial.print(", ");
-  Serial.print(_arm.armAngleCall, 2);
+  Serial.print(Arm.armAngleCall, 2);
   Serial.println();
 } // printGraphicData()
 

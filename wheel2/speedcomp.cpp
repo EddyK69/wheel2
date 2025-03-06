@@ -6,8 +6,7 @@
 #include "plateau.h"
 
 
-SpeedComp::SpeedComp(Arm& arm) :
-  _arm(arm) {
+SpeedComp::SpeedComp() {
 } // SpeedComp()
 
 
@@ -103,7 +102,7 @@ void SpeedComp::stroboInterrupt() {
   trackSpacing = _carriagePosCenterHist[rotationPosition] - carriagePosMiddle;
   _carriagePosCenterHist[rotationPosition] = carriagePosMiddle;
 
-  // if (trackSpacing > 0.01 || !_arm.isNeedleDownFor(2000)) {
+  // if (trackSpacing > 0.01 || !Arm.isNeedleDownFor(2000)) {
   //   _carriage->movedForwardInterval.reset();
   // } else {
   //   // Nothing
@@ -111,7 +110,7 @@ void SpeedComp::stroboInterrupt() {
 
   float carriagePosOffCenter = _carriage->realPosition - carriagePosMiddle;
 
-  if (_arm.isNeedleDownFor(1000) && Shared.state == S_PLAYING) { // needle has to be down while playing before calculation
+  if (Arm.isNeedleDownFor(1000) && Shared.state == S_PLAYING) { // needle has to be down while playing before calculation
     _carriageSin -= _carriageSinValues[rotationPosition];
     _carriageSinValues[rotationPosition] = _sinus[rotationPosition] * carriagePosOffCenter;
     _carriageSin += _carriageSinValues[rotationPosition];
@@ -185,7 +184,7 @@ void SpeedComp::stroboInterrupt() {
       && _plateau->turnInterval.duration() > 1000 // should be on for 1 sec.
       && _plateau->atSpeed                        // and speeded up
       && isApprox(speed, _plateau->targetRpm, 10) // not more than 10rpm from target rpm
-      && ((_arm.isNeedleDownFor(2000) && Shared.state == S_PLAYING) ||
+      && ((Arm.isNeedleDownFor(2000) && Shared.state == S_PLAYING) ||
       Shared.state == S_HOMING_BEFORE_PLAYING ||    
       Shared.state == S_GOTO_RECORD_START)) { 
     

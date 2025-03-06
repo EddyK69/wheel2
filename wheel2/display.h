@@ -20,7 +20,6 @@
 class Display {
   private:
     Interval _interval;
-    Arm& _arm;
     Buttons& _buttons;
     Carriage& _carriage;
     Orientation& _orientation;
@@ -40,7 +39,7 @@ class Display {
     void print(float time);
     void commit();
   public:
-    Display(Arm& arm, Buttons& buttons, Carriage& carriage,
+    Display(Buttons& buttons, Carriage& carriage,
       Orientation& orientation, Plateau& plateau, Scanner& scanner, SpeedComp& speedcomp,
       Storage& storage);
     void init();

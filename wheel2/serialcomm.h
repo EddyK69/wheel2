@@ -21,7 +21,6 @@
 
 class SerialComm {
   private:
-    Arm& _arm;
     Buttons& _buttons;
     Bluetooth& _bluetooth;
     Carriage& _carriage;
@@ -52,7 +51,7 @@ class SerialComm {
     void info();
     void version();
   public:
-    SerialComm(Arm& arm, Bluetooth& bluetooth, Buttons& buttons, Carriage& carriage,
+    SerialComm(Bluetooth& bluetooth, Buttons& buttons, Carriage& carriage,
       Orientation& orientation, Plateau& plateau, Scanner& scanner, SpeedComp& speedcomp, Storage& storage);
     void init();
     void func();

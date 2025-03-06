@@ -19,7 +19,6 @@ class Amplifier_ {
   
   private:
     Interval _interval = Interval(20, TM_MILLIS);
-    Arm _arm;
     int _volumePrev;
     bool _isNeedleDownPrev = false;
     bool _volumeOverRidePrev = false;

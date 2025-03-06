@@ -13,8 +13,7 @@
 */
 
 
-Storage::Storage(Arm& arm, Carriage& carriage, Orientation& orientation, Plateau& plateau) :
-  _arm(arm),
+Storage::Storage(Carriage& carriage, Orientation& orientation, Plateau& plateau) :
   _carriage(carriage),
   _orientation(orientation),
   _plateau(plateau) {
@@ -40,32 +39,32 @@ void Storage::read() {
   readAddress(EEPROM_ARM_ANGLE_MIN,     _armAngleMin);
   readAddress(EEPROM_ARM_ANGLE_MAX,     _armAngleMax);
   readAddress(EEPROM_PLATEAU_MOTOR_REV, _plateauMotorReverse);
-  _arm.forceLow         = _armForceLow;
-  _arm.forceHigh        = _armForceHigh;
-  // _arm.targetWeight     = _armTargetWeight;
-  _arm.justDockedWeight = _armForceDocked;
+  Arm.forceLow          = _armForceLow;
+  Arm.forceHigh         = _armForceHigh;
+  // Arm.targetWeight      = _armTargetWeight;
+  Arm.justDockedWeight  = _armForceDocked;
   _orientation.offsetX  = _levelOffsetX;
   _orientation.offsetY  = _levelOffsetY;
   _orientation.offsetZ  = _levelOffsetZ;
   _carriage.trackOffset = _trackOffset;
-  _arm.armAngleMin      = _armAngleMin;
-  _arm.armAngleMax      = _armAngleMax;
+  Arm.armAngleMin       = _armAngleMin;
+  Arm.armAngleMax       = _armAngleMax;
   _plateau.motorReverse = _plateauMotorReverse;
 } // read()
 
 
 void Storage::write() {
   eepromVersion        = Shared.appversion;
-  _armForceLow         = _arm.forceLow;
-  _armForceHigh        = _arm.forceHigh;
-  // _armTargetWeight     = _arm.targetWeight;
-  _armForceDocked      = _arm.justDockedWeight;
+  _armForceLow         = Arm.forceLow;
+  _armForceHigh        = Arm.forceHigh;
+  // _armTargetWeight     = Arm.targetWeight;
+  _armForceDocked      = Arm.justDockedWeight;
   _levelOffsetX        = _orientation.offsetX;
   _levelOffsetY        = _orientation.offsetY;
   _levelOffsetZ        = _orientation.offsetZ;
   _trackOffset         = _carriage.trackOffset;
-  _armAngleMin         = _arm.armAngleMin;
-  _armAngleMax         = _arm.armAngleMax;
+  _armAngleMin         = Arm.armAngleMin;
+  _armAngleMax         = Arm.armAngleMax;
   _plateauMotorReverse = static_cast<float>(_plateau.motorReverse);
   writeAddress(EEPROM_VERSION,           eepromVersion);
   writeAddress(EEPROM_ARM_FORCE_500MG,   _armForceLow);
