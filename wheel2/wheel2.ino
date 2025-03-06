@@ -60,7 +60,6 @@
 #include "scanner.h"
 #include "serialcomm.h"
 #include "speedcomp.h"
-#include "wheel.h"
 
 
 // The normal, core 0 setup
@@ -70,7 +69,26 @@ void setup() {
 
   // Initialize Wheel
   Shared.init(APP_VERSION, APP_DATE);
-  Wheel.init();
+  SerialComm.init();
+
+  Storage.init();
+
+  Amplifier.init();
+  Orientation.init();
+  Arm.init();
+  Buttons.init();
+  Carriage.init();
+  Scanner.init();
+  Plateau.init();
+  SpeedComp.init();
+
+  Storage.read();
+
+  // Set pinmodes
+  pinMode(SLEEPMODE_PIN, OUTPUT);
+  pinMode(LED_PIN, OUTPUT);
+  digitalWrite(SLEEPMODE_PIN, 1); // keep battery on
+  // digitalWrite(LED_PIN, 1); // turn LED on
 
   enableInterupts(true);
 } // setup()
