@@ -4,13 +4,7 @@
 #include "helper.h"
 
 
-SerialComm::SerialComm() :
-      _interval(10000, TM_MICROS),
-      _uptimeInterval(60, TM_MINS) {
-} // SerialComm()
-
-
-void SerialComm::init() {
+void SerialComm_::init() {
     // Start serial output
   Serial.begin(SERIAL_BAUDRATE);
 
@@ -26,7 +20,7 @@ void SerialComm::init() {
 } // init()
 
 
-void SerialComm::func() {
+void SerialComm_::func() {
   if (_interval.tick()) {
 
     if (_graphicData) {
@@ -62,7 +56,7 @@ void SerialComm::func() {
 } // func()
 
 
-void SerialComm::checkReceivedLine(String line, eCheckMode mode) {
+void SerialComm_::checkReceivedLine(String line, eCheckMode mode) {
   LOG_DEBUG("serialcomm.cpp", "[checkReceivedLine]");
   println(mode);
   if (checkLineCommand( "RST",    "Reboot",                     mode)) { rp2040.reboot();                     return; }
@@ -168,7 +162,7 @@ void SerialComm::checkReceivedLine(String line, eCheckMode mode) {
 } // checkReceivedLine()
 
 
-bool SerialComm::checkLineCommand(String command, String description, eCheckMode mode) {
+bool SerialComm_::checkLineCommand(String command, String description, eCheckMode mode) {
   if (mode == CM_VALUE) {
     return false;
   }
@@ -180,7 +174,7 @@ bool SerialComm::checkLineCommand(String command, String description, eCheckMode
 } // checkLineCommand()
 
 
-bool SerialComm::checkLine(String command, String description, eCheckMode mode) {
+bool SerialComm_::checkLine(String command, String description, eCheckMode mode) {
   if (mode == CM_COMMAND) {
     printCommando(command, description);
     Serial.println();
@@ -198,7 +192,7 @@ bool SerialComm::checkLine(String command, String description, eCheckMode mode) 
 } // checkLine()
 
 
-bool SerialComm::checkLineInt(String command, String description, eCheckMode mode, int& value) {
+bool SerialComm_::checkLineInt(String command, String description, eCheckMode mode, int& value) {
   if (mode == CM_VALUE) {
     printValue(command, description, String(value));
     return false;
@@ -217,7 +211,7 @@ bool SerialComm::checkLineInt(String command, String description, eCheckMode mod
 } // checkLineInt()
 
 
-bool SerialComm::checkLineFloat(String command, String description, eCheckMode mode, float& value) {
+bool SerialComm_::checkLineFloat(String command, String description, eCheckMode mode, float& value) {
   if (mode == CM_VALUE) {
     printValue(command, description, String(value, 5));
     return false;
@@ -236,7 +230,7 @@ bool SerialComm::checkLineFloat(String command, String description, eCheckMode m
 } // checkLineFloat()
 
 
-bool SerialComm::checkLineBool(String command, String description, eCheckMode mode, bool& value) {
+bool SerialComm_::checkLineBool(String command, String description, eCheckMode mode, bool& value) {
   if (mode == CM_VALUE) {
     printValue(command, description, String(value));
     return false;
@@ -258,26 +252,26 @@ bool SerialComm::checkLineBool(String command, String description, eCheckMode mo
 } // checkLineBool()
 
 
-void SerialComm::println(eCheckMode mode) {
+void SerialComm_::println(eCheckMode mode) {
   if (mode != CM_NONE) {
     Serial.println();
   }
 } // println()
 
 
-void SerialComm::printCommando(String command, String description) {
+void SerialComm_::printCommando(String command, String description) {
   command.toUpperCase();
   Serial.print(padRight(command, 8) + " " + padRight(description, 26) + " ");
 } // printCommando()
 
 
-void SerialComm::printValue(String command, String description, String value) {
+void SerialComm_::printValue(String command, String description, String value) {
   command.toUpperCase();
   Serial.println(padRight(command, 8) + " " + padRight(description, 26) +  " " + value);
 } // printValue()
 
 
-void SerialComm::printGraphicData() {
+void SerialComm_::printGraphicData() {
   if (!_headerShown) {
     Serial.println("GRAPH_HEADER: SpeedRaw-TRPM, Speed-CTRPM, PPR, CTPRM-TRPM, UnbalanceComp, ArmAngleCall, RealPosition, Trackspacing, ArmWeight");
     _headerShown = true;
@@ -365,7 +359,7 @@ void SerialComm::printGraphicData() {
 } // printGraphicData()
 
 
-void SerialComm::report() {
+void SerialComm_::report() {
   Serial.println("-------------------- V" + String(Shared.appversion) + " --------------------");
   Serial.println();
   Serial.println(padRight("WHEEL_TEMPERATURE", PADR) + ": " + String(analogReadTemp(), 2) + " °C");
@@ -377,7 +371,7 @@ void SerialComm::report() {
 } // report()
 
 
-void SerialComm::info() {
+void SerialComm_::info() {
   version();
   Serial.println(padRight("WHEEL_UPTIME", PADR) +           ": " + msToString(millisSinceBoot()));
   Serial.println(padRight("WHEEL_TEMPERATURE", PADR) +      ": " + String(analogReadTemp(), 2) + " °C");
@@ -397,13 +391,22 @@ void SerialComm::info() {
 } // info()
 
 
-void SerialComm::version() {
+void SerialComm_::version() {
   Serial.println("-------------------- V" + String(Shared.appversion) + " --------------------");
   Serial.println();
   Serial.println(padRight("WHEEL_HW_VERSION", PADR) +       ": " + String(BOARD_DESCRIPTION) + String(Bluetooth.wirelessVersion ? " [BT]" : ""));
   Serial.println(padRight("WHEEL_FW_VERSION", PADR) +       ": V" + String(Shared.appversion) + " [" + Shared.appdate + "]");
   // Serial.println(padRight("WHEEL_WIRELESS_VERSION", PADR) + ": " + String(Bluetooth.wirelessVersion ? "YES" : "NO"));
 } // version()
+
+
+SerialComm_ &SerialComm_::getInstance() {
+  static SerialComm_ instance;
+  return instance;
+} // getInstance()
+
+
+SerialComm_ &SerialComm = SerialComm.getInstance();
 
 
 //             bytes   cycles                

@@ -19,10 +19,19 @@
 #include "storage.h"
 
 
-class SerialComm {
+class SerialComm_ {
+ private:
+    SerialComm_() = default; // Make constructor private
+
+  public:
+    static SerialComm_& getInstance(); // Accessor for singleton instance
+
+    SerialComm_(const SerialComm_&) = delete; // no copying
+    SerialComm_& operator=(const SerialComm_&) = delete;
+
   private:
-    Interval _interval;
-    Interval _uptimeInterval;
+    Interval _interval = Interval(10000, TM_MICROS);
+    Interval _uptimeInterval = Interval(60, TM_MINS);
     String _line = "";
     String _lineRaw = "";
     String _lastCommand = "";
@@ -43,10 +52,10 @@ class SerialComm {
     void info();
     void version();
   public:
-    SerialComm();
     void init();
     void func();
-}; // SerialComm
+}; // SerialComm_
 
+extern SerialComm_& SerialComm;
 
 #endif // SERIALCOMM_H

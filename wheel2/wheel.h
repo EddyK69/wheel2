@@ -19,7 +19,6 @@
 
 class Wheel {
   public:
-    SerialComm serialcomm;
     Wheel();
     void init();
 }; // Wheel

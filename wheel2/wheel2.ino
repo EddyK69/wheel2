@@ -58,6 +58,7 @@
 #include "orientation.h"
 #include "plateau.h"
 #include "scanner.h"
+#include "serialcomm.h"
 #include "speedcomp.h"
 #include "wheel.h"
 
@@ -101,7 +102,7 @@ void setup1() {
 // core 1 loop
 void loop1() {
   Display.update();
-  wheel.serialcomm.func();
+  SerialComm.func();
   Buttons.update();
   Arm.func();
 } // loop1()

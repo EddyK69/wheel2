@@ -3,14 +3,13 @@
 #include "pins.h"
 
 
-Wheel::Wheel() :
-    serialcomm() {
+Wheel::Wheel() {
 } // Wheel()
 
 
 void Wheel::init() {
   LOG_DEBUG("wheel.cpp", "[init]");
-  serialcomm.init();
+  SerialComm.init();
 
   Storage.init();
 
