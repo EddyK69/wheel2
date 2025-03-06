@@ -89,6 +89,8 @@ void Plateau_::update() {
       }
       if (speed < (targetRpm * 0.1) && turnInterval.duration() > 750) { // <5% target speed after short time
         // LOG_ALERT("plateau.cpp", "[update] Could not speed up!!");
+        Shared.setError(E_PLATEAU_COULD_NOT_START);
+
         Serial.println("PLATEAU: COULD NOT SPEED UP");
         stop();
         return;
