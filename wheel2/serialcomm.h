@@ -1,7 +1,7 @@
 #ifndef SERIALCOMM_H
 #define SERIALCOMM_H
 
-#define SERIAL_BAUDRATE 115400
+#define SERIAL_BAUDRATE 115200
 
 #include <Arduino.h>
 #include "enums.h"
@@ -19,21 +19,19 @@
 #include "storage.h"
 
 
-class SerialComm {
+class SerialComm_ {
+ private:
+    SerialComm_() = default; // Make constructor private
+
+  public:
+    static SerialComm_& getInstance(); // Accessor for singleton instance
+
+    SerialComm_(const SerialComm_&) = delete; // no copying
+    SerialComm_& operator=(const SerialComm_&) = delete;
+
   private:
-    Shared& _shared;
-    Amplifier& _amplifier;
-    Arm& _arm;
-    Buttons& _buttons;
-    Bluetooth& _bluetooth;
-    Carriage& _carriage;
-    Orientation& _orientation;
-    Plateau& _plateau;
-    Scanner& _scanner;
-    SpeedComp& _speedcomp;
-    Storage& _storage;
-    Interval _interval;
-    Interval _uptimeInterval;
+    Interval _interval = Interval(10000, TM_MICROS);
+    Interval _uptimeInterval = Interval(60, TM_MINS);
     String _line = "";
     String _lineRaw = "";
     String _lastCommand = "";
@@ -54,11 +52,10 @@ class SerialComm {
     void info();
     void version();
   public:
-    SerialComm(Shared& shared, Amplifier& amplifier, Arm& arm, Bluetooth& bluetooth, Buttons& buttons, Carriage& carriage,
-      Orientation& orientation, Plateau& plateau, Scanner& scanner, SpeedComp& speedcomp, Storage& storage);
     void init();
     void func();
-}; // SerialComm
+}; // SerialComm_
 
+extern SerialComm_& SerialComm;
 
 #endif // SERIALCOMM_H

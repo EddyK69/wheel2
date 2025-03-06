@@ -6,16 +6,8 @@
 #include "plateau.h"
 
 
-SpeedComp::SpeedComp(Shared& shared, Arm& arm) :
-  _shared(shared),
-  _arm(arm) {
-} // SpeedComp()
-
-
-void SpeedComp::init(Carriage* carriage, Plateau* plateau) { // to prevent circular reference
+void SpeedComp_::init() {
   LOG_DEBUG("speedcomp.cpp", "[init]");
-  _carriage = carriage;
-  _plateau = plateau;
   float radialCounter;
   clearSamples();
   clearCompSamples();
@@ -30,7 +22,7 @@ void SpeedComp::init(Carriage* carriage, Plateau* plateau) { // to prevent circu
 } // init()
 
 
-void SpeedComp::update() {
+void SpeedComp_::update() {
   if ((microsSinceBoot() - _speedInterval) > SPEEDCOMP_SAMPLES_MAX ) {
     if (_glitchCounter > 3) {
       shiftSamples(SPEEDCOMP_SAMPLES_MAX * _direction);
@@ -46,7 +38,7 @@ void SpeedComp::update() {
 } // update()
 
 
-void SpeedComp::stroboInterrupt() {
+void SpeedComp_::stroboInterrupt() {
   _time = microsSinceBoot();
   // _processTime = microsSinceBoot();
 
@@ -97,22 +89,22 @@ void SpeedComp::stroboInterrupt() {
 
   //------------------------------------------------------------ OFF CENTER COMPENSATION
   _carriagePosMiddlePre -= _carriageOffCenterWave[rotationPosition];
-  _carriageOffCenterWave[rotationPosition] = _carriage->realPosition;
+  _carriageOffCenterWave[rotationPosition] = Carriage.realPosition;
   _carriagePosMiddlePre += _carriageOffCenterWave[rotationPosition];
   carriagePosMiddle = _carriagePosMiddlePre / pulsesPerRev;
 
   trackSpacing = _carriagePosCenterHist[rotationPosition] - carriagePosMiddle;
   _carriagePosCenterHist[rotationPosition] = carriagePosMiddle;
 
-  // if (trackSpacing > 0.01 || !_arm.isNeedleDownFor(2000)) {
-  //   _carriage->movedForwardInterval.reset();
+  // if (trackSpacing > 0.01 || !Arm.isNeedleDownFor(2000)) {
+  //   Carriage.movedForwardInterval.reset();
   // } else {
   //   // Nothing
   // }
 
-  float carriagePosOffCenter = _carriage->realPosition - carriagePosMiddle;
+  float carriagePosOffCenter = Carriage.realPosition - carriagePosMiddle;
 
-  if (_arm.isNeedleDownFor(1000) && _shared.state == S_PLAYING) { // needle has to be down while playing before calculation
+  if (Arm.isNeedleDownFor(1000) && Shared.state == S_PLAYING) { // needle has to be down while playing before calculation
     _carriageSin -= _carriageSinValues[rotationPosition];
     _carriageSinValues[rotationPosition] = _sinus[rotationPosition] * carriagePosOffCenter;
     _carriageSin += _carriageSinValues[rotationPosition];
@@ -134,9 +126,9 @@ void SpeedComp::stroboInterrupt() {
   float cosBuff = _carriageCosFilt / pulsesPerRev;
   // an off-center of 6mm (3mm radius) triggers error
   if ((sinBuff * sinBuff + cosBuff * cosBuff) > (3 * 3)) {
-    _shared.setError(E_TO_MUCH_TRAVEL);
+    Shared.setError(E_TO_MUCH_TRAVEL);
     clearCompSamples();
-    _plateau->stop();
+    Plateau.stop();
   }
 
 
@@ -146,7 +138,7 @@ void SpeedComp::stroboInterrupt() {
   float offCenterSpeedComp = ( ( (_sinus[leadCounter] * _carriageSinFilt) + (_cosin[leadCounter] * _carriageCosFilt) ) / pulsesPerRev) * 2;
 
   _centerComp = ((carriagePosMiddle - offCenterSpeedComp) / carriagePosMiddle);
-  centerCompTargetRpm = _plateau->targetRpm * _centerComp;
+  centerCompTargetRpm = Plateau.targetRpm * _centerComp;
   
   if (recordOffCenterComp) {
     speedCenterComp = speed / _centerComp;
@@ -159,7 +151,7 @@ void SpeedComp::stroboInterrupt() {
   speedLowPass += (speedCenterComp - speedLowPass) / 100;
   speedHighPass = speedCenterComp - speedLowPass;
 
-  lowpassRect = abs(speedLowPass - _plateau->targetRpm);
+  lowpassRect = abs(speedLowPass - Plateau.targetRpm);
   if (lowpassRect > wow) {
     wow = lowpassRect;
   } else {
@@ -182,15 +174,15 @@ void SpeedComp::stroboInterrupt() {
 
   //------------------------------------------------------------ UNBALANCE COMPENSATION
   if (unbalanceCompOn                      // all prereqs when compensation should be off
-      && _plateau->motorOn 
-      && _plateau->turnInterval.duration() > 1000 // should be on for 1 sec.
-      && _plateau->atSpeed                        // and speeded up
-      && isApprox(speed, _plateau->targetRpm, 10) // not more than 10rpm from target rpm
-      && ((_arm.isNeedleDownFor(2000) && _shared.state == S_PLAYING) ||
-      _shared.state == S_HOMING_BEFORE_PLAYING ||    
-      _shared.state == S_GOTO_RECORD_START)) { 
+      && Plateau.motorOn 
+      && Plateau.turnInterval.duration() > 1000 // should be on for 1 sec.
+      && Plateau.atSpeed                        // and speeded up
+      && isApprox(speed, Plateau.targetRpm, 10) // not more than 10rpm from target rpm
+      && ((Arm.isNeedleDownFor(2000) && Shared.state == S_PLAYING) ||
+      Shared.state == S_HOMING_BEFORE_PLAYING ||    
+      Shared.state == S_GOTO_RECORD_START)) { 
     
-    int speedError = (speedCenterComp - _plateau->targetRpm) * 1000.0;
+    int speedError = (speedCenterComp - Plateau.targetRpm) * 1000.0;
     int value;
     for (int i = 0; i < _unbalanceFilterCurveWidth; i++) {
       value = _unbalanceFilterCurve[i] * speedError;
@@ -216,13 +208,13 @@ void SpeedComp::stroboInterrupt() {
 } // stroboInterrupt()
 
 
-void SpeedComp::clearCompSamplesOnT0() {
+void SpeedComp_::clearCompSamplesOnT0() {
   LOG_DEBUG("speedcomp.cpp", "[clearCompSamplesOnT0]");
   _clearCompSamplesQueue = true;
 } // clearCompSamplesOnT0()
 
 
-void SpeedComp::clearSamples() {
+void SpeedComp_::clearSamples() {
   LOG_DEBUG("speedcomp.cpp", "[clearSamples]");
   for (int i = 0; i < samples; i++) {
     _samplesArr[i] = SPEEDCOMP_SAMPLES_MAX;
@@ -230,14 +222,14 @@ void SpeedComp::clearSamples() {
 } // clearSamples()
 
 
-void SpeedComp::clearCompSamples() {
+void SpeedComp_::clearCompSamples() {
   LOG_DEBUG("speedcomp.cpp", "[clearCompSamples]");
   clearUnbalanceCompSamples();
   clearCenterCompSamples();
 } // clearCompSamples()
 
 
-void SpeedComp::clearUnbalanceCompSamples() {
+void SpeedComp_::clearUnbalanceCompSamples() {
   // LOG_DEBUG("speedcomp.cpp", "[clearUnbalanceCompSamples]");
   for (int i = 0; i < pulsesPerRev; i++) {
     _unbalansComp[i] = 0;
@@ -245,9 +237,9 @@ void SpeedComp::clearUnbalanceCompSamples() {
 } // clearUnbalanceCompSamples()
 
 
-void SpeedComp::clearCenterCompSamples() {
+void SpeedComp_::clearCenterCompSamples() {
   LOG_DEBUG("speedcomp.cpp", "[clearCenterCompSamples]");
-  float pos = _carriage->realPosition;
+  float pos = Carriage.realPosition;
 
   for (int i = 0; i < pulsesPerRev; i++) {
     _carriageSinValues[i] = 0;
@@ -266,7 +258,7 @@ void SpeedComp::clearCenterCompSamples() {
 } // clearCenterCompSamples()
 
 
-void SpeedComp::createUnbalanceFilterCurve(){
+void SpeedComp_::createUnbalanceFilterCurve(){
   LOG_DEBUG("speedcomp.cpp", "[createUnbalanceFilterCurve]");
 
   float total = 0;
@@ -287,14 +279,14 @@ void SpeedComp::createUnbalanceFilterCurve(){
 } // createUnbalanceFilterCurve()
 
 
-float SpeedComp::getSpeed() {
+float SpeedComp_::getSpeed() {
   _average = averageInterval();
   speedRaw = currentSpeed(_average) * _direction;
   return speedRaw; // don't compensate
 } // getSpeed()
 
 
-float SpeedComp::averageInterval() {
+float SpeedComp_::averageInterval() {
   int total = 0;
 
   for (byte i = 0; i < SPEEDCOMP_SAMPLES; i++) {
@@ -304,18 +296,18 @@ float SpeedComp::averageInterval() {
 } // averageInterval()
 
 
-float SpeedComp::currentSpeed(float inter) { // Calculate rpm
+float SpeedComp_::currentSpeed(float inter) { // Calculate rpm
   float value = ((1000000.0 * 60) / inter) / pulsesPerRev; // return total
   return limitFloat(value, -300, 300);
 } // currentSpeed()
 
 
-void SpeedComp::shiftSamples(int sample) {
+void SpeedComp_::shiftSamples(int sample) {
   _samplesArr[_sampleCounter++ % samples] = sample;
 } // shiftSamples()
 
 
-void SpeedComp::printGraphicData() {
+void SpeedComp_::printGraphicData() {
   if (!_headerShown) {
     Serial.println("GRAPH_HEADER: SpeedRaw, Speed, CarriageFourier");
     _headerShown = true;
@@ -329,7 +321,7 @@ void SpeedComp::printGraphicData() {
 }
 
 
-void SpeedComp::info() {
+void SpeedComp_::info() {
   // Serial.println(padRight("STROBO_SAMPLES", PADR) +            ": " + String(samples));
   // Serial.println(padRight("STROBO_PULSES_PER_REV", PADR) +     ": " + String(pulsesPerRev));
   Serial.println(padRight("STROBO_UNBAL_PHASE", PADR) +        ": " + String(unbalancePhase));
@@ -339,3 +331,12 @@ void SpeedComp::info() {
 
   Serial.println();
 } // info()
+
+
+SpeedComp_ &SpeedComp_::getInstance() {
+  static SpeedComp_ instance;
+  return instance;
+} // getInstance()
+
+
+SpeedComp_ &SpeedComp = SpeedComp.getInstance();

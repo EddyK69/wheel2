@@ -5,21 +5,13 @@
 #include "i2c.h"
 
 
-Orientation::Orientation(Shared& shared, Arm& arm) :
-  _shared(shared),
-  _arm(arm),
-  _interval(10, TM_MILLIS),
-  _isOkInterval(0, TM_MILLIS) {
-} // Orientation()
-
-
-void Orientation::init() {
+void Orientation_::init() {
   LOG_DEBUG("orientation.cpp", "[init]");
   setI2CPins();
 } // init()
 
 
-void Orientation::update() {
+void Orientation_::update() {
   if (_interval.tick() && millisSinceBoot() > 200) { // turned on for 200ms?
     if (_firstTime) {
       _firstTime = false;
@@ -37,20 +29,20 @@ void Orientation::update() {
 
     x += ((_rawX - offsetX) - x) / 10;
     // y += ((_rawY - offsetY) - y) / 10;
-    y += (_arm.armAngleCall - y) / 20;
+    y += (Arm.armAngleCall - y) / 20;
     z += ((_rawZ - offsetZ) - z) / 10;
 
     if (_error) {
       _error = !isApprox(y, 0, 0.6);
     } else {
-      if ((_shared.state == S_HOME) && (_shared.stateChangedInterval.duration() > 1000)) {
+      if ((Shared.state == S_HOME) && (Shared.stateChangedInterval.duration() > 1000)) {
         _error = !isApprox(y, 0, 0.8);
       }
     }
 
     if (_error && !_errorPrev) {
       _errorPrev = _error;
-      _shared.setState(S_BAD_ORIENTATION);
+      Shared.setState(S_BAD_ORIENTATION);
     }
 
     if (!_error) {
@@ -58,8 +50,8 @@ void Orientation::update() {
         _errorPrev = _error;
         _isOkInterval.reset();
       }
-      if (_isOkInterval.duration() > 3000 && _shared.state == S_BAD_ORIENTATION) {
-        _shared.setState(S_HOME);
+      if (_isOkInterval.duration() > 3000 && Shared.state == S_BAD_ORIENTATION) {
+        Shared.setState(S_HOME);
       }
     }
 
@@ -78,7 +70,7 @@ void Orientation::update() {
 } // update()
 
 
-void Orientation::calibrate() {
+void Orientation_::calibrate() {
   LOG_DEBUG("orientation.cpp", "[calibrate]");
   offsetX += x;
   offsetY += y;
@@ -87,7 +79,7 @@ void Orientation::calibrate() {
 } // calibrate()
 
 
-void Orientation::reset() {
+void Orientation_::reset() {
   LOG_DEBUG("orientation.cpp", "[reset]");
   // reset
   i2cWrite(_i2cAdress, 0x36, 0xB6); // soft reset
@@ -102,7 +94,7 @@ void Orientation::reset() {
 } // reset()
 
 
-void Orientation::printGraphicData() {
+void Orientation_::printGraphicData() {
   if (!_headerShown) {
     Serial.println("GRAPH_HEADER: X-axis, Y-axis, Z-axis");
     _headerShown = true;
@@ -116,9 +108,18 @@ void Orientation::printGraphicData() {
 }
 
 
-void Orientation::info() {
+void Orientation_::info() {
   Serial.println(padRight("ORIENTATION_RAW_XYZ", PADR) +  ": " + "X:" + String(_rawX, 3) + " Y:" + String(_rawY, 3) + " Z:" + String(_rawZ, 3));
   Serial.println(padRight("ORIENTATION_XYZ", PADR) +      ": " + "X:" + String(x, 3) + " Y:" + String(y, 3) + " Z:" + String(z, 3));
   Serial.println(padRight("ORIENTATION_POSITION", PADR) + ": " + String(isStanding ? "STANDING" : "NORMAL"));
   Serial.println();
 } // info()
+
+
+Orientation_ &Orientation_::getInstance() {
+  static Orientation_ instance;
+  return instance;
+} // getInstance()
+
+
+Orientation_ &Orientation = Orientation.getInstance();

@@ -4,23 +4,7 @@
 #include "helper.h"
 
 
-Display::Display(Shared& shared, Amplifier& amplifier, Arm& arm, Buttons& buttons, Carriage& carriage,
-  Orientation& orientation, Plateau& plateau, Scanner& scanner, SpeedComp& speedcomp, Storage& storage) :
-  _shared(shared),
-  _amplifier(amplifier),
-  _arm(arm),
-  _buttons(buttons),
-  _carriage(carriage),
-  _orientation(orientation),
-  _plateau(plateau),
-  _scanner(scanner),
-  _speedcomp(speedcomp),
-  _storage(storage),
-  _interval(10000, TM_MICROS) {
-} // Display()
-
-
-void Display::init() {
+void Display_::init() {
   LOG_DEBUG("display.cpp", "[init]");
 
   pinMode(DISPLAY_IN_PIN,       OUTPUT);
@@ -36,15 +20,15 @@ void Display::init() {
 } // init()
 
 
-void Display::update() {
+void Display_::update() {
   if (_interval.tick()) {
 
     _trackCounter = 0;
-    int needle = mapRealPos2Display(_carriage.positionFilter);
-    int target = mapRealPos2Display(_carriage.targetTrack);
-    int sensor = mapRealPos2Display(_carriage.sensorPosition);
+    int needle = mapRealPos2Display(Carriage.positionFilter);
+    int target = mapRealPos2Display(Carriage.targetTrack);
+    int sensor = mapRealPos2Display(Carriage.sensorPosition);
     int sensorMaxRange = mapRealPos2Display(CARRIAGE_12INCH_START - CARRIAGE_SENSOR_OFFSET) + 3;
-    int recordSize = mapRealPos2Display(_scanner.recordStart);
+    int recordSize = mapRealPos2Display(Scanner.recordStart);
     int _dispHalf = DISPLAY_LENGTH / 2;
 
     clear();
@@ -56,7 +40,7 @@ void Display::update() {
       int spaceLength = 3;
 
       int decimals = 3;
-      int version = _shared.appversion;
+      int version = Shared.appversion;
       int versionDecimals[decimals] = { (version % 10), (version / 10) % 10, (version / 100) % 10 };
 
       for (int i = 0; i < decimals; i++) {
@@ -87,21 +71,21 @@ void Display::update() {
       }
 
     //--------------------------------------------- SHOW ERROR
-    } else if (_shared.errorChangedInterval.duration() < 10000 && _shared.error != E_NONE) { // Blink for 10 sec.
+    } else if (Shared.errorChangedInterval.duration() < 10000 && Shared.error != E_NONE) { // Blink for 10 sec.
       if ((millisSinceBoot() % 1000) < 800) { // Blink
         int blockLength = 0.1 * DISPLAY_LENGTH;
-        int begin = _dispHalf - (blockLength / 2) * _shared.error;
+        int begin = _dispHalf - (blockLength / 2) * Shared.error;
 
-        for (int i = 0; i < _shared.error; i++) {
+        for (int i = 0; i < Shared.error; i++) {
           drawBlock(begin + 1, begin + blockLength - 1, 0.1);
           begin += blockLength;
         }
       }
 
     //--------------------------------------------- CLEAN MODE
-    } else if (_shared.state == S_NEEDLE_CLEAN && _arm.motorOn) {
-        int volPoint = mapFloat(_arm.targetWeight, 0, 4, 0, DISPLAY_LENGTH) / 2.0;
-        // float pointCounter = (_arm.targetWeight / 2);
+    } else if (Shared.state == S_NEEDLE_CLEAN && Arm.motorOn) {
+        int volPoint = mapFloat(Arm.targetWeight, 0, 4, 0, DISPLAY_LENGTH) / 2.0;
+        // float pointCounter = (Arm.targetWeight / 2);
         float pointCounter = 0.5;
 
         for (int i = 0; i < DISPLAY_LENGTH; i++) {
@@ -122,25 +106,25 @@ void Display::update() {
           }
         }
 
-        if (_orientation.isStanding) {
+        if (Orientation.isStanding) {
           flipData();
         }
 
     //--------------------------------------------- RECORD CLEAN MODE
-    } else if (_shared.state == S_RECORD_CLEAN) {
-      int rpmPoint = mapFloat(_speedcomp.speed - _plateau.targetRpm, 10, -10, 0, DISPLAY_LENGTH - 1);
+    } else if (Shared.state == S_RECORD_CLEAN) {
+      int rpmPoint = mapFloat(SpeedComp.speed - Plateau.targetRpm, 10, -10, 0, DISPLAY_LENGTH - 1);
       drawBlock(rpmPoint - 2, rpmPoint + 2, 0.9);
 
-      if (!_orientation.isStanding) {
+      if (!Orientation.isStanding) {
         flipData();
       }
 
     //--------------------------------------------- CALIBRATE
-    } else if (_shared.state == S_CALIBRATE) {
-        int volPoint = mapFloat(_arm.force, 0, 1, DISPLAY_LENGTH - 1, 0);
-        int forceLowPoint = mapFloat(_arm.forceLow, 0, 1, DISPLAY_LENGTH - 1, 0);
-        int forceHighPoint = mapFloat(_arm.forceHigh, 0, 1, DISPLAY_LENGTH - 1, 0);
-        int armAnglePoint = mapFloat(_arm.armAngleCall, 1, -1, 0, DISPLAY_LENGTH - 1);
+    } else if (Shared.state == S_CALIBRATE) {
+        int volPoint = mapFloat(Arm.force, 0, 1, DISPLAY_LENGTH - 1, 0);
+        int forceLowPoint = mapFloat(Arm.forceLow, 0, 1, DISPLAY_LENGTH - 1, 0);
+        int forceHighPoint = mapFloat(Arm.forceHigh, 0, 1, DISPLAY_LENGTH - 1, 0);
+        int armAnglePoint = mapFloat(Arm.armAngleCall, 1, -1, 0, DISPLAY_LENGTH - 1);
 
         drawBlock(DISPLAY_LENGTH, volPoint, 0.1);
         drawPoint(armAnglePoint, 0.9);
@@ -148,26 +132,26 @@ void Display::update() {
         drawPoint(forceHighPoint, 0.9);
 
     //--------------------------------------------- LEVEL MODE
-    } else if (_shared.state == S_BAD_ORIENTATION) {
+    } else if (Shared.state == S_BAD_ORIENTATION) {
       if ((millisSinceBoot() % 1000) < 800) {
         drawBlock(0, DISPLAY_LENGTH / 4, 0.1);
         drawBlock(DISPLAY_LENGTH - (DISPLAY_LENGTH / 4), DISPLAY_LENGTH, 0.1);
       }
 
-      int armAnglePoint = mapFloat(-_orientation.y, 1, -1, 0, DISPLAY_LENGTH-1);
+      int armAnglePoint = mapFloat(-Orientation.y, 1, -1, 0, DISPLAY_LENGTH-1);
 
       drawBlock(armAnglePoint - 2, armAnglePoint + 2, 0.9);
 
     //--------------------------------------------- RPM
-    } else if (_buttons.rpmDisplayActionInterval.duration() < 2000) {
+    } else if (Buttons.rpmDisplayActionInterval.duration() < 2000) {
 
         int blocks = 1; // rpmMode == AUTO
 
-        if (_plateau.rpmMode == RPM_33) {
+        if (Plateau.rpmMode == RPM_33) {
           blocks = 3;
-        } else if(_plateau.rpmMode == RPM_45) {
+        } else if(Plateau.rpmMode == RPM_45) {
           blocks = 4;
-        } else if(_plateau.rpmMode == RPM_78) {
+        } else if(Plateau.rpmMode == RPM_78) {
           blocks = 7;
         }
 
@@ -180,25 +164,25 @@ void Display::update() {
         }  
 
     //--------------------------------------------- VOLUME
-    } else if (_buttons.volumeDisplayActionInterval.duration() < 2000
-        && _shared.state != S_SKIP_FORWARD && _shared.state != S_SKIP_REVERSE
-        &&  _shared.state != S_GOTO_TRACK && _shared.state != S_PAUSE) {
-      int volPoint = mapFloat(_amplifier.volume, 0, 63, 1, _dispHalf);
+    } else if (Buttons.volumeDisplayActionInterval.duration() < 2000
+        && Shared.state != S_SKIP_FORWARD && Shared.state != S_SKIP_REVERSE
+        &&  Shared.state != S_GOTO_TRACK && Shared.state != S_PAUSE) {
+      int volPoint = mapFloat(Amplifier.volume, 0, 63, 1, _dispHalf);
       drawBlock(_dispHalf + volPoint, _dispHalf - volPoint, 0.1);
 
     //--------------------------------------------- TRACK & CARRIAGE DISPLAY
     } else {
       for (int i = 0; i < DISPLAY_LENGTH; i++) {
-        if (!(_shared.state == S_STOPPING || _shared.state == S_PARKING || _shared.state == S_HOMING || _shared.state == S_HOME )) {
-          int nextTrack = mapRealPos2Display(_scanner.tracks[_trackCounter]);
+        if (!(Shared.state == S_STOPPING || Shared.state == S_PARKING || Shared.state == S_HOMING || Shared.state == S_HOME )) {
+          int nextTrack = mapRealPos2Display(Scanner.tracks[_trackCounter]);
 
           if (i > recordSize) {
             _data[i] = 0;
-          } else if (_shared.state == S_GOTO_RECORD_START && i > sensor && _scanner.recordStart == 1000) {
+          } else if (Shared.state == S_GOTO_RECORD_START && i > sensor && Scanner.recordStart == 1000) {
             _data[i] = 0;
           } else if (i > sensorMaxRange) {
             _data[i] = 0;
-          } else if (nextTrack <= i && _trackCounter < _scanner.trackCount) {
+          } else if (nextTrack <= i && _trackCounter < Scanner.trackCount) {
             _trackCounter++;
             _data[i] = 0;
           } else {
@@ -213,32 +197,32 @@ void Display::update() {
 
 
       //--------------------------------------------- CURSOR
-      if (_shared.state == S_GOTO_TRACK || _shared.state ==  S_SKIP_FORWARD || _shared.state == S_SKIP_REVERSE || _shared.state == S_PAUSE) { 
+      if (Shared.state == S_GOTO_TRACK || Shared.state ==  S_SKIP_FORWARD || Shared.state == S_SKIP_REVERSE || Shared.state == S_PAUSE) { 
         drawPoint((needle - 1), 0.9);
         drawPoint((needle + 1), 0.9);
         
         if (needle != target) { // target dot
           drawPoint(target, 0.9);
         }
-      } else if (_shared.state == S_PLAYING && !_arm.isNeedleInGrove() && (_shared.stateChangedInterval.duration() % 1000 < 250) && !_shared.puristMode) {
+      } else if (Shared.state == S_PLAYING && !Arm.isNeedleInGrove() && (Shared.stateChangedInterval.duration() % 1000 < 250) && !Shared.puristMode) {
         // Nothing
-      } else if (_carriage.repeat) {
+      } else if (Carriage.repeat) {
         drawPoint(needle, 0.9);
         drawPoint((needle - 2), 0.9);
         drawPoint((needle + 2), 0.9);
-      } else if (_shared.puristMode && (millisSinceBoot() % 1000 < 500)) {
+      } else if (Shared.puristMode && (millisSinceBoot() % 1000 < 500)) {
         drawPoint((needle - 1), 0.9);
         drawPoint((needle + 1), 0.9);
       } else {
         drawPoint(needle, 0.9);
       }
 
-      if (!_orientation.isStanding) {
+      if (!Orientation.isStanding) {
         flipData();
       }
     }
 
-    if (_storage.saveRequired) { // keep blinking when EEPROM is not saved yet
+    if (Storage.saveRequired) { // keep blinking when EEPROM is not saved yet
       if (millisSinceBoot() % 1000 > 500) {
         drawBlock(0, (DISPLAY_LENGTH / 20), 0.9);
         drawBlock(DISPLAY_LENGTH, DISPLAY_LENGTH - DISPLAY_LENGTH / 20, 0.9);
@@ -246,18 +230,18 @@ void Display::update() {
     }
 
     //--------------------------------------------- BUTTON BLINK
-    if (_buttons.ledBlinkInterval.duration() < 100) {
+    if (Buttons.ledBlinkInterval.duration() < 100) {
       int buttonSize = 6;
       int buttonSizeHalf = buttonSize / 2;
       int buttonOffMiddle = 0.23 * DISPLAY_LENGTH;
 
-      if (_buttons.state[BUTTON_PLAY] != BUTTON_RELEASE) {
+      if (Buttons.state[BUTTON_PLAY] != BUTTON_RELEASE) {
         drawBlock(_dispHalf - buttonSizeHalf, _dispHalf + buttonSizeHalf, 0.9);
       }
-      if (_buttons.state[BUTTON_PREV] != BUTTON_RELEASE) {
+      if (Buttons.state[BUTTON_PREV] != BUTTON_RELEASE) {
         drawBlock(_dispHalf - buttonOffMiddle, _dispHalf - buttonOffMiddle - buttonSize, 0.9);
       }
-      if (_buttons.state[BUTTON_NEXT] != BUTTON_RELEASE) {
+      if (Buttons.state[BUTTON_NEXT] != BUTTON_RELEASE) {
         drawBlock(_dispHalf + buttonOffMiddle, _dispHalf + buttonOffMiddle + buttonSize, 0.9);
       }
     }
@@ -283,19 +267,19 @@ void Display::update() {
 } // update()
 
 
-void Display::clear() {
+void Display_::clear() {
   for (int i = 0; i < DISPLAY_LENGTH; i++) {
     _data[i] = 0;
   }
 } // clear()
 
 
-int Display::mapRealPos2Display(float pos) {
+int Display_::mapRealPos2Display(float pos) {
   return mapFloat(pos, CARRIAGE_RECORD_END, CARRIAGE_12INCH_START, 0, DISPLAY_LENGTH - 1);
 } // mapRealPos2Display()
 
 
-void Display::drawBlock(int start, int end, float color) {
+void Display_::drawBlock(int start, int end, float color) {
   int startLim = min(start, end);
   int endLim = max(start, end);
 
@@ -313,7 +297,7 @@ void Display::drawBlock(int start, int end, float color) {
 } // drawBlock()
 
 
-void Display::drawPoint(int pos, float color) {
+void Display_::drawPoint(int pos, float color) {
   if (pos < 0 || pos >= DISPLAY_LENGTH) {
     return;
   }
@@ -321,7 +305,7 @@ void Display::drawPoint(int pos, float color) {
 } // drawPoint()
 
 
-void Display::flipData() {
+void Display_::flipData() {
   float buffer;
   for (int i = 0; i < DISPLAY_LENGTH / 2; i++) {
     buffer = _data[i];
@@ -331,7 +315,7 @@ void Display::flipData() {
 } // flipData()
 
 
-void Display::print(float time) {
+void Display_::print(float time) {
   for (int i = 0; i < DISPLAY_LENGTH; i++) {
     int pix = i;
     pix = (pix + 7) - ((pix % 8) * 2); // flip byte
@@ -346,13 +330,22 @@ void Display::print(float time) {
 } // print()
 
 
-void Display::commit() {
+void Display_::commit() {
   gpio_put(DISPLAY_LATCH_PIN, 0);
   delayMicroseconds(2);
   gpio_put(DISPLAY_LATCH_PIN, 1);
 } // commit()
 
 
-void Display::bootLED() {
+void Display_::bootLED() {
   digitalWrite(LED_PIN, secsSinceBoot() < 3); // turn LED on
 }
+
+
+Display_ &Display_::getInstance() {
+  static Display_ instance;
+  return instance;
+} // getInstance()
+
+
+Display_ &Display = Display.getInstance();

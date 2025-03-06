@@ -13,22 +13,13 @@
 */
 
 
-Storage::Storage(Shared& shared, Arm& arm, Carriage& carriage, Orientation& orientation, Plateau& plateau) :
-  _shared(shared),
-  _arm(arm),
-  _carriage(carriage),
-  _orientation(orientation),
-  _plateau(plateau) {
-} // Storage()
-
-
-void Storage::init() {
+void Storage_::init() {
   LOG_DEBUG("storage.cpp", "[init]");
   EEPROM.begin(4096);
 } // init()
 
 
-void Storage::read() {
+void Storage_::read() {
   readAddress(EEPROM_VERSION,           eepromVersion);
   readAddress(EEPROM_ARM_FORCE_500MG,   _armForceLow);
   readAddress(EEPROM_ARM_FORCE_4000MG,  _armForceHigh);
@@ -41,33 +32,33 @@ void Storage::read() {
   readAddress(EEPROM_ARM_ANGLE_MIN,     _armAngleMin);
   readAddress(EEPROM_ARM_ANGLE_MAX,     _armAngleMax);
   readAddress(EEPROM_PLATEAU_MOTOR_REV, _plateauMotorReverse);
-  _arm.forceLow         = _armForceLow;
-  _arm.forceHigh        = _armForceHigh;
-  // _arm.targetWeight     = _armTargetWeight;
-  _arm.justDockedWeight = _armForceDocked;
-  _orientation.offsetX  = _levelOffsetX;
-  _orientation.offsetY  = _levelOffsetY;
-  _orientation.offsetZ  = _levelOffsetZ;
-  _carriage.trackOffset = _trackOffset;
-  _arm.armAngleMin      = _armAngleMin;
-  _arm.armAngleMax      = _armAngleMax;
-  _plateau.motorReverse = _plateauMotorReverse;
+  Arm.forceLow          = _armForceLow;
+  Arm.forceHigh         = _armForceHigh;
+  // Arm.targetWeight      = _armTargetWeight;
+  Arm.justDockedWeight  = _armForceDocked;
+  Orientation.offsetX   = _levelOffsetX;
+  Orientation.offsetY   = _levelOffsetY;
+  Orientation.offsetZ   = _levelOffsetZ;
+  Carriage.trackOffset  = _trackOffset;
+  Arm.armAngleMin       = _armAngleMin;
+  Arm.armAngleMax       = _armAngleMax;
+  Plateau.motorReverse  = _plateauMotorReverse;
 } // read()
 
 
-void Storage::write() {
-  eepromVersion        = _shared.appversion;
-  _armForceLow         = _arm.forceLow;
-  _armForceHigh        = _arm.forceHigh;
-  // _armTargetWeight     = _arm.targetWeight;
-  _armForceDocked      = _arm.justDockedWeight;
-  _levelOffsetX        = _orientation.offsetX;
-  _levelOffsetY        = _orientation.offsetY;
-  _levelOffsetZ        = _orientation.offsetZ;
-  _trackOffset         = _carriage.trackOffset;
-  _armAngleMin         = _arm.armAngleMin;
-  _armAngleMax         = _arm.armAngleMax;
-  _plateauMotorReverse = static_cast<float>(_plateau.motorReverse);
+void Storage_::write() {
+  eepromVersion        = Shared.appversion;
+  _armForceLow         = Arm.forceLow;
+  _armForceHigh        = Arm.forceHigh;
+  // _armTargetWeight     = Arm.targetWeight;
+  _armForceDocked      = Arm.justDockedWeight;
+  _levelOffsetX        = Orientation.offsetX;
+  _levelOffsetY        = Orientation.offsetY;
+  _levelOffsetZ        = Orientation.offsetZ;
+  _trackOffset         = Carriage.trackOffset;
+  _armAngleMin         = Arm.armAngleMin;
+  _armAngleMax         = Arm.armAngleMax;
+  _plateauMotorReverse = static_cast<float>(Plateau.motorReverse);
   writeAddress(EEPROM_VERSION,           eepromVersion);
   writeAddress(EEPROM_ARM_FORCE_500MG,   _armForceLow);
   writeAddress(EEPROM_ARM_FORCE_4000MG,  _armForceHigh);
@@ -87,7 +78,7 @@ void Storage::write() {
 } // write()
 
 
-void Storage::commit() {
+void Storage_::commit() {
   if (EEPROM.commit()) {
     LOG_INFO("storage.cpp", "[commit] EEPROM successfully committed");
     Serial.println("Changes saved to EEPROM");
@@ -98,7 +89,7 @@ void Storage::commit() {
 } // commit()
 
 
-void Storage::info() {
+void Storage_::info() {
   Serial.println(padRight("EEPROM_VERSION", PADR) +          ": " + String(eepromVersion, 0));
   Serial.println(padRight("EEPROM_ARM_FORCE_500MG", PADR) +  ": " + String(_armForceLow, 5));
   Serial.println(padRight("EEPROM_ARM_FORCE_4000MG", PADR) + ": " + String(_armForceHigh, 5));
@@ -115,7 +106,7 @@ void Storage::info() {
 } // info()
 
 
-void Storage::readAddress(int address, float& value) {
+void Storage_::readAddress(int address, float& value) {
   float buffer = 0;
   buffer = EEPROM.get(address, buffer);
 
@@ -129,7 +120,16 @@ void Storage::readAddress(int address, float& value) {
 } // readAddress()
 
 
-void Storage::writeAddress(int address, float value) {
+void Storage_::writeAddress(int address, float value) {
   EEPROM.put(address, value);
   LOG_DEBUG("storage.cpp", "[writeAddress] Wrote address: " + String(address) + ", value: " + String(value, 5));
 } // writeAddress()
+
+
+Storage_ &Storage_::getInstance() {
+  static Storage_ instance;
+  return instance;
+} // getInstance()
+
+
+Storage_ &Storage = Storage.getInstance();

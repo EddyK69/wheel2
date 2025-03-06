@@ -4,25 +4,7 @@
 #include "helper.h"
 
 
-SerialComm::SerialComm(Shared& shared, Amplifier& amplifier, Arm& arm, Bluetooth& bluetooth, Buttons& buttons, Carriage& carriage,
-      Orientation& orientation, Plateau& plateau, Scanner& scanner, SpeedComp& speedcomp, Storage& storage) :
-      _shared(shared),
-      _amplifier(amplifier),
-      _arm(arm),
-      _bluetooth(bluetooth),
-      _buttons(buttons),
-      _carriage(carriage),
-      _orientation(orientation),
-      _plateau(plateau),
-      _scanner(scanner),
-      _speedcomp(speedcomp),
-      _storage(storage),
-      _interval(10000, TM_MICROS),
-      _uptimeInterval(60, TM_MINS) {
-} // SerialComm()
-
-
-void SerialComm::init() {
+void SerialComm_::init() {
     // Start serial output
   Serial.begin(SERIAL_BAUDRATE);
 
@@ -38,7 +20,7 @@ void SerialComm::init() {
 } // init()
 
 
-void SerialComm::func() {
+void SerialComm_::func() {
   if (_interval.tick()) {
 
     if (_graphicData) {
@@ -74,96 +56,96 @@ void SerialComm::func() {
 } // func()
 
 
-void SerialComm::checkReceivedLine(String line, eCheckMode mode) {
+void SerialComm_::checkReceivedLine(String line, eCheckMode mode) {
   LOG_DEBUG("serialcomm.cpp", "[checkReceivedLine]");
   println(mode);
   if (checkLineCommand( "RST",    "Reboot",                     mode)) { rp2040.reboot();                     return; }
   // if (checkLineCommand( "BOOT",   "Reboot to USB bootloader",   mode)) { rp2040.rebootToBootloader();         return; }
 
-  if (checkLineCommand( "AT+",    "Bluetooth command",          mode)) { _bluetooth.write(_lineRaw);          return; }
-  if (checkLineBool(    "BT",     "Bluetoot uart",              mode,  _bluetooth.debug)) {                   return; }
+  if (checkLineCommand( "AT+",    "Bluetooth command",          mode)) { Bluetooth.write(_lineRaw);           return; }
+  if (checkLineBool(    "BT",     "Bluetoot uart",              mode,  Bluetooth.debug)) {                    return; }
 
   if (checkLineBool(    "G",      "Graphics",                   mode, _graphicData)) {                        return; }
-  if (checkLineBool(    "PLG",    "RecordScanner graphics",     mode, _scanner.graphicData)) {                return; }
-  if (checkLineBool(    "KG",     "Carriage graphics",          mode, _carriage.graphicData)) {               return; }
-  if (checkLineBool(    "SG",     "Strobo graphics",            mode, _speedcomp.graphicData)) {              return; }
-  if (checkLineBool(    "OG",     "Orientation graphics",       mode, _orientation.graphicData)) {            return; }
+  if (checkLineBool(    "PLG",    "RecordScanner graphics",     mode, Scanner.graphicData)) {                 return; }
+  if (checkLineBool(    "KG",     "Carriage graphics",          mode, Carriage.graphicData)) {                return; }
+  if (checkLineBool(    "SG",     "Strobo graphics",            mode, SpeedComp.graphicData)) {               return; }
+  if (checkLineBool(    "OG",     "Orientation graphics",       mode, Orientation.graphicData)) {             return; }
 
   //-------------------------------------------------- STATE --------------------------------------------------
   println(mode);
-  if (checkLineCommand( ">>",     "Next track",                 mode)) { _carriage.gotoNextTrack();           return; }
-  if (checkLineCommand( "<<",     "Previous track",             mode)) { _carriage.gotoPreviousTrack();       return; }
-  if (checkLineCommand( "HOK",    "Home",                       mode)) { _shared.setState(S_HOME);            return; }
-  if (checkLineCommand( "STOP",   "Stop",                       mode)) { _plateau.stop();                     return; }
-  if (checkLineCommand( "SPEEL",  "Play",                       mode)) { _plateau.play();                     return; }
-  if (checkLineCommand( "PAUZE",  "Pause",                      mode)) { _carriage.pause();                   return; }
-  if (checkLineCommand( "NAALD",  "Clean needle",               mode)) { _shared.setState(S_NEEDLE_CLEAN);    return; }
-  if (checkLineCommand( "CAL",    "Calibrate",                  mode)) { _shared.setState(S_CALIBRATE);       return; }
-  if (checkLineBool(    "REP",    "Repeat",                     mode, _carriage.repeat)) {                    return; }
+  if (checkLineCommand( ">>",     "Next track",                 mode)) { Carriage.gotoNextTrack();            return; }
+  if (checkLineCommand( "<<",     "Previous track",             mode)) { Carriage.gotoPreviousTrack();        return; }
+  if (checkLineCommand( "HOK",    "Home",                       mode)) { Shared.setState(S_HOME);             return; }
+  if (checkLineCommand( "STOP",   "Stop",                       mode)) { Plateau.stop();                      return; }
+  if (checkLineCommand( "SPEEL",  "Play",                       mode)) { Plateau.play();                      return; }
+  if (checkLineCommand( "PAUZE",  "Pause",                      mode)) { Carriage.pause();                    return; }
+  if (checkLineCommand( "NAALD",  "Clean needle",               mode)) { Shared.setState(S_NEEDLE_CLEAN);     return; }
+  if (checkLineCommand( "CAL",    "Calibrate",                  mode)) { Shared.setState(S_CALIBRATE);        return; }
+  if (checkLineBool(    "REP",    "Repeat",                     mode, Carriage.repeat)) {                     return; }
 
   //-------------------------------------------------- ARM --------------------------------------------------
   println(mode);
-  if (checkLineCommand( "NE",     "Needle down",                mode)) { _arm.putNeedleInGrove();             return; }
-  if (checkLineCommand( "NA",     "Needle up",                  mode)) { _arm.dockNeedle();                   return; }
-  if (checkLineFloat(   "ATG",    "Arm targetweight",           mode, _arm.targetWeight)) { _storage.saveRequired  = true; return; }
-  if (checkLineFloat(   "AG",     "Arm weight",                 mode, _arm.weight)) {                         return; }
-  if (checkLineCommand( "AKHOK",  "Arm force Docked calibrate", mode)) { _arm.justDockedWeight = _arm.weight; Serial.println(padRight("AKHOK", 8) + " " + padRight("Arm force Docked calibrate", 26) + " SET: " + String(_arm.justDockedWeight, 5)); _storage.saveRequired = true; return; }
-  if (checkLineCommand( "AKL",    "Arm force 500mg calibrate",  mode)) { _arm.forceLow = _arm.force;          Serial.println(padRight("AKL", 8)   + " " + padRight("Arm force 500mg calibrate", 26)  + " SET: " + String(_arm.forceLow, 5));         _storage.saveRequired = true; return; }
-  if (checkLineCommand( "AKH",    "Arm force 4000mg calibrate", mode)) { _arm.forceHigh = _arm.force;         Serial.println(padRight("AKH", 8)   + " " + padRight("Arm force 4000mg calibrate", 26) + " SET: " + String(_arm.forceHigh, 5));        _storage.saveRequired = true; return; }
-  if (checkLineFloat(   "AK",     "Arm force",                  mode, _arm.force)) { _arm.force = limitFloat(_arm.force, 0, 1); return;}
+  if (checkLineCommand( "NE",     "Needle down",                mode)) { Arm.putNeedleInGrove();              return; }
+  if (checkLineCommand( "NA",     "Needle up",                  mode)) { Arm.dockNeedle();                    return; }
+  if (checkLineFloat(   "ATG",    "Arm targetweight",           mode, Arm.targetWeight)) { Storage.saveRequired  = true; return; }
+  if (checkLineFloat(   "AG",     "Arm weight",                 mode, Arm.weight)) {                          return; }
+  if (checkLineCommand( "AKHOK",  "Arm force Docked calibrate", mode)) { Arm.justDockedWeight = Arm.weight;   Serial.println(padRight("AKHOK", 8) + " " + padRight("Arm force Docked calibrate", 26) + " SET: " + String(Arm.justDockedWeight, 5)); Storage.saveRequired = true; return; }
+  if (checkLineCommand( "AKL",    "Arm force 500mg calibrate",  mode)) { Arm.forceLow = Arm.force;            Serial.println(padRight("AKL", 8)   + " " + padRight("Arm force 500mg calibrate", 26)  + " SET: " + String(Arm.forceLow, 5));         Storage.saveRequired = true; return; }
+  if (checkLineCommand( "AKH",    "Arm force 4000mg calibrate", mode)) { Arm.forceHigh = Arm.force;           Serial.println(padRight("AKH", 8)   + " " + padRight("Arm force 4000mg calibrate", 26) + " SET: " + String(Arm.forceHigh, 5));        Storage.saveRequired = true; return; }
+  if (checkLineFloat(   "AK",     "Arm force",                  mode, Arm.force)) { Arm.force = limitFloat(Arm.force, 0, 1); return;}
  
   //-------------------------------------------------- CARRIAGE --------------------------------------------------
   println(mode);
-  if (checkLineFloat(   "KP",     "Carriage P",                 mode, _carriage.P)) {                         return; }
-  if (checkLineFloat(   "KI",     "Carriage I",                 mode, _carriage.I)) {                         return; }
-  if (checkLineFloat(   "KD",     "Carriage D",                 mode, _carriage.D)) {                         return; }
-  if (checkLineFloat(   "TNP",    "Target track",               mode, _carriage.targetTrack)) { _carriage.targetTrack = limitFloat(_carriage.targetTrack, CARRIAGE_HOME, CARRIAGE_12INCH_START); return; }
+  if (checkLineFloat(   "KP",     "Carriage P",                 mode, Carriage.P)) {                          return; }
+  if (checkLineFloat(   "KI",     "Carriage I",                 mode, Carriage.I)) {                          return; }
+  if (checkLineFloat(   "KD",     "Carriage D",                 mode, Carriage.D)) {                          return; }
+  if (checkLineFloat(   "TNP",    "Target track",               mode, Carriage.targetTrack)) { Carriage.targetTrack = limitFloat(Carriage.targetTrack, CARRIAGE_HOME, CARRIAGE_12INCH_START); return; }
 
   //-------------------------------------------------- PLATEAU --------------------------------------------------
   println(mode);
-  if (checkLineFloat(   "PP",     "Plateau P",                  mode, _plateau.P)) {                          return; }
-  if (checkLineFloat(   "PI",     "Plateau I",                  mode, _plateau.I)) {                          return; }
-  if (checkLineFloat(   "PD",     "Plateau D",                  mode, _plateau.D)) {                          return; }
+  if (checkLineFloat(   "PP",     "Plateau P",                  mode, Plateau.P)) {                           return; }
+  if (checkLineFloat(   "PI",     "Plateau I",                  mode, Plateau.I)) {                           return; }
+  if (checkLineFloat(   "PD",     "Plateau D",                  mode, Plateau.D)) {                           return; }
 
-  if (checkLineBool(    "PR",     "Plateau motor reverse",      mode, _plateau.motorReverse)) {               return; }
+  if (checkLineBool(    "PR",     "Plateau motor reverse",      mode, Plateau.motorReverse)) {                return; }
 
-  if (checkLineFloat(   "TR",     "Target RPM",                 mode, _plateau.targetRpm)) { _plateau.turnInterval.reset(); return; }
-//  if (checkLineInt(     "RPM",    "RPM mode (1/3/4)",           mode, _plateau.rpmMode)) { return; } // TODO: EK
+  if (checkLineFloat(   "TR",     "Target RPM",                 mode, Plateau.targetRpm)) { Plateau.turnInterval.reset(); return; }
+  // if (checkLineInt(     "RPM",    "RPM mode (1/3/4)",           mode, Plateau.rpmMode)) {                      return; } // TODO: EK
 
-  if (checkLineCommand( "PA",     "Plateau start",              mode)) { _plateau.motorStart();               return; }
-  if (checkLineCommand( "PS",     "Plateau stop",               mode)) { _plateau.motorStop();                return; }
-  if (checkLineBool(    "PL",     "Plateau logica",             mode, _plateau.logic)) {                      return; }
-  if (checkLineBool(    "PC",     "Unbalance compensation",     mode, _plateau.unbalanceCompensation)) {      return; }
+  if (checkLineCommand( "PA",     "Plateau start",              mode)) { Plateau.motorStart();                return; }
+  if (checkLineCommand( "PS",     "Plateau stop",               mode)) { Plateau.motorStop();                 return; }
+  if (checkLineBool(    "PL",     "Plateau logica",             mode, Plateau.logic)) {                       return; }
+  if (checkLineBool(    "PC",     "Unbalance compensation",     mode, Plateau.unbalanceCompensation)) {       return; }
 
   //-------------------------------------------------- STROBO --------------------------------------------------
   println(mode);
-  // if (checkLineInt(     "SSN",    "Strobo samples",             mode, _speedcomp.samples)) {                  return; }
-  if (checkLineBool(    "SOC",    "Strobo unbalance Comp. On",  mode, _speedcomp.unbalanceCompOn)) {          return; }
-  if (checkLineBool(    "SKC",    "Strobo OffCenter Comp.",     mode, _speedcomp.recordOffCenterComp)) {      return; }
-  if (checkLineBool(    "KC",     "Carriage OffCenter Comp.",   mode, _carriage.offCenterCompensation)) {     return; }
+  // if (checkLineInt(     "SSN",    "Strobo samples",             mode, SpeedComp.samples)) {                   return; }
+  if (checkLineBool(    "SOC",    "Strobo unbalance Comp. On",  mode, SpeedComp.unbalanceCompOn)) {           return; }
+  if (checkLineBool(    "SKC",    "Strobo OffCenter Comp.",     mode, SpeedComp.recordOffCenterComp)) {       return; }
+  if (checkLineBool(    "KC",     "Carriage OffCenter Comp.",   mode, Carriage.offCenterCompensation)) {      return; }
 
-  if (checkLineFloat(   "SOG",    "Strobo unbal. Comp. Weight", mode, _speedcomp.unbalanceCompWeight)) {      return; }
-  if (checkLineFloat(   "SOFB",   "Strobo unbal. Filter Width", mode, _speedcomp.unbalanceFilterWidth)) {_speedcomp.createUnbalanceFilterCurve(); return; }
-  if (checkLineInt(     "SOF",    "Strobo unbal. Phase",        mode, _speedcomp.unbalancePhase)) {           return; }
+  if (checkLineFloat(   "SOG",    "Strobo unbal. Comp. Weight", mode, SpeedComp.unbalanceCompWeight)) {       return; }
+  if (checkLineFloat(   "SOFB",   "Strobo unbal. Filter Width", mode, SpeedComp.unbalanceFilterWidth)) {SpeedComp.createUnbalanceFilterCurve(); return; }
+  if (checkLineInt(     "SOF",    "Strobo unbal. Phase",        mode, SpeedComp.unbalancePhase)) {            return; }
 
-  if (checkLineCommand( "SCZ",    "Strobo clearCompSamples On T0", mode)) { _speedcomp.clearCompSamplesOnT0(); return; }
-  if (checkLineCommand( "SCC",    "Strobo clearCompSamples",    mode)) { _speedcomp.clearCompSamples();       return; }
+  if (checkLineCommand( "SCZ",    "Strobo clearCompSamples On T0", mode)) { SpeedComp.clearCompSamplesOnT0(); return; }
+  if (checkLineCommand( "SCC",    "Strobo clearCompSamples",    mode)) { SpeedComp.clearCompSamples();        return; }
 
   //-------------------------------------------------- STORAGE --------------------------------------------------
   println(mode);
-  if (checkLineFloat(   "EV",     "eepromVersie",               mode, _storage.eepromVersion)) {              return; }
-  if (checkLineCommand( "EO",     "Save EEPROM",                mode)) { _storage.write();                    return; }
-  if (checkLineCommand( "EL",     "Read EEPROM",                mode)) { _storage.read();                     return; }
-  if (checkLineCommand( "OC",     "Orientation calibrate",      mode)) { _orientation.calibrate(); _storage.saveRequired  = true; return; }
-  if (checkLineFloat(   "TO",     "Track offset",               mode, _carriage.trackOffset)) { _storage.saveRequired  = true; return; }
-  if (checkLineCommand( "AHCal",  "Calibrate arm angle",        mode)) { _arm.calibrateAngle(); _storage.saveRequired = true; return; }
+  if (checkLineFloat(   "EV",     "eepromVersie",               mode, Storage.eepromVersion)) {               return; }
+  if (checkLineCommand( "EO",     "Save EEPROM",                mode)) { Storage.write();                     return; }
+  if (checkLineCommand( "EL",     "Read EEPROM",                mode)) { Storage.read();                      return; }
+  if (checkLineCommand( "OC",     "Orientation calibrate",      mode)) { Orientation.calibrate(); Storage.saveRequired = true; return; }
+  if (checkLineFloat(   "TO",     "Track offset",               mode, Carriage.trackOffset)) { Storage.saveRequired = true; return; }
+  if (checkLineCommand( "AHCal",  "Calibrate arm angle",        mode)) { Arm.calibrateAngle(); Storage.saveRequired = true; return; }
 
   //-------------------------------------------------- CARRIAGE SENSORS --------------------------------------------------
   println(mode);
-  // if(checkLineFloat(    "PLS",    "Scanner current",            mode, _scanner.current)) {                    return; }
-  if (checkLineInt(     "VOLUME", "Volume w/o override",        mode, _amplifier.volume)) { _amplifier.volumeOverRide = false; return; }
-  if (checkLineInt(     "VOL",    "Volume",                     mode, _amplifier.volume)) { _amplifier.volumeOverRide = true; return; }
-  if (checkLineCommand( "AHCent", "Center Arm Angle",           mode)) { _arm.centerArmAngle();               return; }
+  // if(checkLineFloat(    "PLS",    "Scanner current",            mode, Scanner.current)) {                     return; }
+  if (checkLineInt(     "VOLUME", "Volume w/o override",        mode, Amplifier.volume)) { Amplifier.volumeOverRide = false; return; }
+  if (checkLineInt(     "VOL",    "Volume",                     mode, Amplifier.volume)) { Amplifier.volumeOverRide = true; return; }
+  if (checkLineCommand( "AHCent", "Center Arm Angle",           mode)) { Arm.centerArmAngle();                return; }
 
   //-------------------------------------------------- HELP --------------------------------------------------
   println(mode);
@@ -180,7 +162,7 @@ void SerialComm::checkReceivedLine(String line, eCheckMode mode) {
 } // checkReceivedLine()
 
 
-bool SerialComm::checkLineCommand(String command, String description, eCheckMode mode) {
+bool SerialComm_::checkLineCommand(String command, String description, eCheckMode mode) {
   if (mode == CM_VALUE) {
     return false;
   }
@@ -192,7 +174,7 @@ bool SerialComm::checkLineCommand(String command, String description, eCheckMode
 } // checkLineCommand()
 
 
-bool SerialComm::checkLine(String command, String description, eCheckMode mode) {
+bool SerialComm_::checkLine(String command, String description, eCheckMode mode) {
   if (mode == CM_COMMAND) {
     printCommando(command, description);
     Serial.println();
@@ -210,7 +192,7 @@ bool SerialComm::checkLine(String command, String description, eCheckMode mode) 
 } // checkLine()
 
 
-bool SerialComm::checkLineInt(String command, String description, eCheckMode mode, int& value) {
+bool SerialComm_::checkLineInt(String command, String description, eCheckMode mode, int& value) {
   if (mode == CM_VALUE) {
     printValue(command, description, String(value));
     return false;
@@ -229,7 +211,7 @@ bool SerialComm::checkLineInt(String command, String description, eCheckMode mod
 } // checkLineInt()
 
 
-bool SerialComm::checkLineFloat(String command, String description, eCheckMode mode, float& value) {
+bool SerialComm_::checkLineFloat(String command, String description, eCheckMode mode, float& value) {
   if (mode == CM_VALUE) {
     printValue(command, description, String(value, 5));
     return false;
@@ -248,7 +230,7 @@ bool SerialComm::checkLineFloat(String command, String description, eCheckMode m
 } // checkLineFloat()
 
 
-bool SerialComm::checkLineBool(String command, String description, eCheckMode mode, bool& value) {
+bool SerialComm_::checkLineBool(String command, String description, eCheckMode mode, bool& value) {
   if (mode == CM_VALUE) {
     printValue(command, description, String(value));
     return false;
@@ -270,152 +252,161 @@ bool SerialComm::checkLineBool(String command, String description, eCheckMode mo
 } // checkLineBool()
 
 
-void SerialComm::println(eCheckMode mode) {
+void SerialComm_::println(eCheckMode mode) {
   if (mode != CM_NONE) {
     Serial.println();
   }
 } // println()
 
 
-void SerialComm::printCommando(String command, String description) {
+void SerialComm_::printCommando(String command, String description) {
   command.toUpperCase();
   Serial.print(padRight(command, 8) + " " + padRight(description, 26) + " ");
 } // printCommando()
 
 
-void SerialComm::printValue(String command, String description, String value) {
+void SerialComm_::printValue(String command, String description, String value) {
   command.toUpperCase();
   Serial.println(padRight(command, 8) + " " + padRight(description, 26) +  " " + value);
 } // printValue()
 
 
-void SerialComm::printGraphicData() {
+void SerialComm_::printGraphicData() {
   if (!_headerShown) {
     Serial.println("GRAPH_HEADER: SpeedRaw-TRPM, Speed-CTRPM, PPR, CTPRM-TRPM, UnbalanceComp, ArmAngleCall, RealPosition, Trackspacing, ArmWeight");
     _headerShown = true;
   }
-  Serial.print(_speedcomp.speedRaw - _plateau.targetRpm, 3);
+  Serial.print(SpeedComp.speedRaw - Plateau.targetRpm, 3);
   Serial.print(", ");
-  Serial.print(_speedcomp.speed - _speedcomp.centerCompTargetRpm, 3);
+  Serial.print(SpeedComp.speed - SpeedComp.centerCompTargetRpm, 3);
 
   // Serial.print(", ");
-  // Serial.print(_speedcomp.speed, 3);
+  // Serial.print(SpeedComp.speed, 3);
   Serial.print(", ");
-  Serial.print((float)_speedcomp.rotationPosition / _speedcomp.pulsesPerRev, 3);
+  Serial.print((float)SpeedComp.rotationPosition / SpeedComp.pulsesPerRev, 3);
 
   // Serial.print(", ");
-  // Serial.print(_speedcomp._unbalanceFilterCurve[_speedcomp.rotationPosition]);
+  // Serial.print(SpeedComp._unbalanceFilterCurve[SpeedComp.rotationPosition]);
 
   // Serial.print(", ");
-  // Serial.print(_speedcomp.speedLowPass, 3);
+  // Serial.print(SpeedComp.speedLowPass, 3);
 
   // Serial.print(", ");
-  // Serial.print(_speedcomp._processInterval);
+  // Serial.print(SpeedComp._processInterval);
 
   // Serial.print(", ");
-  // Serial.print(_speedcomp.speedLowPass - _plateau.targetRpm, 3);
+  // Serial.print(SpeedComp.speedLowPass - Plateau.targetRpm, 3);
   // Serial.print(", ");
-  // Serial.print(_speedcomp.lowpassRect, 3);
+  // Serial.print(SpeedComp.lowpassRect, 3);
   // Serial.print(", ");
-  // Serial.print(_speedcomp.wow, 3);
+  // Serial.print(SpeedComp.wow, 3);
 
   // Serial.print(", ");
-  // Serial.print(_speedcomp.speedHighPass, 3);
-
-  Serial.print(", ");
-  Serial.print(_speedcomp.centerCompTargetRpm - _plateau.targetRpm, 3);
-
-  // Serial.print(", ");
-  // Serial.print(_speedcomp.rotationPosition / float(_speedcomp.pulsesPerRev));
-
-  // Serial.print(", ");
-  // Serial.print(_speedcomp.preComp, 4);
+  // Serial.print(SpeedComp.speedHighPass, 3);
 
   Serial.print(", ");
-  Serial.print(_speedcomp.unbalanceComp, 4);
+  Serial.print(SpeedComp.centerCompTargetRpm - Plateau.targetRpm, 3);
 
   // Serial.print(", ");
-  // Serial.print(_plateau._outBuff, 2);
+  // Serial.print(SpeedComp.rotationPosition / float(SpeedComp.pulsesPerRev));
 
   // Serial.print(", ");
-  // Serial.print(_plateau._outBuffPrev, 2);
+  // Serial.print(SpeedComp.preComp, 4);
 
-  // Serial.print(", ");
-  // Serial.print(_arm.armAngleRaw); // 1696);
-
-  // Serial.print(", ");
-  // Serial.print(_carriage._Dcomp, 4); // 1696);
   Serial.print(", ");
-  Serial.print(_arm.armAngleCall, 4); // 1696);
+  Serial.print(SpeedComp.unbalanceComp, 4);
 
   // Serial.print(", ");
-  // Serial.print(_arm.armAngleSlow, 5); // 1696);
-  // Serial.print(", ");
-  // Serial.print(_arm.armAngleOffset, 5); // 1696);
+  // Serial.print(Plateau._outBuff, 2);
 
   // Serial.print(", ");
-  // Serial.print(_carriage.position, 3);
+  // Serial.print(Plateau._outBuffPrev, 2);
+
+  // Serial.print(", ");
+  // Serial.print(Arm.armAngleRaw); // 1696);
+
+  // Serial.print(", ");
+  // Serial.print(Carriage._Dcomp, 4); // 1696);
   Serial.print(", ");
-  Serial.print(_carriage.realPosition, 3);
+  Serial.print(Arm.armAngleCall, 4); // 1696);
+
+  // Serial.print(", ");
+  // Serial.print(Arm.armAngleSlow, 5); // 1696);
+  // Serial.print(", ");
+  // Serial.print(Arm.armAngleOffset, 5); // 1696);
+
+  // Serial.print(", ");
+  // Serial.print(Carriage.position, 3);
+  Serial.print(", ");
+  Serial.print(Carriage.realPosition, 3);
 
   // // Serial.print(", ");
-  // // Serial.print(_speedcomp.carriagePosMiddle, 3);
+  // // Serial.print(SpeedComp.carriagePosMiddle, 3);
 
   // // Serial.print(", ");
-  // // Serial.print(_speedcomp.carriagePosMiddle + _speedcomp.carriageFourier, 3);
+  // // Serial.print(SpeedComp.carriagePosMiddle + SpeedComp.carriageFourier, 3);
 
   // Serial.print(", ");
-  // Serial.print(_speedcomp.carriagePosMiddle + _speedcomp.carriageFourierFilter, 3);
+  // Serial.print(SpeedComp.carriagePosMiddle + SpeedComp.carriageFourierFilter, 3);
 
   Serial.print(", ");
-  Serial.print(_speedcomp.trackSpacing, 3);
+  Serial.print(SpeedComp.trackSpacing, 3);
 
   Serial.print(", ");
-  Serial.print(_arm.weight, 3);
+  Serial.print(Arm.weight, 3);
 
  Serial.println();
 } // printGraphicData()
 
 
-void SerialComm::report() {
-  Serial.println("-------------------- V" + String(_shared.appversion) + " --------------------");
+void SerialComm_::report() {
+  Serial.println("-------------------- V" + String(Shared.appversion) + " --------------------");
   Serial.println();
   Serial.println(padRight("WHEEL_TEMPERATURE", PADR) + ": " + String(analogReadTemp(), 2) + " °C");
   Serial.println();
-  _storage.info();
-  _orientation.info();
-  // _speedcomp.info();
+  Storage.info();
+  Orientation.info();
+  // SpeedComp.info();
   Serial.println("----------------------------------------------");
 } // report()
 
 
-void SerialComm::info() {
+void SerialComm_::info() {
   version();
   Serial.println(padRight("WHEEL_UPTIME", PADR) +           ": " + msToString(millisSinceBoot()));
   Serial.println(padRight("WHEEL_TEMPERATURE", PADR) +      ": " + String(analogReadTemp(), 2) + " °C");
-  Serial.println(padRight("WHEEL_STATE", PADR) +            ": " + getState(_shared.state));
-  Serial.println(padRight("WHEEL_VOLUME", PADR) +           ": " + String(_amplifier.volume));
+  Serial.println(padRight("WHEEL_STATE", PADR) +            ": " + getState(Shared.state));
+  Serial.println(padRight("WHEEL_VOLUME", PADR) +           ": " + String(Amplifier.volume));
   Serial.println();
-  _storage.info();
-  _orientation.info();
-  _plateau.info();
-  _speedcomp.info();
-  _carriage.info();
-  _scanner.info();
-  _arm.info();
-  _buttons.info();
-  _shared.info();
+  Storage.info();
+  Orientation.info();
+  Plateau.info();
+  SpeedComp.info();
+  Carriage.info();
+  Scanner.info();
+  Arm.info();
+  Buttons.info();
+  Shared.info();
   Serial.println("----------------------------------------------");
 } // info()
 
 
-void SerialComm::version() {
-  Serial.println("-------------------- V" + String(_shared.appversion) + " --------------------");
+void SerialComm_::version() {
+  Serial.println("-------------------- V" + String(Shared.appversion) + " --------------------");
   Serial.println();
-  Serial.println(padRight("WHEEL_HW_VERSION", PADR) +       ": " + String(BOARD_DESCRIPTION) + String(_bluetooth.wirelessVersion ? " [BT]" : ""));
-  Serial.println(padRight("WHEEL_FW_VERSION", PADR) +       ": V" + String(_shared.appversion) + " [" + _shared.appdate + "]");
-  // Serial.println(padRight("WHEEL_WIRELESS_VERSION", PADR) + ": " + String(_bluetooth.wirelessVersion ? "YES" : "NO"));
+  Serial.println(padRight("WHEEL_HW_VERSION", PADR) +       ": " + String(BOARD_DESCRIPTION) + String(Bluetooth.wirelessVersion ? " [BT]" : ""));
+  Serial.println(padRight("WHEEL_FW_VERSION", PADR) +       ": V" + String(Shared.appversion) + " [" + Shared.appdate + "]");
+  // Serial.println(padRight("WHEEL_WIRELESS_VERSION", PADR) + ": " + String(Bluetooth.wirelessVersion ? "YES" : "NO"));
 } // version()
+
+
+SerialComm_ &SerialComm_::getInstance() {
+  static SerialComm_ instance;
+  return instance;
+} // getInstance()
+
+
+SerialComm_ &SerialComm = SerialComm.getInstance();
 
 
 //             bytes   cycles                

@@ -12,13 +12,21 @@
 #define ARM_AMAX 4095
 
 
-class Arm {
+class Arm_ {
   private:
-    Interval _interval;
-    Interval _needleDownInterval;
-    Interval _motorOnInterval;
-    Interval _motorOffInterval;
-    Shared& _shared;
+    Arm_() = default; // Make constructor private
+
+  public:
+    static Arm_& getInstance(); // Accessor for singleton instance
+
+    Arm_(const Arm_&) = delete; // no copying
+    Arm_& operator=(const Arm_&) = delete;
+
+  private:
+    Interval _interval = Interval(10, TM_MILLIS);
+    Interval _needleDownInterval = Interval(0, TM_MILLIS);
+    Interval _motorOnInterval = Interval(0, TM_MILLIS);
+    Interval _motorOffInterval = Interval(0, TM_MILLIS);
     float _speedUp = 1000; //ms;
     float _speedDown = 500; //ms;
     float _justInGroveWeight = 0.5; //0.25;
@@ -43,7 +51,6 @@ class Arm {
     float armAngle;
     float armAngleSlow;
     float armAngleOffset;
-    Arm(Shared& shared);
     void init();
     void func();
     bool putNeedleInGrove();
@@ -55,7 +62,8 @@ class Arm {
     void centerArmAngle();
     void calibrateAngle();
     void info();
-}; // Arm
+}; // Arm_
 
+extern Arm_& Arm;
 
 #endif // ARM_H

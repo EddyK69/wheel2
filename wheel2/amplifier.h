@@ -7,11 +7,18 @@
 #include "arm.h"
 
 
-class Amplifier {
+class Amplifier_ {
   private:
-    Interval _interval;
-    Shared& _shared;
-    Arm& _arm;
+    Amplifier_() = default; // Make constructor private
+
+  public:
+    static Amplifier_& getInstance(); // Accessor for singleton instance
+
+    Amplifier_(const Amplifier_&) = delete; // no copying
+    Amplifier_& operator=(const Amplifier_&) = delete;
+  
+  private:
+    Interval _interval = Interval(20, TM_MILLIS);
     int _volumePrev;
     bool _isNeedleDownPrev = false;
     bool _volumeOverRidePrev = false;
@@ -19,10 +26,10 @@ class Amplifier {
   public:
     bool volumeOverRide = false;
     int volume = 22;
-    Amplifier(Shared& shared, Arm& arm);
     void init();
     void func();
-}; // Amplifier
+}; // Amplifier_
 
+extern Amplifier_& Amplifier;
 
 #endif // AMPLIFIER_H

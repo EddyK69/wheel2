@@ -4,21 +4,14 @@
 #include "i2c.h"
 
 
-Amplifier::Amplifier(Shared& shared, Arm& arm) :
-  _shared(shared),
-  _arm(arm),
-  _interval(20, TM_MILLIS) {
-} // Amplifier()
-
-
-void Amplifier::init() {
+void Amplifier_::init() {
   LOG_DEBUG("amplifier.cpp", "[init]");
   pinMode(AMP_HEADSET_EN_PIN, OUTPUT);
   digitalWrite(AMP_HEADSET_EN_PIN, 1);
 } // init()
 
 
-void Amplifier::func() {
+void Amplifier_::func() {
   if (_interval.tick()) {
     if (!isNeedeDownLongEnough() && !volumeOverRide) {
       digitalWrite(AMP_HEADSET_EN_PIN, 0);
@@ -54,7 +47,16 @@ void Amplifier::func() {
 } // func()
 
 
-bool Amplifier::isNeedeDownLongEnough() {
+bool Amplifier_::isNeedeDownLongEnough() {
   // no sound when in puristMode
-  return _arm.isNeedleDownFor(2000) && _shared.state == S_PLAYING && !_shared.puristMode;
+  return Arm.isNeedleDownFor(2000) && Shared.state == S_PLAYING && !Shared.puristMode;
 } // isNeedeDownLongEnough
+
+
+Amplifier_ &Amplifier_::getInstance() {
+  static Amplifier_ instance;
+  return instance;
+} // getInstance()
+
+
+Amplifier_ &Amplifier = Amplifier.getInstance();

@@ -9,15 +9,18 @@
 #define SCANNER_DETECTION_THRESHOLD 150 //200
 
 
-class Carriage; // pre-declare class
-
-
-class Scanner {
+class Scanner_ {
   private:
-    Interval _interval;
-    Shared& _shared;
-    Plateau _plateau;
-    Carriage* _carriage;
+    Scanner_() = default; // Make constructor private
+
+  public:
+    static Scanner_& getInstance(); // Accessor for singleton instance
+
+    Scanner_(const Scanner_&) = delete; // no copying
+    Scanner_& operator=(const Scanner_&) = delete;
+
+  private:
+    Interval _interval = Interval(10000, TM_MICROS);
     bool _cut;
     bool _trackBelowThreshold = true;
     bool _headerShown = false;
@@ -54,13 +57,13 @@ class Scanner {
     float current = 10;
     int trackCount = 0;
     int currentTrack = 0;
-    Scanner(Shared& shared, Plateau& plateau);
-    void init(Carriage* carriage);
+    void init();
     void func();
     void check();
     void setTracksAs7inch();
     void info();
-}; // Scanner
+}; // Scanner_
 
+extern Scanner_& Scanner;
 
 #endif // SCANNER_H
