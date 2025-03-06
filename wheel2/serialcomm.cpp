@@ -5,11 +5,10 @@
 
 
 SerialComm::SerialComm(Bluetooth& bluetooth, Buttons& buttons, Carriage& carriage,
-      Plateau& plateau, Scanner& scanner, Storage& storage) :
+      Scanner& scanner, Storage& storage) :
       _bluetooth(bluetooth),
       _buttons(buttons),
       _carriage(carriage),
-      _plateau(plateau),
       _scanner(scanner),
       _storage(storage),
       _interval(10000, TM_MICROS),
@@ -89,8 +88,8 @@ void SerialComm::checkReceivedLine(String line, eCheckMode mode) {
   if (checkLineCommand( ">>",     "Next track",                 mode)) { _carriage.gotoNextTrack();           return; }
   if (checkLineCommand( "<<",     "Previous track",             mode)) { _carriage.gotoPreviousTrack();       return; }
   if (checkLineCommand( "HOK",    "Home",                       mode)) { Shared.setState(S_HOME);             return; }
-  if (checkLineCommand( "STOP",   "Stop",                       mode)) { _plateau.stop();                     return; }
-  if (checkLineCommand( "SPEEL",  "Play",                       mode)) { _plateau.play();                     return; }
+  if (checkLineCommand( "STOP",   "Stop",                       mode)) { Plateau.stop();                      return; }
+  if (checkLineCommand( "SPEEL",  "Play",                       mode)) { Plateau.play();                      return; }
   if (checkLineCommand( "PAUZE",  "Pause",                      mode)) { _carriage.pause();                   return; }
   if (checkLineCommand( "NAALD",  "Clean needle",               mode)) { Shared.setState(S_NEEDLE_CLEAN);     return; }
   if (checkLineCommand( "CAL",    "Calibrate",                  mode)) { Shared.setState(S_CALIBRATE);        return; }
@@ -116,19 +115,19 @@ void SerialComm::checkReceivedLine(String line, eCheckMode mode) {
 
   //-------------------------------------------------- PLATEAU --------------------------------------------------
   println(mode);
-  if (checkLineFloat(   "PP",     "Plateau P",                  mode, _plateau.P)) {                          return; }
-  if (checkLineFloat(   "PI",     "Plateau I",                  mode, _plateau.I)) {                          return; }
-  if (checkLineFloat(   "PD",     "Plateau D",                  mode, _plateau.D)) {                          return; }
+  if (checkLineFloat(   "PP",     "Plateau P",                  mode, Plateau.P)) {                           return; }
+  if (checkLineFloat(   "PI",     "Plateau I",                  mode, Plateau.I)) {                           return; }
+  if (checkLineFloat(   "PD",     "Plateau D",                  mode, Plateau.D)) {                           return; }
 
-  if (checkLineBool(    "PR",     "Plateau motor reverse",      mode, _plateau.motorReverse)) {               return; }
+  if (checkLineBool(    "PR",     "Plateau motor reverse",      mode, Plateau.motorReverse)) {                return; }
 
-  if (checkLineFloat(   "TR",     "Target RPM",                 mode, _plateau.targetRpm)) { _plateau.turnInterval.reset(); return; }
-//  if (checkLineInt(     "RPM",    "RPM mode (1/3/4)",           mode, _plateau.rpmMode)) { return; } // TODO: EK
+  if (checkLineFloat(   "TR",     "Target RPM",                 mode, Plateau.targetRpm)) { Plateau.turnInterval.reset(); return; }
+  // if (checkLineInt(     "RPM",    "RPM mode (1/3/4)",           mode, Plateau.rpmMode)) {                      return; } // TODO: EK
 
-  if (checkLineCommand( "PA",     "Plateau start",              mode)) { _plateau.motorStart();               return; }
-  if (checkLineCommand( "PS",     "Plateau stop",               mode)) { _plateau.motorStop();                return; }
-  if (checkLineBool(    "PL",     "Plateau logica",             mode, _plateau.logic)) {                      return; }
-  if (checkLineBool(    "PC",     "Unbalance compensation",     mode, _plateau.unbalanceCompensation)) {      return; }
+  if (checkLineCommand( "PA",     "Plateau start",              mode)) { Plateau.motorStart();                return; }
+  if (checkLineCommand( "PS",     "Plateau stop",               mode)) { Plateau.motorStop();                 return; }
+  if (checkLineBool(    "PL",     "Plateau logica",             mode, Plateau.logic)) {                       return; }
+  if (checkLineBool(    "PC",     "Unbalance compensation",     mode, Plateau.unbalanceCompensation)) {       return; }
 
   //-------------------------------------------------- STROBO --------------------------------------------------
   println(mode);
@@ -289,7 +288,7 @@ void SerialComm::printGraphicData() {
     Serial.println("GRAPH_HEADER: SpeedRaw-TRPM, Speed-CTRPM, PPR, CTPRM-TRPM, UnbalanceComp, ArmAngleCall, RealPosition, Trackspacing, ArmWeight");
     _headerShown = true;
   }
-  Serial.print(SpeedComp.speedRaw - _plateau.targetRpm, 3);
+  Serial.print(SpeedComp.speedRaw - Plateau.targetRpm, 3);
   Serial.print(", ");
   Serial.print(SpeedComp.speed - SpeedComp.centerCompTargetRpm, 3);
 
@@ -308,7 +307,7 @@ void SerialComm::printGraphicData() {
   // Serial.print(SpeedComp._processInterval);
 
   // Serial.print(", ");
-  // Serial.print(SpeedComp.speedLowPass - _plateau.targetRpm, 3);
+  // Serial.print(SpeedComp.speedLowPass - Plateau.targetRpm, 3);
   // Serial.print(", ");
   // Serial.print(SpeedComp.lowpassRect, 3);
   // Serial.print(", ");
@@ -318,7 +317,7 @@ void SerialComm::printGraphicData() {
   // Serial.print(SpeedComp.speedHighPass, 3);
 
   Serial.print(", ");
-  Serial.print(SpeedComp.centerCompTargetRpm - _plateau.targetRpm, 3);
+  Serial.print(SpeedComp.centerCompTargetRpm - Plateau.targetRpm, 3);
 
   // Serial.print(", ");
   // Serial.print(SpeedComp.rotationPosition / float(SpeedComp.pulsesPerRev));
@@ -330,10 +329,10 @@ void SerialComm::printGraphicData() {
   Serial.print(SpeedComp.unbalanceComp, 4);
 
   // Serial.print(", ");
-  // Serial.print(_plateau._outBuff, 2);
+  // Serial.print(Plateau._outBuff, 2);
 
   // Serial.print(", ");
-  // Serial.print(_plateau._outBuffPrev, 2);
+  // Serial.print(Plateau._outBuffPrev, 2);
 
   // Serial.print(", ");
   // Serial.print(Arm.armAngleRaw); // 1696);
@@ -393,7 +392,7 @@ void SerialComm::info() {
   Serial.println();
   _storage.info();
   Orientation.info();
-  _plateau.info();
+  Plateau.info();
   SpeedComp.info();
   _carriage.info();
   _scanner.info();

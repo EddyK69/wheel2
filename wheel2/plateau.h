@@ -14,9 +14,18 @@
 #define PLATEAU_ENABLE_RPM78 false
 
 
-class Plateau {
+class Plateau_ {
   private:
-    Interval _interval;
+    Plateau_() = default; // Make constructor private
+
+  public:
+    static Plateau_& getInstance(); // Accessor for singleton instance
+
+    Plateau_(const Plateau_&) = delete; // no copying
+    Plateau_& operator=(const Plateau_&) = delete;
+
+  private:
+    Interval _interval = Interval(5000, TM_MICROS);
     float _autoRpm;
     float _basicVoltage = 0;
     float _outBuff;
@@ -35,7 +44,7 @@ class Plateau {
     void stopUseCounter();
     String getUseCounter();
   public:
-    Interval turnInterval;
+    Interval turnInterval = Interval(10, TM_MILLIS);
     float P = 1;    // 0.5
     float I = 0.02; // plateau33I;
     float D = 0;
@@ -47,7 +56,6 @@ class Plateau {
     bool atSpeed;
     bool motorOn = false;
     bool motorReverse = false;
-    Plateau();
     void init();
     void func();
     void motorStart();
@@ -59,7 +67,8 @@ class Plateau {
     void stop();
     void cleanMode();
     void info();
-}; // Plateau
+}; // Plateau_
 
+extern Plateau_& Plateau;
 
 #endif // PLATEAU_H

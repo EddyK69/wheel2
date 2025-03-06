@@ -4,10 +4,9 @@
 #include "helper.h"
 
 Display::Display(Buttons& buttons, Carriage& carriage,
-  Plateau& plateau, Scanner& scanner, Storage& storage) :
+  Scanner& scanner, Storage& storage) :
   _buttons(buttons),
   _carriage(carriage),
-  _plateau(plateau),
   _scanner(scanner),
   _storage(storage),
   _interval(10000, TM_MICROS) {
@@ -122,7 +121,7 @@ void Display::update() {
 
     //--------------------------------------------- RECORD CLEAN MODE
     } else if (Shared.state == S_RECORD_CLEAN) {
-      int rpmPoint = mapFloat(SpeedComp.speed - _plateau.targetRpm, 10, -10, 0, DISPLAY_LENGTH - 1);
+      int rpmPoint = mapFloat(SpeedComp.speed - Plateau.targetRpm, 10, -10, 0, DISPLAY_LENGTH - 1);
       drawBlock(rpmPoint - 2, rpmPoint + 2, 0.9);
 
       if (!Orientation.isStanding) {
@@ -157,11 +156,11 @@ void Display::update() {
 
         int blocks = 1; // rpmMode == AUTO
 
-        if (_plateau.rpmMode == RPM_33) {
+        if (Plateau.rpmMode == RPM_33) {
           blocks = 3;
-        } else if(_plateau.rpmMode == RPM_45) {
+        } else if(Plateau.rpmMode == RPM_45) {
           blocks = 4;
-        } else if(_plateau.rpmMode == RPM_78) {
+        } else if(Plateau.rpmMode == RPM_78) {
           blocks = 7;
         }
 

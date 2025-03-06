@@ -16,9 +16,6 @@
 class Carriage; // pre-declare class
 
 
-class Plateau; // pre-declare class
-
-
 class SpeedComp_ {
   private:
     SpeedComp_() = default; // Make constructor private
@@ -31,7 +28,6 @@ class SpeedComp_ {
 
   private:
     Carriage* _carriage;
-    Plateau* _plateau;
 
     //-------------------- speed
     volatile uint64_t _speedInterval;
@@ -123,7 +119,7 @@ class SpeedComp_ {
     float trackSpacing;
     float centerCompTargetRpm;
 
-    void init(Carriage* carriage, Plateau* plateau);
+    void init(Carriage* carriage);
     void update();
     void clearCompSamples();
     void clearCompSamplesOnT0();

@@ -4,10 +4,9 @@
 #include "helper.h"
 
 
-Buttons::Buttons(Bluetooth& bluetooth, Carriage& carriage, Plateau& plateau, Scanner& scanner) :
+Buttons::Buttons(Bluetooth& bluetooth, Carriage& carriage, Scanner& scanner) :
   _bluetooth(bluetooth),
   _carriage(carriage),
-  _plateau(plateau),
   _scanner(scanner),
   _interval(10000, TM_MICROS),
   rpmDisplayActionInterval(0, TM_MILLIS),
@@ -117,13 +116,13 @@ void Buttons::logic(int button) {
       }
 
       if (Shared.state == S_HOME ) {
-        _plateau.play();
+        Plateau.play();
         state[button] = BUTTON_LONG_PRESS; // To prevent stopping by long press
       }
     }
 
     if (Shared.state == S_NEEDLE_CLEAN || Shared.state == S_RECORD_CLEAN) { // Stop clean mode
-      _plateau.stop();
+      Plateau.stop();
     }
     return;
   }
@@ -154,20 +153,20 @@ void Buttons::logic(int button) {
 
     //--------------------------------------------- RPM
     if (button == BUTTON_PREV && Shared.state == S_HOME) {
-      if (_plateau.rpmMode == RPM_AUTO) {
-        _plateau.rpmMode = RPM_33;
-      } else if (_plateau.rpmMode == RPM_33) {
-        _plateau.rpmMode = RPM_45;
-      } else if (_plateau.rpmMode == RPM_45) {
+      if (Plateau.rpmMode == RPM_AUTO) {
+        Plateau.rpmMode = RPM_33;
+      } else if (Plateau.rpmMode == RPM_33) {
+        Plateau.rpmMode = RPM_45;
+      } else if (Plateau.rpmMode == RPM_45) {
         if (PLATEAU_ENABLE_RPM78) {
-          _plateau.rpmMode = RPM_78;
+          Plateau.rpmMode = RPM_78;
         } else {
-          _plateau.rpmMode = RPM_AUTO;
+          Plateau.rpmMode = RPM_AUTO;
         }
-      } else if (_plateau.rpmMode == RPM_78) {
-        _plateau.rpmMode = RPM_AUTO;
+      } else if (Plateau.rpmMode == RPM_78) {
+        Plateau.rpmMode = RPM_AUTO;
       }
-      _plateau.updateRpm();
+      Plateau.updateRpm();
       rpmDisplayActionInterval.reset();
     }
 
@@ -197,7 +196,7 @@ void Buttons::logic(int button) {
     }
 
     if (button == BUTTON_PLAY && Shared.state != S_HOME) {
-      _plateau.stop();
+      Plateau.stop();
     }
 
     //--------------------------------------------- BLUETOOTH RESET
@@ -238,7 +237,7 @@ void Buttons::logic(int button) {
     }
 
     if (Shared.state == S_HOME && button == BUTTON_PREV) { // Clean mode
-      _plateau.cleanMode();
+      Plateau.cleanMode();
       ledBlink();
     }
     return;

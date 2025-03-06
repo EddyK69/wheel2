@@ -6,10 +6,9 @@
 #include "plateau.h"
 
 
-void SpeedComp_::init(Carriage* carriage, Plateau* plateau) { // to prevent circular reference
+void SpeedComp_::init(Carriage* carriage) { // to prevent circular reference
   LOG_DEBUG("speedcomp.cpp", "[init]");
   _carriage = carriage;
-  _plateau = plateau;
   float radialCounter;
   clearSamples();
   clearCompSamples();
@@ -130,7 +129,7 @@ void SpeedComp_::stroboInterrupt() {
   if ((sinBuff * sinBuff + cosBuff * cosBuff) > (3 * 3)) {
     Shared.setError(E_TO_MUCH_TRAVEL);
     clearCompSamples();
-    _plateau->stop();
+    Plateau.stop();
   }
 
 
@@ -140,7 +139,7 @@ void SpeedComp_::stroboInterrupt() {
   float offCenterSpeedComp = ( ( (_sinus[leadCounter] * _carriageSinFilt) + (_cosin[leadCounter] * _carriageCosFilt) ) / pulsesPerRev) * 2;
 
   _centerComp = ((carriagePosMiddle - offCenterSpeedComp) / carriagePosMiddle);
-  centerCompTargetRpm = _plateau->targetRpm * _centerComp;
+  centerCompTargetRpm = Plateau.targetRpm * _centerComp;
   
   if (recordOffCenterComp) {
     speedCenterComp = speed / _centerComp;
@@ -153,7 +152,7 @@ void SpeedComp_::stroboInterrupt() {
   speedLowPass += (speedCenterComp - speedLowPass) / 100;
   speedHighPass = speedCenterComp - speedLowPass;
 
-  lowpassRect = abs(speedLowPass - _plateau->targetRpm);
+  lowpassRect = abs(speedLowPass - Plateau.targetRpm);
   if (lowpassRect > wow) {
     wow = lowpassRect;
   } else {
@@ -176,15 +175,15 @@ void SpeedComp_::stroboInterrupt() {
 
   //------------------------------------------------------------ UNBALANCE COMPENSATION
   if (unbalanceCompOn                      // all prereqs when compensation should be off
-      && _plateau->motorOn 
-      && _plateau->turnInterval.duration() > 1000 // should be on for 1 sec.
-      && _plateau->atSpeed                        // and speeded up
-      && isApprox(speed, _plateau->targetRpm, 10) // not more than 10rpm from target rpm
+      && Plateau.motorOn 
+      && Plateau.turnInterval.duration() > 1000 // should be on for 1 sec.
+      && Plateau.atSpeed                        // and speeded up
+      && isApprox(speed, Plateau.targetRpm, 10) // not more than 10rpm from target rpm
       && ((Arm.isNeedleDownFor(2000) && Shared.state == S_PLAYING) ||
       Shared.state == S_HOMING_BEFORE_PLAYING ||    
       Shared.state == S_GOTO_RECORD_START)) { 
     
-    int speedError = (speedCenterComp - _plateau->targetRpm) * 1000.0;
+    int speedError = (speedCenterComp - Plateau.targetRpm) * 1000.0;
     int value;
     for (int i = 0; i < _unbalanceFilterCurveWidth; i++) {
       value = _unbalanceFilterCurve[i] * speedError;

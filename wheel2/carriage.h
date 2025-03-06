@@ -35,7 +35,6 @@
 class Carriage {
   private:
     Interval _interval;
-    Plateau& _plateau;
     Scanner& _scanner;
     bool _motorEnable = true;
     bool _headerShown = false;
@@ -73,7 +72,7 @@ class Carriage {
     float positionFilter = CARRIAGE_HOME;
     float realPosition = CARRIAGE_HOME;
     float sensorPosition;
-    Carriage(Plateau& plateau, Scanner& scanner);
+    Carriage(Scanner& scanner);
     void init();
     void func();
     void gotoNextTrack();

@@ -31,7 +31,6 @@ class Buttons {
   private:
     Bluetooth& _bluetooth;
     Carriage& _carriage;
-    Plateau& _plateau;
     Scanner& _scanner;
     Interval _interval;
     Interval _allButtonsInterval;
@@ -58,7 +57,7 @@ class Buttons {
     Interval volumeDisplayActionInterval;
     Interval ledBlinkInterval;
     int state[BUTTON_COUNT];
-    Buttons(Bluetooth& bluetooth, Carriage& carriage, Plateau& plateau, Scanner& scanner);
+    Buttons(Bluetooth& bluetooth, Carriage& carriage, Scanner& scanner);
     void init();
     void update();
     void info();

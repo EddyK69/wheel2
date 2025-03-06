@@ -47,7 +47,7 @@ class Orientation_ {
     void reset();
     void update();
     void info();
-}; // Orientation
+}; // Orientation_
 
 extern Orientation_& Orientation;
 

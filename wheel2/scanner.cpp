@@ -6,8 +6,7 @@
 #include "helper.h"
 
 
-Scanner::Scanner(Plateau& plateau) :
-  _plateau(plateau),
+Scanner::Scanner() :
   _interval(10000, TM_MICROS) {
 } // Scanner()
 
@@ -143,7 +142,7 @@ void Scanner::recordDetection() {
   if (!isRecordPresent() && (Shared.state == S_PLAYING || Shared.state == S_PAUSE)) {
     // LOG_NOTICE("scanner.cpp", "[recordDetection] Record removed?");
     Serial.println("Record removed?");
-    _plateau.stop();
+    Plateau.stop();
     return;
   }
 } // recordDetection()

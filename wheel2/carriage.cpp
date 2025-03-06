@@ -5,8 +5,7 @@
 #include "pwm.h"
 
 
-Carriage::Carriage(Plateau& plateau, Scanner& scanner) :
-  _plateau(plateau),
+Carriage::Carriage(Scanner& scanner) :
   _scanner(scanner),
   _interval(1000, TM_MICROS),
   movedForwardInterval(1, TM_MILLIS) {
@@ -207,28 +206,28 @@ void Carriage::stateUpdate() {
       if (recordDiaInch < 6) { // stop when smaller than 6"
         // LOG_DEBUG("carriage.cpp", "[stateUpdate] No record? RecordDiameter: " + String(recordDiaInch));
         Serial.println("No record? RecordDiameter: " + String(recordDiaInch));
-        _plateau.stop();
+        Plateau.stop();
         return;
       } else if (recordDiaInch < 9) {
         // LOG_DEBUG("carriage.cpp", "[stateUpdate] RecordDiameter: " + String(recordDiaInch) + " : ±7\" ");
         Serial.println("RecordDiameter: " + String(recordDiaInch) + " : ±7\" ");
-        _plateau.setRpm(RPM_45);
-        _plateau.setPlayCount(R_7INCH);
+        Plateau.setRpm(RPM_45);
+        Plateau.setPlayCount(R_7INCH);
         _scanner.recordStart = CARRIAGE_7INCH_START;
         _scanner.setTracksAs7inch();
       } else if (recordDiaInch < 11) { 
         // LOG_DEBUG("carriage.cpp", "[stateUpdate] RecordDiameter: " + String(recordDiaInch) + " : ±10\" ");
         Serial.println("RecordDiameter: " + String(recordDiaInch) + " : ±10\" ");
-        _plateau.setRpm(RPM_33); // https://standardvinyl.com/vinyl-pressing/10-inch-records
-        _plateau.setPlayCount(R_10INCH);
+        Plateau.setRpm(RPM_33); // https://standardvinyl.com/vinyl-pressing/10-inch-records
+        Plateau.setPlayCount(R_10INCH);
         _scanner.recordStart = CARRIAGE_10INCH_START;
         _scanner.check();
       } else {
         // LOG_DEBUG("carriage.cpp", "[stateUpdate] RecordDiameter: " + String(recordDiaInch) + " : ???\" ");
         Serial.println("RecordDiameter: " + String(recordDiaInch) + " : ???\" ");
         _scanner.recordStart = sensorPosition;
-        // _plateau.setRpm(RPM_33);
-        _plateau.setPlayCount(R_OTHER);
+        // Plateau.setRpm(RPM_33);
+        Plateau.setPlayCount(R_OTHER);
       }
       targetTrack = _scanner.recordStart;
       Shared.setState(S_PLAY_TILL_END);
@@ -241,8 +240,8 @@ void Carriage::stateUpdate() {
       targetTrack = _scanner.recordStart;
       // LOG_DEBUG("carriage.cpp", "[stateUpdate] RecordDiameter: 12\" ");
       Serial.println("RecordDiameter: 12\" ");
-      _plateau.setRpm(RPM_33);
-      _plateau.setPlayCount(R_12INCH);
+      Plateau.setRpm(RPM_33);
+      Plateau.setPlayCount(R_12INCH);
       _scanner.check();
 
       Shared.setState(S_PLAYING);
@@ -295,7 +294,7 @@ void Carriage::stateUpdate() {
       }
       if (realPosition > positionFilter + 2.5) {
         Shared.setError(E_NEEDLE_MOVE_BACKWARDS);
-        _plateau.stop();
+        Plateau.stop();
         return;
       }
 
@@ -380,8 +379,8 @@ void Carriage::stateUpdate() {
       // LOG_ALERT("carriage.cpp", "[stateUpdate] Cannot clean needle; Record present?");
       Serial.println("Cannot clean needle; Record present? Clean record instead");
       Shared.setState(S_RECORD_CLEAN);
-      _plateau.motorStart();
-      _plateau.setRpm(RPM_33);
+      Plateau.motorStart();
+      Plateau.setRpm(RPM_33);
     }
     return;
   }
@@ -391,7 +390,7 @@ void Carriage::stateUpdate() {
     if (!_scanner.recordPresent) {
       // LOG_ALERT("carriage.cpp", "[stateUpdate] Record removed!");
       Serial.println("Record removed!");
-      _plateau.stop();
+      Plateau.stop();
     }
     return;
   }
@@ -509,7 +508,7 @@ void Carriage::stopOrRepeat() {
   if (repeat) {
     gotoRecordStart();
   } else {
-    _plateau.stop();
+    Plateau.stop();
   }
 } // stopOrRepeat()
 

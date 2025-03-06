@@ -4,9 +4,8 @@
 #include "helper.h"
 
 
-Bluetooth::Bluetooth(Carriage& carriage, Plateau& plateau) :
+Bluetooth::Bluetooth(Carriage& carriage) :
   _carriage(carriage),
-  _plateau(plateau),
   _interval(200, TM_MILLIS),
   _checkBeforeStartInterval(2000, TM_MILLIS) {
 } // Bluetooth()
@@ -101,7 +100,7 @@ void Bluetooth::encode() {
       //   if (Shared.state == S_PAUSE || Shared.state == S_PLAYING) { // maybe remove S_PLAYING?
       //     _carriage.pause();
       //   } else if(Shared.state == S_HOME) {
-      //     _plateau.play();
+      //     Plateau.play();
       //   }
       // }
 
@@ -109,7 +108,7 @@ void Bluetooth::encode() {
         if (Shared.state == S_PAUSE) { 
           _carriage.pause();
         } else if (Shared.state == S_HOME) {
-          _plateau.play();
+          Plateau.play();
         }
       } else if (_buffer == BT_PAUSE) {
         if (Shared.state == S_PAUSE || Shared.state == S_PLAYING) { // maybe remove S_PLAYING?

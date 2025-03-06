@@ -22,7 +22,6 @@ class Display {
     Interval _interval;
     Buttons& _buttons;
     Carriage& _carriage;
-    Plateau& _plateau;
     Scanner& _scanner;
     Storage& _storage;
     int _trackCounter = 0;
@@ -38,7 +37,7 @@ class Display {
     void commit();
   public:
     Display(Buttons& buttons, Carriage& carriage,
-      Plateau& plateau, Scanner& scanner, Storage& storage);
+      Scanner& scanner, Storage& storage);
     void init();
     void update();
     void bootLED();

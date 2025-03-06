@@ -13,9 +13,8 @@
 */
 
 
-Storage::Storage(Carriage& carriage, Plateau& plateau) :
-  _carriage(carriage),
-  _plateau(plateau) {
+Storage::Storage(Carriage& carriage) :
+  _carriage(carriage) {
 } // Storage()
 
 
@@ -48,7 +47,7 @@ void Storage::read() {
   _carriage.trackOffset = _trackOffset;
   Arm.armAngleMin       = _armAngleMin;
   Arm.armAngleMax       = _armAngleMax;
-  _plateau.motorReverse = _plateauMotorReverse;
+  Plateau.motorReverse  = _plateauMotorReverse;
 } // read()
 
 
@@ -64,7 +63,7 @@ void Storage::write() {
   _trackOffset         = _carriage.trackOffset;
   _armAngleMin         = Arm.armAngleMin;
   _armAngleMax         = Arm.armAngleMax;
-  _plateauMotorReverse = static_cast<float>(_plateau.motorReverse);
+  _plateauMotorReverse = static_cast<float>(Plateau.motorReverse);
   writeAddress(EEPROM_VERSION,           eepromVersion);
   writeAddress(EEPROM_ARM_FORCE_500MG,   _armForceLow);
   writeAddress(EEPROM_ARM_FORCE_4000MG,  _armForceHigh);
