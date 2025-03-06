@@ -23,7 +23,6 @@ class SerialComm {
   private:
     Buttons& _buttons;
     Scanner& _scanner;
-    Storage& _storage;
     Interval _interval;
     Interval _uptimeInterval;
     String _line = "";
@@ -46,8 +45,7 @@ class SerialComm {
     void info();
     void version();
   public:
-    SerialComm(Buttons& buttons,
-      Scanner& scanner, Storage& storage);
+    SerialComm(Buttons& buttons, Scanner& scanner);
     void init();
     void func();
 }; // SerialComm

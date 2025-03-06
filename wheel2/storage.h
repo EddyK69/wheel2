@@ -25,7 +25,16 @@
 #define EEPROM_PLATEAU_MOTOR_REV  420
 
 
-class Storage {
+class Storage_ {
+  private:
+    Storage_() = default; // Make constructor private
+
+  public:
+    static Storage_& getInstance(); // Accessor for singleton instance
+
+    Storage_(const Storage_&) = delete; // no copying
+    Storage_& operator=(const Storage_&) = delete;
+
   private:
     float _armForceLow = 0;
     float _armForceHigh = 0;
@@ -44,12 +53,12 @@ class Storage {
   public:
     float eepromVersion = 0;
     bool saveRequired = false;
-    Storage();
     void init();
     void read();
     void write();
     void info();
-}; // Storage
+}; // Storage_
 
+extern Storage_& Storage;
 
 #endif // STORAGE_H

@@ -23,7 +23,6 @@ class Wheel {
     Display display;
     Scanner scanner;
     SerialComm serialcomm;
-    Storage storage;
     Wheel();
     void init();
 }; // Wheel

@@ -13,17 +13,13 @@
 */
 
 
-Storage::Storage() {
-} // Storage()
-
-
-void Storage::init() {
+void Storage_::init() {
   LOG_DEBUG("storage.cpp", "[init]");
   EEPROM.begin(4096);
 } // init()
 
 
-void Storage::read() {
+void Storage_::read() {
   readAddress(EEPROM_VERSION,           eepromVersion);
   readAddress(EEPROM_ARM_FORCE_500MG,   _armForceLow);
   readAddress(EEPROM_ARM_FORCE_4000MG,  _armForceHigh);
@@ -50,7 +46,7 @@ void Storage::read() {
 } // read()
 
 
-void Storage::write() {
+void Storage_::write() {
   eepromVersion        = Shared.appversion;
   _armForceLow         = Arm.forceLow;
   _armForceHigh        = Arm.forceHigh;
@@ -82,7 +78,7 @@ void Storage::write() {
 } // write()
 
 
-void Storage::commit() {
+void Storage_::commit() {
   if (EEPROM.commit()) {
     LOG_INFO("storage.cpp", "[commit] EEPROM successfully committed");
     Serial.println("Changes saved to EEPROM");
@@ -93,7 +89,7 @@ void Storage::commit() {
 } // commit()
 
 
-void Storage::info() {
+void Storage_::info() {
   Serial.println(padRight("EEPROM_VERSION", PADR) +          ": " + String(eepromVersion, 0));
   Serial.println(padRight("EEPROM_ARM_FORCE_500MG", PADR) +  ": " + String(_armForceLow, 5));
   Serial.println(padRight("EEPROM_ARM_FORCE_4000MG", PADR) + ": " + String(_armForceHigh, 5));
@@ -110,7 +106,7 @@ void Storage::info() {
 } // info()
 
 
-void Storage::readAddress(int address, float& value) {
+void Storage_::readAddress(int address, float& value) {
   float buffer = 0;
   buffer = EEPROM.get(address, buffer);
 
@@ -124,7 +120,16 @@ void Storage::readAddress(int address, float& value) {
 } // readAddress()
 
 
-void Storage::writeAddress(int address, float value) {
+void Storage_::writeAddress(int address, float value) {
   EEPROM.put(address, value);
   LOG_DEBUG("storage.cpp", "[writeAddress] Wrote address: " + String(address) + ", value: " + String(value, 5));
 } // writeAddress()
+
+
+Storage_ &Storage_::getInstance() {
+  static Storage_ instance;
+  return instance;
+} // getInstance()
+
+
+Storage_ &Storage = Storage.getInstance();

@@ -6,9 +6,8 @@
 Wheel::Wheel() :
     scanner(),
     buttons(scanner),
-    storage(),
-    display(buttons, scanner, storage),
-    serialcomm(buttons, scanner, storage) {
+    display(buttons, scanner),
+    serialcomm(buttons, scanner) {
 } // Wheel()
 
 
@@ -16,7 +15,7 @@ void Wheel::init() {
   LOG_DEBUG("wheel.cpp", "[init]");
   serialcomm.init();
 
-  storage.init();
+  Storage.init();
 
   Amplifier.init();
   Orientation.init();
@@ -27,7 +26,7 @@ void Wheel::init() {
   Plateau.init();
   SpeedComp.init();
 
-  storage.read();
+  Storage.read();
 
   // Set pinmodes
   pinMode(SLEEPMODE_PIN, OUTPUT);

@@ -4,11 +4,9 @@
 #include "helper.h"
 
 
-SerialComm::SerialComm(Buttons& buttons,
-      Scanner& scanner, Storage& storage) :
+SerialComm::SerialComm(Buttons& buttons, Scanner& scanner) :
       _buttons(buttons),
       _scanner(scanner),
-      _storage(storage),
       _interval(10000, TM_MICROS),
       _uptimeInterval(60, TM_MINS) {
 } // SerialComm()
@@ -97,11 +95,11 @@ void SerialComm::checkReceivedLine(String line, eCheckMode mode) {
   println(mode);
   if (checkLineCommand( "NE",     "Needle down",                mode)) { Arm.putNeedleInGrove();              return; }
   if (checkLineCommand( "NA",     "Needle up",                  mode)) { Arm.dockNeedle();                    return; }
-  if (checkLineFloat(   "ATG",    "Arm targetweight",           mode, Arm.targetWeight)) { _storage.saveRequired  = true; return; }
+  if (checkLineFloat(   "ATG",    "Arm targetweight",           mode, Arm.targetWeight)) { Storage.saveRequired  = true; return; }
   if (checkLineFloat(   "AG",     "Arm weight",                 mode, Arm.weight)) {                          return; }
-  if (checkLineCommand( "AKHOK",  "Arm force Docked calibrate", mode)) { Arm.justDockedWeight = Arm.weight;   Serial.println(padRight("AKHOK", 8) + " " + padRight("Arm force Docked calibrate", 26) + " SET: " + String(Arm.justDockedWeight, 5)); _storage.saveRequired = true; return; }
-  if (checkLineCommand( "AKL",    "Arm force 500mg calibrate",  mode)) { Arm.forceLow = Arm.force;            Serial.println(padRight("AKL", 8)   + " " + padRight("Arm force 500mg calibrate", 26)  + " SET: " + String(Arm.forceLow, 5));         _storage.saveRequired = true; return; }
-  if (checkLineCommand( "AKH",    "Arm force 4000mg calibrate", mode)) { Arm.forceHigh = Arm.force;           Serial.println(padRight("AKH", 8)   + " " + padRight("Arm force 4000mg calibrate", 26) + " SET: " + String(Arm.forceHigh, 5));        _storage.saveRequired = true; return; }
+  if (checkLineCommand( "AKHOK",  "Arm force Docked calibrate", mode)) { Arm.justDockedWeight = Arm.weight;   Serial.println(padRight("AKHOK", 8) + " " + padRight("Arm force Docked calibrate", 26) + " SET: " + String(Arm.justDockedWeight, 5)); Storage.saveRequired = true; return; }
+  if (checkLineCommand( "AKL",    "Arm force 500mg calibrate",  mode)) { Arm.forceLow = Arm.force;            Serial.println(padRight("AKL", 8)   + " " + padRight("Arm force 500mg calibrate", 26)  + " SET: " + String(Arm.forceLow, 5));         Storage.saveRequired = true; return; }
+  if (checkLineCommand( "AKH",    "Arm force 4000mg calibrate", mode)) { Arm.forceHigh = Arm.force;           Serial.println(padRight("AKH", 8)   + " " + padRight("Arm force 4000mg calibrate", 26) + " SET: " + String(Arm.forceHigh, 5));        Storage.saveRequired = true; return; }
   if (checkLineFloat(   "AK",     "Arm force",                  mode, Arm.force)) { Arm.force = limitFloat(Arm.force, 0, 1); return;}
  
   //-------------------------------------------------- CARRIAGE --------------------------------------------------
@@ -143,12 +141,12 @@ void SerialComm::checkReceivedLine(String line, eCheckMode mode) {
 
   //-------------------------------------------------- STORAGE --------------------------------------------------
   println(mode);
-  if (checkLineFloat(   "EV",     "eepromVersie",               mode, _storage.eepromVersion)) {              return; }
-  if (checkLineCommand( "EO",     "Save EEPROM",                mode)) { _storage.write();                    return; }
-  if (checkLineCommand( "EL",     "Read EEPROM",                mode)) { _storage.read();                     return; }
-  if (checkLineCommand( "OC",     "Orientation calibrate",      mode)) { Orientation.calibrate(); _storage.saveRequired = true; return; }
-  if (checkLineFloat(   "TO",     "Track offset",               mode, Carriage.trackOffset)) { _storage.saveRequired = true; return; }
-  if (checkLineCommand( "AHCal",  "Calibrate arm angle",        mode)) { Arm.calibrateAngle(); _storage.saveRequired = true; return; }
+  if (checkLineFloat(   "EV",     "eepromVersie",               mode, Storage.eepromVersion)) {               return; }
+  if (checkLineCommand( "EO",     "Save EEPROM",                mode)) { Storage.write();                     return; }
+  if (checkLineCommand( "EL",     "Read EEPROM",                mode)) { Storage.read();                      return; }
+  if (checkLineCommand( "OC",     "Orientation calibrate",      mode)) { Orientation.calibrate(); Storage.saveRequired = true; return; }
+  if (checkLineFloat(   "TO",     "Track offset",               mode, Carriage.trackOffset)) { Storage.saveRequired = true; return; }
+  if (checkLineCommand( "AHCal",  "Calibrate arm angle",        mode)) { Arm.calibrateAngle(); Storage.saveRequired = true; return; }
 
   //-------------------------------------------------- CARRIAGE SENSORS --------------------------------------------------
   println(mode);
@@ -374,7 +372,7 @@ void SerialComm::report() {
   Serial.println();
   Serial.println(padRight("WHEEL_TEMPERATURE", PADR) + ": " + String(analogReadTemp(), 2) + " °C");
   Serial.println();
-  _storage.info();
+  Storage.info();
   Orientation.info();
   // SpeedComp.info();
   Serial.println("----------------------------------------------");
@@ -388,7 +386,7 @@ void SerialComm::info() {
   Serial.println(padRight("WHEEL_STATE", PADR) +            ": " + getState(Shared.state));
   Serial.println(padRight("WHEEL_VOLUME", PADR) +           ": " + String(Amplifier.volume));
   Serial.println();
-  _storage.info();
+  Storage.info();
   Orientation.info();
   Plateau.info();
   SpeedComp.info();

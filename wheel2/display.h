@@ -22,7 +22,6 @@ class Display {
     Interval _interval;
     Buttons& _buttons;
     Scanner& _scanner;
-    Storage& _storage;
     int _trackCounter = 0;
     uint64_t _delay = 0;
     const int _dispHalf = DISPLAY_LENGTH / 2;
@@ -35,8 +34,7 @@ class Display {
     void print(float time);
     void commit();
   public:
-    Display(Buttons& buttons,
-      Scanner& scanner, Storage& storage);
+    Display(Buttons& buttons, Scanner& scanner);
     void init();
     void update();
     void bootLED();

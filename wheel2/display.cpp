@@ -4,10 +4,9 @@
 #include "helper.h"
 
 Display::Display(Buttons& buttons,
-  Scanner& scanner, Storage& storage) :
+  Scanner& scanner) :
   _buttons(buttons),
   _scanner(scanner),
-  _storage(storage),
   _interval(10000, TM_MICROS) {
 } // Display()
 
@@ -230,7 +229,7 @@ void Display::update() {
       }
     }
 
-    if (_storage.saveRequired) { // keep blinking when EEPROM is not saved yet
+    if (Storage.saveRequired) { // keep blinking when EEPROM is not saved yet
       if (millisSinceBoot() % 1000 > 500) {
         drawBlock(0, (DISPLAY_LENGTH / 20), 0.9);
         drawBlock(DISPLAY_LENGTH, DISPLAY_LENGTH - DISPLAY_LENGTH / 20, 0.9);
