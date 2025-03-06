@@ -4,7 +4,6 @@
 
 
 Wheel::Wheel() :
-    display(),
     serialcomm() {
 } // Wheel()
 

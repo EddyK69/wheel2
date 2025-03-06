@@ -17,9 +17,18 @@
 #define DISPLAY_LENGTH 120
 
 
-class Display {
+class Display_ {
+ private:
+    Display_() = default; // Make constructor private
+
+  public:
+    static Display_& getInstance(); // Accessor for singleton instance
+
+    Display_(const Display_&) = delete; // no copying
+    Display_& operator=(const Display_&) = delete;
+
   private:
-    Interval _interval;
+    Interval _interval = Interval(10000, TM_MICROS);
     int _trackCounter = 0;
     uint64_t _delay = 0;
     const int _dispHalf = DISPLAY_LENGTH / 2;
@@ -32,11 +41,11 @@ class Display {
     void print(float time);
     void commit();
   public:
-    Display();
     void init();
     void update();
     void bootLED();
-}; // Display
+}; // Display_
 
+extern Display_& Display;
 
 #endif // DISPLAY_H

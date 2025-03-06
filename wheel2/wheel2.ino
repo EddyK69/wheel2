@@ -54,6 +54,7 @@
 #include "bluetooth.h"
 #include "buttons.h"
 #include "carriage.h"
+#include "display.h"
 #include "orientation.h"
 #include "plateau.h"
 #include "scanner.h"
@@ -87,19 +88,19 @@ void loop() {
 
   Bluetooth.func();
 
-  wheel.display.bootLED(); // turn LED on
+  Display.bootLED(); // turn LED on
 } // loop()
 
 
 // Running on core 1
 void setup1() {
-  wheel.display.init();
+  Display.init();
 } // setup1()
 
 
 // core 1 loop
 void loop1() {
-  wheel.display.update();
+  Display.update();
   wheel.serialcomm.func();
   Buttons.update();
   Arm.func();

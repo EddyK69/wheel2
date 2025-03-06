@@ -3,12 +3,8 @@
 #include "pins.h"
 #include "helper.h"
 
-Display::Display() :
-  _interval(10000, TM_MICROS) {
-} // Display()
 
-
-void Display::init() {
+void Display_::init() {
   LOG_DEBUG("display.cpp", "[init]");
 
   pinMode(DISPLAY_IN_PIN,       OUTPUT);
@@ -24,7 +20,7 @@ void Display::init() {
 } // init()
 
 
-void Display::update() {
+void Display_::update() {
   if (_interval.tick()) {
 
     _trackCounter = 0;
@@ -271,19 +267,19 @@ void Display::update() {
 } // update()
 
 
-void Display::clear() {
+void Display_::clear() {
   for (int i = 0; i < DISPLAY_LENGTH; i++) {
     _data[i] = 0;
   }
 } // clear()
 
 
-int Display::mapRealPos2Display(float pos) {
+int Display_::mapRealPos2Display(float pos) {
   return mapFloat(pos, CARRIAGE_RECORD_END, CARRIAGE_12INCH_START, 0, DISPLAY_LENGTH - 1);
 } // mapRealPos2Display()
 
 
-void Display::drawBlock(int start, int end, float color) {
+void Display_::drawBlock(int start, int end, float color) {
   int startLim = min(start, end);
   int endLim = max(start, end);
 
@@ -301,7 +297,7 @@ void Display::drawBlock(int start, int end, float color) {
 } // drawBlock()
 
 
-void Display::drawPoint(int pos, float color) {
+void Display_::drawPoint(int pos, float color) {
   if (pos < 0 || pos >= DISPLAY_LENGTH) {
     return;
   }
@@ -309,7 +305,7 @@ void Display::drawPoint(int pos, float color) {
 } // drawPoint()
 
 
-void Display::flipData() {
+void Display_::flipData() {
   float buffer;
   for (int i = 0; i < DISPLAY_LENGTH / 2; i++) {
     buffer = _data[i];
@@ -319,7 +315,7 @@ void Display::flipData() {
 } // flipData()
 
 
-void Display::print(float time) {
+void Display_::print(float time) {
   for (int i = 0; i < DISPLAY_LENGTH; i++) {
     int pix = i;
     pix = (pix + 7) - ((pix % 8) * 2); // flip byte
@@ -334,13 +330,22 @@ void Display::print(float time) {
 } // print()
 
 
-void Display::commit() {
+void Display_::commit() {
   gpio_put(DISPLAY_LATCH_PIN, 0);
   delayMicroseconds(2);
   gpio_put(DISPLAY_LATCH_PIN, 1);
 } // commit()
 
 
-void Display::bootLED() {
+void Display_::bootLED() {
   digitalWrite(LED_PIN, secsSinceBoot() < 3); // turn LED on
 }
+
+
+Display_ &Display_::getInstance() {
+  static Display_ instance;
+  return instance;
+} // getInstance()
+
+
+Display_ &Display = Display.getInstance();
