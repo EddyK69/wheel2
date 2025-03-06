@@ -11,9 +11,8 @@ Scanner::Scanner() :
 } // Scanner()
 
 
-void Scanner::init(Carriage* carriage) { // to prevent circular reference
+void Scanner::init() {
   LOG_DEBUG("scanner.cpp", "[init]");
-  _carriage = carriage;
   setPwm(SCANNER_LED_PIN);
   setLedMilliAmp(0); // 10mA
 } // init()
@@ -156,14 +155,14 @@ bool Scanner::isRecordPresent() {
 void Scanner::scanForTracks() {
   // LOG_DEBUG("scanner.cpp", "[scanForTracks]");
 
-  if (_carriage->sensorPosition < (CARRIAGE_RECORD_END + 2) || Shared.state != S_GOTO_RECORD_START) {
+  if (Carriage.sensorPosition < (CARRIAGE_RECORD_END + 2) || Shared.state != S_GOTO_RECORD_START) {
     _bufferCounter = 0;
     return;
   }
 
   float value = -_diff;
 
-  _buffer[_bufferCounter][0] = _carriage->sensorPosition; // save for after-check
+  _buffer[_bufferCounter][0] = Carriage.sensorPosition; // save for after-check
   _buffer[_bufferCounter][1] = value;
   _bufferCounter++;
 
@@ -172,7 +171,7 @@ void Scanner::scanForTracks() {
   }
   if (value > _trackThreshold && !_trackBelowThreshold) {
     _trackBelowThreshold = true;
-    newTrack(_carriage->sensorPosition);
+    newTrack(Carriage.sensorPosition);
   }
 } // scanForTracks()
 
@@ -188,7 +187,7 @@ void Scanner::clearTracks() {
 
 int Scanner::getCurrentTrack() {
   // LOG_DEBUG("scanner.cpp", "[getCurrentTrack]");
-  float pos = _carriage->positionFilter;
+  float pos = Carriage.positionFilter;
   int track = trackCount - 1;
 
   while (pos <= tracks[track]) {

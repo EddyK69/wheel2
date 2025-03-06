@@ -15,7 +15,6 @@ class Carriage; // pre-declare class
 class Scanner {
   private:
     Interval _interval;
-    Carriage* _carriage;
     bool _cut;
     bool _trackBelowThreshold = true;
     bool _headerShown = false;
@@ -53,7 +52,7 @@ class Scanner {
     int trackCount = 0;
     int currentTrack = 0;
     Scanner();
-    void init(Carriage* carriage);
+    void init();
     void func();
     void check();
     void setTracksAs7inch();

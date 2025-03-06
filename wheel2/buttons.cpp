@@ -4,9 +4,8 @@
 #include "helper.h"
 
 
-Buttons::Buttons(Bluetooth& bluetooth, Carriage& carriage, Scanner& scanner) :
+Buttons::Buttons(Bluetooth& bluetooth, Scanner& scanner) :
   _bluetooth(bluetooth),
-  _carriage(carriage),
   _scanner(scanner),
   _interval(10000, TM_MICROS),
   rpmDisplayActionInterval(0, TM_MILLIS),
@@ -64,8 +63,8 @@ void Buttons::update() {
         Arm.force = limitFloat(Arm.force, 0, 1);
 
       } else if(Shared.state == S_PAUSE) {
-        _carriage.targetTrack -= beltDiff * 0.25;
-        _carriage.targetTrack = limitFloat(_carriage.targetTrack, CARRIAGE_RECORD_END, _scanner.recordStart);
+        Carriage.targetTrack -= beltDiff * 0.25;
+        Carriage.targetTrack = limitFloat(Carriage.targetTrack, CARRIAGE_RECORD_END, _scanner.recordStart);
 
       } else {
         // to prevent volume popping up after button press while skipping
@@ -135,19 +134,19 @@ void Buttons::logic(int button) {
 
     if (isButtonNext(button)) {
       if (Shared.state == S_PLAYING || Shared.state == S_PAUSE || Shared.state == S_GOTO_TRACK) {
-        _carriage.gotoNextTrack();
+        Carriage.gotoNextTrack();
       }
     }
 
     if (isButtonPrev(button)) {
       if (Shared.state == S_PLAYING || Shared.state == S_PAUSE || Shared.state == S_GOTO_TRACK) {
-        _carriage.gotoPreviousTrack();
+        Carriage.gotoPreviousTrack();
       }
     }
 
     if (button == BUTTON_PLAY) {
       if (Shared.state == S_PAUSE || Shared.state == S_PLAYING) {
-        _carriage.pause();
+        Carriage.pause();
       }
     }
 
@@ -216,7 +215,7 @@ void Buttons::logic(int button) {
 
     if ((Shared.state == S_SKIP_FORWARD || Shared.state == S_SKIP_REVERSE) &&
       (button == BUTTON_NEXT || button == BUTTON_PREV)) { // Resume after forward/reverse
-      _carriage.targetTrack = _carriage.position;
+      Carriage.targetTrack = Carriage.position;
       Shared.setState(S_RESUME_AFTER_SKIP);
     }
     return;
@@ -231,7 +230,7 @@ void Buttons::logic(int button) {
 
     if (button == BUTTON_PLAY) {
       if (Shared.state == S_HOMING_BEFORE_PLAYING || Shared.state == S_GOTO_RECORD_START) { // Repeat
-        _carriage.repeat = true;
+        Carriage.repeat = true;
         Serial.println("REPEAT: ON");
       }
     }
@@ -252,7 +251,7 @@ void Buttons::logic(int button) {
 
     if ((Shared.state == S_SKIP_FORWARD || Shared.state == S_SKIP_REVERSE)  &&  
       (button == BUTTON_NEXT || button == BUTTON_PREV)) { // Resume after forward/reverse
-      _carriage.targetTrack = _carriage.position;
+      Carriage.targetTrack = Carriage.position;
       Shared.setState(S_RESUME_AFTER_SKIP);
     }
     return;

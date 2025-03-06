@@ -4,8 +4,7 @@
 #include "helper.h"
 
 
-Bluetooth::Bluetooth(Carriage& carriage) :
-  _carriage(carriage),
+Bluetooth::Bluetooth() :
   _interval(200, TM_MILLIS),
   _checkBeforeStartInterval(2000, TM_MILLIS) {
 } // Bluetooth()
@@ -98,7 +97,7 @@ void Bluetooth::encode() {
 
       // if (_buffer == BT_PLAY) {
       //   if (Shared.state == S_PAUSE || Shared.state == S_PLAYING) { // maybe remove S_PLAYING?
-      //     _carriage.pause();
+      //     Carriage.pause();
       //   } else if(Shared.state == S_HOME) {
       //     Plateau.play();
       //   }
@@ -106,21 +105,21 @@ void Bluetooth::encode() {
 
       if (_buffer == BT_PLAY) {
         if (Shared.state == S_PAUSE) { 
-          _carriage.pause();
+          Carriage.pause();
         } else if (Shared.state == S_HOME) {
           Plateau.play();
         }
       } else if (_buffer == BT_PAUSE) {
         if (Shared.state == S_PAUSE || Shared.state == S_PLAYING) { // maybe remove S_PLAYING?
-          _carriage.pause();
+          Carriage.pause();
         }
       } else if (_buffer == BT_NEXT_TRACK) {
         if (Shared.state == S_PLAYING || Shared.state == S_PAUSE || Shared.state == S_GOTO_TRACK) {
-          _carriage.gotoNextTrack();
+          Carriage.gotoNextTrack();
         }
       } else if (_buffer == BT_PREV_TRACK) {
         if (Shared.state == S_PLAYING || Shared.state == S_PAUSE || Shared.state == S_GOTO_TRACK) {
-          _carriage.gotoPreviousTrack();
+          Carriage.gotoPreviousTrack();
         }
       }
     } else if (_buffer.startsWith(BT_BUTTON_OUT)) {

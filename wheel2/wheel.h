@@ -21,7 +21,6 @@ class Wheel {
   public:
     Bluetooth bluetooth;
     Buttons buttons;
-    Carriage carriage;
     Display display;
     Scanner scanner;
     SerialComm serialcomm;

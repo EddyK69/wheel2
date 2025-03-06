@@ -21,7 +21,6 @@ class Display {
   private:
     Interval _interval;
     Buttons& _buttons;
-    Carriage& _carriage;
     Scanner& _scanner;
     Storage& _storage;
     int _trackCounter = 0;
@@ -36,7 +35,7 @@ class Display {
     void print(float time);
     void commit();
   public:
-    Display(Buttons& buttons, Carriage& carriage,
+    Display(Buttons& buttons,
       Scanner& scanner, Storage& storage);
     void init();
     void update();

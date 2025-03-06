@@ -5,14 +5,7 @@
 #include "pwm.h"
 
 
-Carriage::Carriage(Scanner& scanner) :
-  _scanner(scanner),
-  _interval(1000, TM_MICROS),
-  movedForwardInterval(1, TM_MILLIS) {
-} // Carriage()
-
-
-void Carriage::init() {
+void Carriage_::init() {
   LOG_DEBUG("carriage.cpp", "[init]");
   setPwm(CARRIAGE_STEPPER_AP_PIN);
   setPwm(CARRIAGE_STEPPER_AN_PIN);
@@ -21,7 +14,7 @@ void Carriage::init() {
 } // init()
 
 
-void Carriage::func() {
+void Carriage_::func() {
   if (_interval.tick()) {
     //--------------------------------------------- ARM ANGLE
     Arm.armAngleRaw += (analogRead(ARM_ANGLE_SENSOR_PIN) - Arm.armAngleRaw ) / 6;
@@ -95,7 +88,7 @@ void Carriage::func() {
 } // func()
 
 
-void Carriage::stateUpdate() {
+void Carriage_::stateUpdate() {
   if (Shared.state == S_HOME) {
     Arm.centerArmAngle();
     _motorEnable = false;
@@ -407,7 +400,7 @@ void Carriage::stateUpdate() {
 } // stateUpdate()
 
 
-void Carriage::gotoNextTrack() {
+void Carriage_::gotoNextTrack() {
   LOG_DEBUG("carriage.cpp", "[gotoNextTrack]");
 
   float pos = positionFilter;
@@ -433,7 +426,7 @@ void Carriage::gotoNextTrack() {
 } // gotoNextTrack()
 
 
-void Carriage::gotoPreviousTrack() {
+void Carriage_::gotoPreviousTrack() {
   LOG_DEBUG("carriage.cpp", "[gotoPreviousTrack]");
 
   float pos = positionFilter;
@@ -461,7 +454,7 @@ void Carriage::gotoPreviousTrack() {
 } // gotoPreviousTrack()
 
 
-void Carriage::gotoTrack(float pos) {
+void Carriage_::gotoTrack(float pos) {
   LOG_DEBUG("carriage.cpp", "[gotoTrack]");
   targetTrack = pos;
   // LOG_DEBUG("carriage.cpp", "[gotoTrack] To position " + String(targetTrack));
@@ -470,12 +463,12 @@ void Carriage::gotoTrack(float pos) {
 } // gotoTrack()
 
 
-void Carriage::gotoRecordStart() {
+void Carriage_::gotoRecordStart() {
   LOG_DEBUG("carriage.cpp", "[gotoRecordStart]");
   gotoTrack(_scanner.recordStart);
 } // gotoRecordStart()
 
-bool Carriage::movetoPosition(float target, float spd) {
+bool Carriage_::movetoPosition(float target, float spd) {
   _acceleration = 0;
 
   float togo = abs(target - position);
@@ -503,7 +496,7 @@ bool Carriage::movetoPosition(float target, float spd) {
 } // movetoPosition()
 
 
-void Carriage::stopOrRepeat() {
+void Carriage_::stopOrRepeat() {
   LOG_DEBUG("carriage.cpp", "[stopOrRepeat]");
   if (repeat) {
     gotoRecordStart();
@@ -513,7 +506,7 @@ void Carriage::stopOrRepeat() {
 } // stopOrRepeat()
 
 
-void Carriage::pause() {
+void Carriage_::pause() {
   LOG_DEBUG("carriage.cpp", "[pause]");
   if (Shared.state == S_PLAYING) {
     Shared.setState(S_PAUSE);
@@ -524,7 +517,7 @@ void Carriage::pause() {
 } // pause()
 
 
-bool Carriage::decelerate() {
+bool Carriage_::decelerate() {
   int direction = _speed > 0 ? 1 : -1;
 
   if(abs(_speed) < CARRIAGE_ACCELERATION){
@@ -539,13 +532,13 @@ bool Carriage::decelerate() {
 } // decelerate()
 
 
-void Carriage::emergencyStop() {
+void Carriage_::emergencyStop() {
   LOG_DEBUG("carriage.cpp", "[emergencyStop]");
   _speed = 0;
 } // emergencyStop()
 
 
-void Carriage::printGraphicData() {
+void Carriage_::printGraphicData() {
   if (!_headerShown) {
     Serial.println("GRAPH_HEADER: DComp, ArmAngleRaw, ArmAngleCall");
     _headerShown = true;
@@ -559,7 +552,7 @@ void Carriage::printGraphicData() {
 } // printGraphicData()
 
 
-void Carriage::info() {
+void Carriage_::info() {
   Serial.println(padRight("CARRIAGE_P", PADR) +        ": " + String(P, 5));
   Serial.println(padRight("CARRIAGE_I", PADR) +        ": " + String(I, 5));
   Serial.println(padRight("CARRIAGE_D", PADR) +        ": " + String(D, 5));
@@ -568,3 +561,12 @@ void Carriage::info() {
   Serial.println(padRight("CARRIAGE_REPEAT", PADR) +   ": " + String(repeat ? "ON" : "OFF"));
   Serial.println();
 } // info()
+
+
+Carriage_ &Carriage_::getInstance() {
+  static Carriage_ instance;
+  return instance;
+} // getInstance()
+
+
+Carriage_ &Carriage = Carriage.getInstance();

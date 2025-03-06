@@ -13,9 +13,6 @@
 #define SPEEDCOMP_PPR_MAX     1000
 
 
-class Carriage; // pre-declare class
-
-
 class SpeedComp_ {
   private:
     SpeedComp_() = default; // Make constructor private
@@ -27,8 +24,6 @@ class SpeedComp_ {
     SpeedComp_& operator=(const SpeedComp_&) = delete;
 
   private:
-    Carriage* _carriage;
-
     //-------------------- speed
     volatile uint64_t _speedInterval;
     volatile uint64_t _time;
@@ -119,7 +114,7 @@ class SpeedComp_ {
     float trackSpacing;
     float centerCompTargetRpm;
 
-    void init(Carriage* carriage);
+    void init();
     void update();
     void clearCompSamples();
     void clearCompSamplesOnT0();

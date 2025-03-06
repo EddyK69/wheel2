@@ -3,10 +3,9 @@
 #include "pins.h"
 #include "helper.h"
 
-Display::Display(Buttons& buttons, Carriage& carriage,
+Display::Display(Buttons& buttons,
   Scanner& scanner, Storage& storage) :
   _buttons(buttons),
-  _carriage(carriage),
   _scanner(scanner),
   _storage(storage),
   _interval(10000, TM_MICROS) {
@@ -33,9 +32,9 @@ void Display::update() {
   if (_interval.tick()) {
 
     _trackCounter = 0;
-    int needle = mapRealPos2Display(_carriage.positionFilter);
-    int target = mapRealPos2Display(_carriage.targetTrack);
-    int sensor = mapRealPos2Display(_carriage.sensorPosition);
+    int needle = mapRealPos2Display(Carriage.positionFilter);
+    int target = mapRealPos2Display(Carriage.targetTrack);
+    int sensor = mapRealPos2Display(Carriage.sensorPosition);
     int sensorMaxRange = mapRealPos2Display(CARRIAGE_12INCH_START - CARRIAGE_SENSOR_OFFSET) + 3;
     int recordSize = mapRealPos2Display(_scanner.recordStart);
     int _dispHalf = DISPLAY_LENGTH / 2;
@@ -215,7 +214,7 @@ void Display::update() {
         }
       } else if (Shared.state == S_PLAYING && !Arm.isNeedleInGrove() && (Shared.stateChangedInterval.duration() % 1000 < 250) && !Shared.puristMode) {
         // Nothing
-      } else if (_carriage.repeat) {
+      } else if (Carriage.repeat) {
         drawPoint(needle, 0.9);
         drawPoint((needle - 2), 0.9);
         drawPoint((needle + 2), 0.9);

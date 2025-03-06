@@ -6,9 +6,8 @@
 #include "plateau.h"
 
 
-void SpeedComp_::init(Carriage* carriage) { // to prevent circular reference
+void SpeedComp_::init() {
   LOG_DEBUG("speedcomp.cpp", "[init]");
-  _carriage = carriage;
   float radialCounter;
   clearSamples();
   clearCompSamples();
@@ -90,7 +89,7 @@ void SpeedComp_::stroboInterrupt() {
 
   //------------------------------------------------------------ OFF CENTER COMPENSATION
   _carriagePosMiddlePre -= _carriageOffCenterWave[rotationPosition];
-  _carriageOffCenterWave[rotationPosition] = _carriage->realPosition;
+  _carriageOffCenterWave[rotationPosition] = Carriage.realPosition;
   _carriagePosMiddlePre += _carriageOffCenterWave[rotationPosition];
   carriagePosMiddle = _carriagePosMiddlePre / pulsesPerRev;
 
@@ -98,12 +97,12 @@ void SpeedComp_::stroboInterrupt() {
   _carriagePosCenterHist[rotationPosition] = carriagePosMiddle;
 
   // if (trackSpacing > 0.01 || !Arm.isNeedleDownFor(2000)) {
-  //   _carriage->movedForwardInterval.reset();
+  //   Carriage.movedForwardInterval.reset();
   // } else {
   //   // Nothing
   // }
 
-  float carriagePosOffCenter = _carriage->realPosition - carriagePosMiddle;
+  float carriagePosOffCenter = Carriage.realPosition - carriagePosMiddle;
 
   if (Arm.isNeedleDownFor(1000) && Shared.state == S_PLAYING) { // needle has to be down while playing before calculation
     _carriageSin -= _carriageSinValues[rotationPosition];
@@ -240,7 +239,7 @@ void SpeedComp_::clearUnbalanceCompSamples() {
 
 void SpeedComp_::clearCenterCompSamples() {
   LOG_DEBUG("speedcomp.cpp", "[clearCenterCompSamples]");
-  float pos = _carriage->realPosition;
+  float pos = Carriage.realPosition;
 
   for (int i = 0; i < pulsesPerRev; i++) {
     _carriageSinValues[i] = 0;

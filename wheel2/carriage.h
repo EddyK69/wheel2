@@ -32,10 +32,19 @@
 #define CARRIAGE_SENSOR_OFFSET 7.5 //mm
 
 
-class Carriage {
+class Carriage_ {
   private:
-    Interval _interval;
-    Scanner& _scanner;
+    Carriage_() = default; // Make constructor private
+
+  public:
+    static Carriage_& getInstance(); // Accessor for singleton instance
+
+    Carriage_(const Carriage_&) = delete; // no copying
+    Carriage_& operator=(const Carriage_&) = delete;
+
+  private:
+    Interval _interval = Interval(1000, TM_MICROS);
+    Scanner _scanner;
     bool _motorEnable = true;
     bool _headerShown = false;
     const int _stepperGearTeeth = 12; // 8;
@@ -59,7 +68,7 @@ class Carriage {
     void emergencyStop();
     void printGraphicData();
   public:
-    Interval movedForwardInterval;
+    Interval movedForwardInterval = Interval(1, TM_MILLIS);
     bool offCenterCompensation = true;
     bool graphicData = false;
     bool repeat = false;
@@ -72,14 +81,14 @@ class Carriage {
     float positionFilter = CARRIAGE_HOME;
     float realPosition = CARRIAGE_HOME;
     float sensorPosition;
-    Carriage(Scanner& scanner);
     void init();
     void func();
     void gotoNextTrack();
     void gotoPreviousTrack();
     void pause();
     void info();
-}; // Carriage
+}; // Carriage_
 
+extern Carriage_& Carriage;
 
 #endif // CARRIAGE_H

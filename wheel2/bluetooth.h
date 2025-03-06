@@ -34,7 +34,6 @@ class Bluetooth {
   private:
     Interval _interval;
     Interval _checkBeforeStartInterval;
-    Carriage& _carriage;
     bool _initTodo = true;
     bool _wirelessVersion = false;
     String _buffer = "";
@@ -42,7 +41,7 @@ class Bluetooth {
   public:
     const bool wirelessVersion = BT_WIRELESS_VERSION;
     bool debug = false;
-    Bluetooth(Carriage& carriage);
+    Bluetooth();
     void init();
     void func();
     void write(String command);

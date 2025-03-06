@@ -38,14 +38,13 @@ class Storage {
     float _armAngleMin = 0;
     float _armAngleMax = 0;
     float _plateauMotorReverse = 0;
-    Carriage& _carriage;
     void readAddress(int address, float& value);
     void writeAddress(int address, float value);
     void commit();
   public:
     float eepromVersion = 0;
     bool saveRequired = false;
-    Storage(Carriage& carriage);
+    Storage();
     void init();
     void read();
     void write();

@@ -13,8 +13,7 @@
 */
 
 
-Storage::Storage(Carriage& carriage) :
-  _carriage(carriage) {
+Storage::Storage() {
 } // Storage()
 
 
@@ -44,7 +43,7 @@ void Storage::read() {
   Orientation.offsetX   = _levelOffsetX;
   Orientation.offsetY   = _levelOffsetY;
   Orientation.offsetZ   = _levelOffsetZ;
-  _carriage.trackOffset = _trackOffset;
+  Carriage.trackOffset  = _trackOffset;
   Arm.armAngleMin       = _armAngleMin;
   Arm.armAngleMax       = _armAngleMax;
   Plateau.motorReverse  = _plateauMotorReverse;
@@ -60,7 +59,7 @@ void Storage::write() {
   _levelOffsetX        = Orientation.offsetX;
   _levelOffsetY        = Orientation.offsetY;
   _levelOffsetZ        = Orientation.offsetZ;
-  _trackOffset         = _carriage.trackOffset;
+  _trackOffset         = Carriage.trackOffset;
   _armAngleMin         = Arm.armAngleMin;
   _armAngleMax         = Arm.armAngleMax;
   _plateauMotorReverse = static_cast<float>(Plateau.motorReverse);

@@ -4,13 +4,12 @@
 
 
 Wheel::Wheel() :
-    scanner(), // carriage is passed via init()
-    carriage(scanner),
-    buttons(bluetooth, carriage, scanner),
-    storage(carriage),
-    display(buttons, carriage, scanner, storage),
-    serialcomm(bluetooth, buttons, carriage, scanner, storage),
-    bluetooth(carriage) {
+    scanner(),
+    buttons(bluetooth, scanner),
+    storage(),
+    display(buttons, scanner, storage),
+    serialcomm(bluetooth, buttons, scanner, storage),
+    bluetooth() {
 } // Wheel()
 
 
@@ -24,10 +23,10 @@ void Wheel::init() {
   Orientation.init();
   Arm.init();
   buttons.init();
-  carriage.init();
-  scanner.init(&carriage); // to prevent circular reference
+  Carriage.init();
+  scanner.init();
   Plateau.init();
-  SpeedComp.init(&carriage); // to prevent circular reference
+  SpeedComp.init();
 
   storage.read();
 
