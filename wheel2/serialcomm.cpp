@@ -4,9 +4,8 @@
 #include "helper.h"
 
 
-SerialComm::SerialComm(Amplifier& amplifier, Arm& arm, Bluetooth& bluetooth, Buttons& buttons, Carriage& carriage,
+SerialComm::SerialComm(Arm& arm, Bluetooth& bluetooth, Buttons& buttons, Carriage& carriage,
       Orientation& orientation, Plateau& plateau, Scanner& scanner, SpeedComp& speedcomp, Storage& storage) :
-      _amplifier(amplifier),
       _arm(arm),
       _bluetooth(bluetooth),
       _buttons(buttons),
@@ -160,8 +159,8 @@ void SerialComm::checkReceivedLine(String line, eCheckMode mode) {
   //-------------------------------------------------- CARRIAGE SENSORS --------------------------------------------------
   println(mode);
   // if(checkLineFloat(    "PLS",    "Scanner current",            mode, _scanner.current)) {                    return; }
-  if (checkLineInt(     "VOLUME", "Volume w/o override",        mode, _amplifier.volume)) { _amplifier.volumeOverRide = false; return; }
-  if (checkLineInt(     "VOL",    "Volume",                     mode, _amplifier.volume)) { _amplifier.volumeOverRide = true; return; }
+  if (checkLineInt(     "VOLUME", "Volume w/o override",        mode, Amplifier.volume)) { Amplifier.volumeOverRide = false; return; }
+  if (checkLineInt(     "VOL",    "Volume",                     mode, Amplifier.volume)) { Amplifier.volumeOverRide = true; return; }
   if (checkLineCommand( "AHCent", "Center Arm Angle",           mode)) { _arm.centerArmAngle();               return; }
 
   //-------------------------------------------------- HELP --------------------------------------------------
@@ -393,7 +392,7 @@ void SerialComm::info() {
   Serial.println(padRight("WHEEL_UPTIME", PADR) +           ": " + msToString(millisSinceBoot()));
   Serial.println(padRight("WHEEL_TEMPERATURE", PADR) +      ": " + String(analogReadTemp(), 2) + " °C");
   Serial.println(padRight("WHEEL_STATE", PADR) +            ": " + getState(Shared.state));
-  Serial.println(padRight("WHEEL_VOLUME", PADR) +           ": " + String(_amplifier.volume));
+  Serial.println(padRight("WHEEL_VOLUME", PADR) +           ": " + String(Amplifier.volume));
   Serial.println();
   _storage.info();
   _orientation.info();

@@ -3,9 +3,8 @@
 #include "pins.h"
 #include "helper.h"
 
-Display::Display(Amplifier& amplifier, Arm& arm, Buttons& buttons, Carriage& carriage,
+Display::Display(Arm& arm, Buttons& buttons, Carriage& carriage,
   Orientation& orientation, Plateau& plateau, Scanner& scanner, SpeedComp& speedcomp, Storage& storage) :
-  _amplifier(amplifier),
   _arm(arm),
   _buttons(buttons),
   _carriage(carriage),
@@ -181,7 +180,7 @@ void Display::update() {
     } else if (_buttons.volumeDisplayActionInterval.duration() < 2000
         && Shared.state != S_SKIP_FORWARD && Shared.state != S_SKIP_REVERSE
         &&  Shared.state != S_GOTO_TRACK && Shared.state != S_PAUSE) {
-      int volPoint = mapFloat(_amplifier.volume, 0, 63, 1, _dispHalf);
+      int volPoint = mapFloat(Amplifier.volume, 0, 63, 1, _dispHalf);
       drawBlock(_dispHalf + volPoint, _dispHalf - volPoint, 0.1);
 
     //--------------------------------------------- TRACK & CARRIAGE DISPLAY

@@ -49,7 +49,9 @@
 
 #include "pins.h"
 #include "shared.h"
+#include "amplifier.h"
 #include "wheel.h"
+
 
 Wheel wheel;
 
@@ -71,7 +73,7 @@ void setup() {
 void loop() {
   wheel.scanner.func();
   wheel.carriage.func();
-  wheel.amplifier.func();
+  Amplifier.func();
   wheel.orientation.update();
   wheel.plateau.func();
 

@@ -19,7 +19,6 @@
 
 class Wheel {
   public:
-    Amplifier amplifier;
     Arm arm;
     Bluetooth bluetooth;
     Buttons buttons;

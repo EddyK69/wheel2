@@ -4,8 +4,7 @@
 #include "helper.h"
 
 
-Buttons::Buttons(Amplifier& amplifier, Arm& arm, Bluetooth& bluetooth, Carriage& carriage, Orientation& orientation, Plateau& plateau, Scanner& scanner) :
-  _amplifier(amplifier),
+Buttons::Buttons(Arm& arm, Bluetooth& bluetooth, Carriage& carriage, Orientation& orientation, Plateau& plateau, Scanner& scanner) :
   _arm(arm),
   _bluetooth(bluetooth),
   _carriage(carriage),
@@ -77,8 +76,8 @@ void Buttons::update() {
           volumeDisplayActionInterval.reset();
         }
 
-        _amplifier.volume += round(beltDiff);
-        _amplifier.volume = limitInt(_amplifier.volume, 0, 63);
+        Amplifier.volume += round(beltDiff);
+        Amplifier.volume = limitInt(Amplifier.volume, 0, 63);
       }
     }
   } // _interval.tick()
