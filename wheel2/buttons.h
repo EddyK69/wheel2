@@ -29,7 +29,6 @@
 
 class Buttons {
   private:
-    Scanner& _scanner;
     Interval _interval;
     Interval _allButtonsInterval;
     int _buttonIn[BUTTON_COUNT];
@@ -55,7 +54,7 @@ class Buttons {
     Interval volumeDisplayActionInterval;
     Interval ledBlinkInterval;
     int state[BUTTON_COUNT];
-    Buttons(Scanner& scanner);
+    Buttons();
     void init();
     void update();
     void info();

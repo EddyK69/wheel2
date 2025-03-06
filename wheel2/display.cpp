@@ -3,10 +3,8 @@
 #include "pins.h"
 #include "helper.h"
 
-Display::Display(Buttons& buttons,
-  Scanner& scanner) :
+Display::Display(Buttons& buttons) :
   _buttons(buttons),
-  _scanner(scanner),
   _interval(10000, TM_MICROS) {
 } // Display()
 
@@ -35,7 +33,7 @@ void Display::update() {
     int target = mapRealPos2Display(Carriage.targetTrack);
     int sensor = mapRealPos2Display(Carriage.sensorPosition);
     int sensorMaxRange = mapRealPos2Display(CARRIAGE_12INCH_START - CARRIAGE_SENSOR_OFFSET) + 3;
-    int recordSize = mapRealPos2Display(_scanner.recordStart);
+    int recordSize = mapRealPos2Display(Scanner.recordStart);
     int _dispHalf = DISPLAY_LENGTH / 2;
 
     clear();
@@ -181,15 +179,15 @@ void Display::update() {
     } else {
       for (int i = 0; i < DISPLAY_LENGTH; i++) {
         if (!(Shared.state == S_STOPPING || Shared.state == S_PARKING || Shared.state == S_HOMING || Shared.state == S_HOME )) {
-          int nextTrack = mapRealPos2Display(_scanner.tracks[_trackCounter]);
+          int nextTrack = mapRealPos2Display(Scanner.tracks[_trackCounter]);
 
           if (i > recordSize) {
             _data[i] = 0;
-          } else if (Shared.state == S_GOTO_RECORD_START && i > sensor && _scanner.recordStart == 1000) {
+          } else if (Shared.state == S_GOTO_RECORD_START && i > sensor && Scanner.recordStart == 1000) {
             _data[i] = 0;
           } else if (i > sensorMaxRange) {
             _data[i] = 0;
-          } else if (nextTrack <= i && _trackCounter < _scanner.trackCount) {
+          } else if (nextTrack <= i && _trackCounter < Scanner.trackCount) {
             _trackCounter++;
             _data[i] = 0;
           } else {

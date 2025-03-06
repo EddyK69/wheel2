@@ -21,7 +21,6 @@ class Wheel {
   public:
     Buttons buttons;
     Display display;
-    Scanner scanner;
     SerialComm serialcomm;
     Wheel();
     void init();

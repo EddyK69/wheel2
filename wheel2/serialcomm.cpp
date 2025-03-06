@@ -4,9 +4,8 @@
 #include "helper.h"
 
 
-SerialComm::SerialComm(Buttons& buttons, Scanner& scanner) :
+SerialComm::SerialComm(Buttons& buttons) :
       _buttons(buttons),
-      _scanner(scanner),
       _interval(10000, TM_MICROS),
       _uptimeInterval(60, TM_MINS) {
 } // SerialComm()
@@ -74,7 +73,7 @@ void SerialComm::checkReceivedLine(String line, eCheckMode mode) {
   if (checkLineBool(    "BT",     "Bluetoot uart",              mode,  Bluetooth.debug)) {                    return; }
 
   if (checkLineBool(    "G",      "Graphics",                   mode, _graphicData)) {                        return; }
-  if (checkLineBool(    "PLG",    "RecordScanner graphics",     mode, _scanner.graphicData)) {                return; }
+  if (checkLineBool(    "PLG",    "RecordScanner graphics",     mode, Scanner.graphicData)) {                 return; }
   if (checkLineBool(    "KG",     "Carriage graphics",          mode, Carriage.graphicData)) {                return; }
   if (checkLineBool(    "SG",     "Strobo graphics",            mode, SpeedComp.graphicData)) {               return; }
   if (checkLineBool(    "OG",     "Orientation graphics",       mode, Orientation.graphicData)) {             return; }
@@ -150,7 +149,7 @@ void SerialComm::checkReceivedLine(String line, eCheckMode mode) {
 
   //-------------------------------------------------- CARRIAGE SENSORS --------------------------------------------------
   println(mode);
-  // if(checkLineFloat(    "PLS",    "Scanner current",            mode, _scanner.current)) {                    return; }
+  // if(checkLineFloat(    "PLS",    "Scanner current",            mode, Scanner.current)) {                     return; }
   if (checkLineInt(     "VOLUME", "Volume w/o override",        mode, Amplifier.volume)) { Amplifier.volumeOverRide = false; return; }
   if (checkLineInt(     "VOL",    "Volume",                     mode, Amplifier.volume)) { Amplifier.volumeOverRide = true; return; }
   if (checkLineCommand( "AHCent", "Center Arm Angle",           mode)) { Arm.centerArmAngle();                return; }
@@ -391,7 +390,7 @@ void SerialComm::info() {
   Plateau.info();
   SpeedComp.info();
   Carriage.info();
-  _scanner.info();
+  Scanner.info();
   Arm.info();
   _buttons.info();
   Shared.info();

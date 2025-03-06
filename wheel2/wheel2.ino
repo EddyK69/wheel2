@@ -55,6 +55,7 @@
 #include "carriage.h"
 #include "orientation.h"
 #include "plateau.h"
+#include "scanner.h"
 #include "speedcomp.h"
 #include "wheel.h"
 
@@ -77,7 +78,7 @@ void setup() {
 
 // core 0 loop
 void loop() {
-  wheel.scanner.func();
+  Scanner.func();
   Carriage.func();
   Amplifier.func();
   Orientation.update();

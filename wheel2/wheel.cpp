@@ -4,10 +4,9 @@
 
 
 Wheel::Wheel() :
-    scanner(),
-    buttons(scanner),
-    display(buttons, scanner),
-    serialcomm(buttons, scanner) {
+    buttons(),
+    display(buttons),
+    serialcomm(buttons) {
 } // Wheel()
 
 
@@ -22,7 +21,7 @@ void Wheel::init() {
   Arm.init();
   buttons.init();
   Carriage.init();
-  scanner.init();
+  Scanner.init();
   Plateau.init();
   SpeedComp.init();
 

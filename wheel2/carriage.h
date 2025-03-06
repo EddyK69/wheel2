@@ -44,7 +44,6 @@ class Carriage_ {
 
   private:
     Interval _interval = Interval(1000, TM_MICROS);
-    Scanner _scanner;
     bool _motorEnable = true;
     bool _headerShown = false;
     const int _stepperGearTeeth = 12; // 8;

@@ -4,8 +4,7 @@
 #include "helper.h"
 
 
-Buttons::Buttons(Scanner& scanner) :
-  _scanner(scanner),
+Buttons::Buttons() :
   _interval(10000, TM_MICROS),
   rpmDisplayActionInterval(0, TM_MILLIS),
   volumeDisplayActionInterval(0, TM_MILLIS),
@@ -63,7 +62,7 @@ void Buttons::update() {
 
       } else if(Shared.state == S_PAUSE) {
         Carriage.targetTrack -= beltDiff * 0.25;
-        Carriage.targetTrack = limitFloat(Carriage.targetTrack, CARRIAGE_RECORD_END, _scanner.recordStart);
+        Carriage.targetTrack = limitFloat(Carriage.targetTrack, CARRIAGE_RECORD_END, Scanner.recordStart);
 
       } else {
         // to prevent volume popping up after button press while skipping

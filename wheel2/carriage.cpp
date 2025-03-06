@@ -190,10 +190,10 @@ void Carriage_::stateUpdate() {
 
   if (Shared.state == S_GOTO_RECORD_START) {
     if (Shared.firstTimeStateChanged()) {
-      _scanner.recordStart = 1000;
+      Scanner.recordStart = 1000;
     }
 
-    if (!_scanner.recordPresent && sensorPosition > CARRIAGE_RECORD_END + 1) { // record present?
+    if (!Scanner.recordPresent && sensorPosition > CARRIAGE_RECORD_END + 1) { // record present?
       float recordDiaInch = (sensorPosition / 25.4) * 2;
 
       if (recordDiaInch < 6) { // stop when smaller than 6"
@@ -206,36 +206,36 @@ void Carriage_::stateUpdate() {
         Serial.println("RecordDiameter: " + String(recordDiaInch) + " : ±7\" ");
         Plateau.setRpm(RPM_45);
         Plateau.setPlayCount(R_7INCH);
-        _scanner.recordStart = CARRIAGE_7INCH_START;
-        _scanner.setTracksAs7inch();
+        Scanner.recordStart = CARRIAGE_7INCH_START;
+        Scanner.setTracksAs7inch();
       } else if (recordDiaInch < 11) { 
         // LOG_DEBUG("carriage.cpp", "[stateUpdate] RecordDiameter: " + String(recordDiaInch) + " : ±10\" ");
         Serial.println("RecordDiameter: " + String(recordDiaInch) + " : ±10\" ");
         Plateau.setRpm(RPM_33); // https://standardvinyl.com/vinyl-pressing/10-inch-records
         Plateau.setPlayCount(R_10INCH);
-        _scanner.recordStart = CARRIAGE_10INCH_START;
-        _scanner.check();
+        Scanner.recordStart = CARRIAGE_10INCH_START;
+        Scanner.check();
       } else {
         // LOG_DEBUG("carriage.cpp", "[stateUpdate] RecordDiameter: " + String(recordDiaInch) + " : ???\" ");
         Serial.println("RecordDiameter: " + String(recordDiaInch) + " : ???\" ");
-        _scanner.recordStart = sensorPosition;
+        Scanner.recordStart = sensorPosition;
         // Plateau.setRpm(RPM_33);
         Plateau.setPlayCount(R_OTHER);
       }
-      targetTrack = _scanner.recordStart;
+      targetTrack = Scanner.recordStart;
       Shared.setState(S_PLAY_TILL_END);
       return;
     }
 
     // when arrived at carriage endrange
     if (movetoPosition(CARRIAGE_12INCH_START, CARRIAGE_MAX_SPEED)) { 
-      _scanner.recordStart = CARRIAGE_12INCH_START;
-      targetTrack = _scanner.recordStart;
+      Scanner.recordStart = CARRIAGE_12INCH_START;
+      targetTrack = Scanner.recordStart;
       // LOG_DEBUG("carriage.cpp", "[stateUpdate] RecordDiameter: 12\" ");
       Serial.println("RecordDiameter: 12\" ");
       Plateau.setRpm(RPM_33);
       Plateau.setPlayCount(R_12INCH);
-      _scanner.check();
+      Scanner.check();
 
       Shared.setState(S_PLAYING);
       return;
@@ -269,7 +269,7 @@ void Carriage_::stateUpdate() {
     if (Arm.putNeedleInGrove()) {
       //---------------------------------------- transport calculations
       _newPosition = position + limitFloat(Arm.armAngle * P, -3, 3);
-      _newPosition = limitFloat(_newPosition, 0, _scanner.recordStart);
+      _newPosition = limitFloat(_newPosition, 0, Scanner.recordStart);
       movetoPosition(_newPosition, CARRIAGE_MAX_SPEED);
       
       //---------------------------------------- events during playing
@@ -342,7 +342,7 @@ void Carriage_::stateUpdate() {
 
   if (Shared.state == S_SKIP_REVERSE) {
     if (Arm.dockNeedle()) {
-      movetoPosition(_scanner.recordStart, CARRIAGE_MAX_SPEED / 4);
+      movetoPosition(Scanner.recordStart, CARRIAGE_MAX_SPEED / 4);
     }
     targetTrack = position; // to clean display
   }
@@ -367,7 +367,7 @@ void Carriage_::stateUpdate() {
       Arm.putNeedleInGrove();
     }
 
-    if (sensorPosition > (CARRIAGE_RECORD_END + 2) && sensorPosition < (CARRIAGE_RECORD_END + 12) && _scanner.recordPresent) {
+    if (sensorPosition > (CARRIAGE_RECORD_END + 2) && sensorPosition < (CARRIAGE_RECORD_END + 12) && Scanner.recordPresent) {
       // record present? stop!
       // LOG_ALERT("carriage.cpp", "[stateUpdate] Cannot clean needle; Record present?");
       Serial.println("Cannot clean needle; Record present? Clean record instead");
@@ -380,7 +380,7 @@ void Carriage_::stateUpdate() {
 
   if (Shared.state == S_RECORD_CLEAN) {
     decelerate();
-    if (!_scanner.recordPresent) {
+    if (!Scanner.recordPresent) {
       // LOG_ALERT("carriage.cpp", "[stateUpdate] Record removed!");
       Serial.println("Record removed!");
       Plateau.stop();
@@ -409,20 +409,20 @@ void Carriage_::gotoNextTrack() {
     pos = targetTrack;
   }
 
-  int track = _scanner.trackCount - 1;
+  int track = Scanner.trackCount - 1;
   if (track <= 0) {
     stopOrRepeat();
     return;
   }
 
-  while ((pos - 2) <= _scanner.tracks[track]) { // 2mm offset to prevent repeating the same track
+  while ((pos - 2) <= Scanner.tracks[track]) { // 2mm offset to prevent repeating the same track
     track--;
     if (track <= 0) {
       stopOrRepeat();
       return;
     }
   }
-  gotoTrack(_scanner.tracks[track]);
+  gotoTrack(Scanner.tracks[track]);
 } // gotoNextTrack()
 
 
@@ -436,20 +436,20 @@ void Carriage_::gotoPreviousTrack() {
   }
 
   int track = 0;
-  while ((pos + CARRIAGE_BACKTRACK_OFFSET) >= _scanner.tracks[track]) {
+  while ((pos + CARRIAGE_BACKTRACK_OFFSET) >= Scanner.tracks[track]) {
     track++;
-    if (track > (_scanner.trackCount - 1)) {
+    if (track > (Scanner.trackCount - 1)) {
       gotoRecordStart();
       return;
     }
   }
 
-  if (_scanner.tracks[track] > _scanner.recordStart) {
+  if (Scanner.tracks[track] > Scanner.recordStart) {
     gotoRecordStart();
-  } else if (pos < _scanner.tracks[0]) { // When pos is after Record_End, skip to last track
-    gotoTrack(_scanner.tracks[1]);
+  } else if (pos < Scanner.tracks[0]) { // When pos is after Record_End, skip to last track
+    gotoTrack(Scanner.tracks[1]);
   } else {
-    gotoTrack(_scanner.tracks[track]);
+    gotoTrack(Scanner.tracks[track]);
   }
 } // gotoPreviousTrack()
 
@@ -465,7 +465,7 @@ void Carriage_::gotoTrack(float pos) {
 
 void Carriage_::gotoRecordStart() {
   LOG_DEBUG("carriage.cpp", "[gotoRecordStart]");
-  gotoTrack(_scanner.recordStart);
+  gotoTrack(Scanner.recordStart);
 } // gotoRecordStart()
 
 bool Carriage_::movetoPosition(float target, float spd) {
