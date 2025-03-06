@@ -4,8 +4,7 @@
 #include "helper.h"
 
 
-Buttons::Buttons(Bluetooth& bluetooth, Scanner& scanner) :
-  _bluetooth(bluetooth),
+Buttons::Buttons(Scanner& scanner) :
   _scanner(scanner),
   _interval(10000, TM_MICROS),
   rpmDisplayActionInterval(0, TM_MILLIS),
@@ -172,7 +171,7 @@ void Buttons::logic(int button) {
     //--------------------------------------------- BLUETOOTH
     if (button == BUTTON_NEXT && Shared.state == S_HOME) {
        LOG_DEBUG("buttons.cpp", "[logic] Bluetooth");
-      _bluetooth.write("AT+DELVMLINK");
+      Bluetooth.write("AT+DELVMLINK");
     }
     return;
   }
@@ -201,7 +200,7 @@ void Buttons::logic(int button) {
     //--------------------------------------------- BLUETOOTH RESET
     if (button == BUTTON_NEXT && Shared.state == S_HOME) {
       LOG_DEBUG("buttons.cpp", "[logic] Bluetooth reset");
-      _bluetooth.write("AT+REST");
+      Bluetooth.write("AT+REST");
     }
     return;
   }

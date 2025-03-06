@@ -4,13 +4,7 @@
 #include "helper.h"
 
 
-Bluetooth::Bluetooth() :
-  _interval(200, TM_MILLIS),
-  _checkBeforeStartInterval(2000, TM_MILLIS) {
-} // Bluetooth()
-
-
-void Bluetooth::init() {
+void Bluetooth_::init() {
   LOG_DEBUG("bluetooth.cpp", "[init]");
   Serial2.setRX(BT_RXD_PIN);
   Serial2.setTX(BT_TXD_PIN);
@@ -23,7 +17,7 @@ void Bluetooth::init() {
 } // init()
 
 
-void Bluetooth::func() {
+void Bluetooth_::func() {
   if (millisSinceBoot() < 1000) {
     return;
   }
@@ -71,7 +65,7 @@ void Bluetooth::func() {
 } // func()
 
 
-void Bluetooth::write(String command) {
+void Bluetooth_::write(String command) {
   Serial2.print(command + "\r\n");
 
   // LOG_DEBUG("bluetooth.cpp", "[write] BT OUT:" + command);
@@ -81,7 +75,7 @@ void Bluetooth::write(String command) {
 } // write()
 
 
-void Bluetooth::encode() {
+void Bluetooth_::encode() {
   // LOG_DEBUG("bluetooth.cpp", "[encode] BT IN:" + _buffer);
   if (debug) {
     Serial.println("BT IN:" + _buffer);
@@ -136,3 +130,12 @@ void Bluetooth::encode() {
     }
   }
 } // encode()
+
+
+Bluetooth_ &Bluetooth_::getInstance() {
+  static Bluetooth_ instance;
+  return instance;
+} // getInstance()
+
+
+Bluetooth_ &Bluetooth = Bluetooth.getInstance();

@@ -51,6 +51,7 @@
 #include "shared.h"
 #include "amplifier.h"
 #include "arm.h"
+#include "bluetooth.h"
 #include "carriage.h"
 #include "orientation.h"
 #include "plateau.h"
@@ -82,7 +83,7 @@ void loop() {
   Orientation.update();
   Plateau.func();
 
-  wheel.bluetooth.func();
+  Bluetooth.func();
 
   wheel.display.bootLED(); // turn LED on
 } // loop()

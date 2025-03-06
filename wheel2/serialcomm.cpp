@@ -4,9 +4,8 @@
 #include "helper.h"
 
 
-SerialComm::SerialComm(Bluetooth& bluetooth, Buttons& buttons,
+SerialComm::SerialComm(Buttons& buttons,
       Scanner& scanner, Storage& storage) :
-      _bluetooth(bluetooth),
       _buttons(buttons),
       _scanner(scanner),
       _storage(storage),
@@ -73,8 +72,8 @@ void SerialComm::checkReceivedLine(String line, eCheckMode mode) {
   if (checkLineCommand( "RST",    "Reboot",                     mode)) { rp2040.reboot();                     return; }
   // if (checkLineCommand( "BOOT",   "Reboot to USB bootloader",   mode)) { rp2040.rebootToBootloader();         return; }
 
-  if (checkLineCommand( "AT+",    "Bluetooth command",          mode)) { _bluetooth.write(_lineRaw);          return; }
-  if (checkLineBool(    "BT",     "Bluetoot uart",              mode,  _bluetooth.debug)) {                   return; }
+  if (checkLineCommand( "AT+",    "Bluetooth command",          mode)) { Bluetooth.write(_lineRaw);           return; }
+  if (checkLineBool(    "BT",     "Bluetoot uart",              mode,  Bluetooth.debug)) {                    return; }
 
   if (checkLineBool(    "G",      "Graphics",                   mode, _graphicData)) {                        return; }
   if (checkLineBool(    "PLG",    "RecordScanner graphics",     mode, _scanner.graphicData)) {                return; }
@@ -405,9 +404,9 @@ void SerialComm::info() {
 void SerialComm::version() {
   Serial.println("-------------------- V" + String(Shared.appversion) + " --------------------");
   Serial.println();
-  Serial.println(padRight("WHEEL_HW_VERSION", PADR) +       ": " + String(BOARD_DESCRIPTION) + String(_bluetooth.wirelessVersion ? " [BT]" : ""));
+  Serial.println(padRight("WHEEL_HW_VERSION", PADR) +       ": " + String(BOARD_DESCRIPTION) + String(Bluetooth.wirelessVersion ? " [BT]" : ""));
   Serial.println(padRight("WHEEL_FW_VERSION", PADR) +       ": V" + String(Shared.appversion) + " [" + Shared.appdate + "]");
-  // Serial.println(padRight("WHEEL_WIRELESS_VERSION", PADR) + ": " + String(_bluetooth.wirelessVersion ? "YES" : "NO"));
+  // Serial.println(padRight("WHEEL_WIRELESS_VERSION", PADR) + ": " + String(Bluetooth.wirelessVersion ? "YES" : "NO"));
 } // version()
 
 

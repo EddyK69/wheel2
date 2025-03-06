@@ -29,7 +29,6 @@
 
 class Buttons {
   private:
-    Bluetooth& _bluetooth;
     Scanner& _scanner;
     Interval _interval;
     Interval _allButtonsInterval;
@@ -56,7 +55,7 @@ class Buttons {
     Interval volumeDisplayActionInterval;
     Interval ledBlinkInterval;
     int state[BUTTON_COUNT];
-    Buttons(Bluetooth& bluetooth, Scanner& scanner);
+    Buttons(Scanner& scanner);
     void init();
     void update();
     void info();

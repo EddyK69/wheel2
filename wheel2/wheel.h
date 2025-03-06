@@ -19,7 +19,6 @@
 
 class Wheel {
   public:
-    Bluetooth bluetooth;
     Buttons buttons;
     Display display;
     Scanner scanner;

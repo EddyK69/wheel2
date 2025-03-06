@@ -30,10 +30,19 @@
 //AT+DELVMLINK
 
 
-class Bluetooth {
+class Bluetooth_ {
   private:
-    Interval _interval;
-    Interval _checkBeforeStartInterval;
+    Bluetooth_() = default; // Make constructor private
+
+  public:
+    static Bluetooth_& getInstance(); // Accessor for singleton instance
+
+    Bluetooth_(const Bluetooth_&) = delete; // no copying
+    Bluetooth_& operator=(const Bluetooth_&) = delete;
+
+  private:
+    Interval _interval = Interval(200, TM_MILLIS);
+    Interval _checkBeforeStartInterval = Interval(2000, TM_MILLIS);
     bool _initTodo = true;
     bool _wirelessVersion = false;
     String _buffer = "";
@@ -41,11 +50,11 @@ class Bluetooth {
   public:
     const bool wirelessVersion = BT_WIRELESS_VERSION;
     bool debug = false;
-    Bluetooth();
     void init();
     void func();
     void write(String command);
-}; // Bluetooth
+}; // Bluetooth_
 
+extern Bluetooth_& Bluetooth;
 
 #endif // BLUETOOTH_H

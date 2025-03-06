@@ -5,11 +5,10 @@
 
 Wheel::Wheel() :
     scanner(),
-    buttons(bluetooth, scanner),
+    buttons(scanner),
     storage(),
     display(buttons, scanner, storage),
-    serialcomm(bluetooth, buttons, scanner, storage),
-    bluetooth() {
+    serialcomm(buttons, scanner, storage) {
 } // Wheel()
 
 
