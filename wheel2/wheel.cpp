@@ -4,14 +4,13 @@
 
 
 Wheel::Wheel() :
-    orientation(),
     plateau(),
     scanner(plateau), // carriage is passed via init()
     carriage(plateau, scanner),
-    buttons(bluetooth, carriage, orientation, plateau, scanner),
-    storage(carriage, orientation, plateau),
-    display(buttons, carriage, orientation, plateau, scanner, storage),
-    serialcomm(bluetooth, buttons, carriage, orientation, plateau, scanner, storage),
+    buttons(bluetooth, carriage, plateau, scanner),
+    storage(carriage, plateau),
+    display(buttons, carriage, plateau, scanner, storage),
+    serialcomm(bluetooth, buttons, carriage, plateau, scanner, storage),
     bluetooth(carriage, plateau) {
 } // Wheel()
 
@@ -23,7 +22,7 @@ void Wheel::init() {
   storage.init();
 
   Amplifier.init();
-  orientation.init();
+  Orientation.init();
   Arm.init();
   buttons.init();
   carriage.init();

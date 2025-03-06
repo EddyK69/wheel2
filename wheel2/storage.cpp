@@ -13,9 +13,8 @@
 */
 
 
-Storage::Storage(Carriage& carriage, Orientation& orientation, Plateau& plateau) :
+Storage::Storage(Carriage& carriage, Plateau& plateau) :
   _carriage(carriage),
-  _orientation(orientation),
   _plateau(plateau) {
 } // Storage()
 
@@ -43,9 +42,9 @@ void Storage::read() {
   Arm.forceHigh         = _armForceHigh;
   // Arm.targetWeight      = _armTargetWeight;
   Arm.justDockedWeight  = _armForceDocked;
-  _orientation.offsetX  = _levelOffsetX;
-  _orientation.offsetY  = _levelOffsetY;
-  _orientation.offsetZ  = _levelOffsetZ;
+  Orientation.offsetX   = _levelOffsetX;
+  Orientation.offsetY   = _levelOffsetY;
+  Orientation.offsetZ   = _levelOffsetZ;
   _carriage.trackOffset = _trackOffset;
   Arm.armAngleMin       = _armAngleMin;
   Arm.armAngleMax       = _armAngleMax;
@@ -59,9 +58,9 @@ void Storage::write() {
   _armForceHigh        = Arm.forceHigh;
   // _armTargetWeight     = Arm.targetWeight;
   _armForceDocked      = Arm.justDockedWeight;
-  _levelOffsetX        = _orientation.offsetX;
-  _levelOffsetY        = _orientation.offsetY;
-  _levelOffsetZ        = _orientation.offsetZ;
+  _levelOffsetX        = Orientation.offsetX;
+  _levelOffsetY        = Orientation.offsetY;
+  _levelOffsetZ        = Orientation.offsetZ;
   _trackOffset         = _carriage.trackOffset;
   _armAngleMin         = Arm.armAngleMin;
   _armAngleMax         = Arm.armAngleMax;

@@ -23,7 +23,6 @@ class Wheel {
     Buttons buttons;
     Carriage carriage;
     Display display;
-    Orientation orientation;
     Plateau plateau;
     Scanner scanner;
     SerialComm serialcomm;

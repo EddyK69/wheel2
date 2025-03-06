@@ -22,7 +22,6 @@ class Display {
     Interval _interval;
     Buttons& _buttons;
     Carriage& _carriage;
-    Orientation& _orientation;
     Plateau& _plateau;
     Scanner& _scanner;
     Storage& _storage;
@@ -39,7 +38,7 @@ class Display {
     void commit();
   public:
     Display(Buttons& buttons, Carriage& carriage,
-      Orientation& orientation, Plateau& plateau, Scanner& scanner, Storage& storage);
+      Plateau& plateau, Scanner& scanner, Storage& storage);
     void init();
     void update();
     void bootLED();

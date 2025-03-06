@@ -14,10 +14,19 @@ I2C Slave Address: b0010010
 #include "arm.h"
 
 
-class Orientation {
+class Orientation_ {
   private:
-    Interval _interval;
-    Interval _isOkInterval;
+    Orientation_() = default; // Make constructor private
+
+  public:
+    static Orientation_& getInstance(); // Accessor for singleton instance
+
+    Orientation_(const Orientation_&) = delete; // no copying
+    Orientation_& operator=(const Orientation_&) = delete;
+
+  private:
+    Interval _interval = Interval(10, TM_MILLIS);
+    Interval _isOkInterval = Interval(0, TM_MILLIS);
     const byte _i2cAdress = 0b0010010;
     bool _firstTime = true;
     bool _error = false;
@@ -33,7 +42,6 @@ class Orientation {
     float offsetX = 0;
     float offsetY = 0;
     float offsetZ = 0;
-    Orientation();
     void init();
     void calibrate();
     void reset();
@@ -41,5 +49,6 @@ class Orientation {
     void info();
 }; // Orientation
 
+extern Orientation_& Orientation;
 
 #endif // ORIENTATION_H

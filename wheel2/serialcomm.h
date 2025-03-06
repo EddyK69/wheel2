@@ -24,7 +24,6 @@ class SerialComm {
     Buttons& _buttons;
     Bluetooth& _bluetooth;
     Carriage& _carriage;
-    Orientation& _orientation;
     Plateau& _plateau;
     Scanner& _scanner;
     Storage& _storage;
@@ -51,7 +50,7 @@ class SerialComm {
     void version();
   public:
     SerialComm(Bluetooth& bluetooth, Buttons& buttons, Carriage& carriage,
-      Orientation& orientation, Plateau& plateau, Scanner& scanner, Storage& storage);
+      Plateau& plateau, Scanner& scanner, Storage& storage);
     void init();
     void func();
 }; // SerialComm

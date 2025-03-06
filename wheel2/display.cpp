@@ -4,10 +4,9 @@
 #include "helper.h"
 
 Display::Display(Buttons& buttons, Carriage& carriage,
-  Orientation& orientation, Plateau& plateau, Scanner& scanner, Storage& storage) :
+  Plateau& plateau, Scanner& scanner, Storage& storage) :
   _buttons(buttons),
   _carriage(carriage),
-  _orientation(orientation),
   _plateau(plateau),
   _scanner(scanner),
   _storage(storage),
@@ -117,7 +116,7 @@ void Display::update() {
           }
         }
 
-        if (_orientation.isStanding) {
+        if (Orientation.isStanding) {
           flipData();
         }
 
@@ -126,7 +125,7 @@ void Display::update() {
       int rpmPoint = mapFloat(SpeedComp.speed - _plateau.targetRpm, 10, -10, 0, DISPLAY_LENGTH - 1);
       drawBlock(rpmPoint - 2, rpmPoint + 2, 0.9);
 
-      if (!_orientation.isStanding) {
+      if (!Orientation.isStanding) {
         flipData();
       }
 
@@ -149,7 +148,7 @@ void Display::update() {
         drawBlock(DISPLAY_LENGTH - (DISPLAY_LENGTH / 4), DISPLAY_LENGTH, 0.1);
       }
 
-      int armAnglePoint = mapFloat(-_orientation.y, 1, -1, 0, DISPLAY_LENGTH-1);
+      int armAnglePoint = mapFloat(-Orientation.y, 1, -1, 0, DISPLAY_LENGTH-1);
 
       drawBlock(armAnglePoint - 2, armAnglePoint + 2, 0.9);
 
@@ -228,7 +227,7 @@ void Display::update() {
         drawPoint(needle, 0.9);
       }
 
-      if (!_orientation.isStanding) {
+      if (!Orientation.isStanding) {
         flipData();
       }
     }

@@ -5,11 +5,10 @@
 
 
 SerialComm::SerialComm(Bluetooth& bluetooth, Buttons& buttons, Carriage& carriage,
-      Orientation& orientation, Plateau& plateau, Scanner& scanner, Storage& storage) :
+      Plateau& plateau, Scanner& scanner, Storage& storage) :
       _bluetooth(bluetooth),
       _buttons(buttons),
       _carriage(carriage),
-      _orientation(orientation),
       _plateau(plateau),
       _scanner(scanner),
       _storage(storage),
@@ -83,7 +82,7 @@ void SerialComm::checkReceivedLine(String line, eCheckMode mode) {
   if (checkLineBool(    "PLG",    "RecordScanner graphics",     mode, _scanner.graphicData)) {                return; }
   if (checkLineBool(    "KG",     "Carriage graphics",          mode, _carriage.graphicData)) {               return; }
   if (checkLineBool(    "SG",     "Strobo graphics",            mode, SpeedComp.graphicData)) {               return; }
-  if (checkLineBool(    "OG",     "Orientation graphics",       mode, _orientation.graphicData)) {            return; }
+  if (checkLineBool(    "OG",     "Orientation graphics",       mode, Orientation.graphicData)) {             return; }
 
   //-------------------------------------------------- STATE --------------------------------------------------
   println(mode);
@@ -150,8 +149,8 @@ void SerialComm::checkReceivedLine(String line, eCheckMode mode) {
   if (checkLineFloat(   "EV",     "eepromVersie",               mode, _storage.eepromVersion)) {              return; }
   if (checkLineCommand( "EO",     "Save EEPROM",                mode)) { _storage.write();                    return; }
   if (checkLineCommand( "EL",     "Read EEPROM",                mode)) { _storage.read();                     return; }
-  if (checkLineCommand( "OC",     "Orientation calibrate",      mode)) { _orientation.calibrate(); _storage.saveRequired  = true; return; }
-  if (checkLineFloat(   "TO",     "Track offset",               mode, _carriage.trackOffset)) { _storage.saveRequired  = true; return; }
+  if (checkLineCommand( "OC",     "Orientation calibrate",      mode)) { Orientation.calibrate(); _storage.saveRequired = true; return; }
+  if (checkLineFloat(   "TO",     "Track offset",               mode, _carriage.trackOffset)) { _storage.saveRequired = true; return; }
   if (checkLineCommand( "AHCal",  "Calibrate arm angle",        mode)) { Arm.calibrateAngle(); _storage.saveRequired = true; return; }
 
   //-------------------------------------------------- CARRIAGE SENSORS --------------------------------------------------
@@ -379,7 +378,7 @@ void SerialComm::report() {
   Serial.println(padRight("WHEEL_TEMPERATURE", PADR) + ": " + String(analogReadTemp(), 2) + " °C");
   Serial.println();
   _storage.info();
-  _orientation.info();
+  Orientation.info();
   // SpeedComp.info();
   Serial.println("----------------------------------------------");
 } // report()
@@ -393,7 +392,7 @@ void SerialComm::info() {
   Serial.println(padRight("WHEEL_VOLUME", PADR) +           ": " + String(Amplifier.volume));
   Serial.println();
   _storage.info();
-  _orientation.info();
+  Orientation.info();
   _plateau.info();
   SpeedComp.info();
   _carriage.info();

@@ -5,19 +5,13 @@
 #include "i2c.h"
 
 
-Orientation::Orientation() :
-  _interval(10, TM_MILLIS),
-  _isOkInterval(0, TM_MILLIS) {
-} // Orientation()
-
-
-void Orientation::init() {
+void Orientation_::init() {
   LOG_DEBUG("orientation.cpp", "[init]");
   setI2CPins();
 } // init()
 
 
-void Orientation::update() {
+void Orientation_::update() {
   if (_interval.tick() && millisSinceBoot() > 200) { // turned on for 200ms?
     if (_firstTime) {
       _firstTime = false;
@@ -76,7 +70,7 @@ void Orientation::update() {
 } // update()
 
 
-void Orientation::calibrate() {
+void Orientation_::calibrate() {
   LOG_DEBUG("orientation.cpp", "[calibrate]");
   offsetX += x;
   offsetY += y;
@@ -85,7 +79,7 @@ void Orientation::calibrate() {
 } // calibrate()
 
 
-void Orientation::reset() {
+void Orientation_::reset() {
   LOG_DEBUG("orientation.cpp", "[reset]");
   // reset
   i2cWrite(_i2cAdress, 0x36, 0xB6); // soft reset
@@ -100,7 +94,7 @@ void Orientation::reset() {
 } // reset()
 
 
-void Orientation::printGraphicData() {
+void Orientation_::printGraphicData() {
   if (!_headerShown) {
     Serial.println("GRAPH_HEADER: X-axis, Y-axis, Z-axis");
     _headerShown = true;
@@ -114,9 +108,19 @@ void Orientation::printGraphicData() {
 }
 
 
-void Orientation::info() {
+void Orientation_::info() {
   Serial.println(padRight("ORIENTATION_RAW_XYZ", PADR) +  ": " + "X:" + String(_rawX, 3) + " Y:" + String(_rawY, 3) + " Z:" + String(_rawZ, 3));
   Serial.println(padRight("ORIENTATION_XYZ", PADR) +      ": " + "X:" + String(x, 3) + " Y:" + String(y, 3) + " Z:" + String(z, 3));
   Serial.println(padRight("ORIENTATION_POSITION", PADR) + ": " + String(isStanding ? "STANDING" : "NORMAL"));
   Serial.println();
 } // info()
+
+
+
+Orientation_ &Orientation_::getInstance() {
+  static Orientation_ instance;
+  return instance;
+} // getInstance()
+
+
+Orientation_ &Orientation = Orientation.getInstance();

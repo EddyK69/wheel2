@@ -51,6 +51,7 @@
 #include "shared.h"
 #include "amplifier.h"
 #include "arm.h"
+#include "orientation.h"
 #include "speedcomp.h"
 #include "wheel.h"
 
@@ -76,7 +77,7 @@ void loop() {
   wheel.scanner.func();
   wheel.carriage.func();
   Amplifier.func();
-  wheel.orientation.update();
+  Orientation.update();
   wheel.plateau.func();
 
   wheel.bluetooth.func();

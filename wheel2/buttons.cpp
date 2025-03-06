@@ -4,10 +4,9 @@
 #include "helper.h"
 
 
-Buttons::Buttons(Bluetooth& bluetooth, Carriage& carriage, Orientation& orientation, Plateau& plateau, Scanner& scanner) :
+Buttons::Buttons(Bluetooth& bluetooth, Carriage& carriage, Plateau& plateau, Scanner& scanner) :
   _bluetooth(bluetooth),
   _carriage(carriage),
-  _orientation(orientation),
   _plateau(plateau),
   _scanner(scanner),
   _interval(10000, TM_MICROS),
@@ -57,7 +56,7 @@ void Buttons::update() {
         Arm.targetWeight += beltDiff * 0.0333;
         Arm.targetWeight = limitFloat(Arm.targetWeight, ARM_MIN_WEIGHT, ARM_MAX_WEIGHT);
       }
-      if (!_orientation.isStanding) {
+      if (!Orientation.isStanding) {
         beltDiff = -beltDiff; // flip
       }
 
@@ -283,7 +282,7 @@ bool Buttons::isButtonPrev(int button) {
 
 
 int Buttons::buttonNextComp() {
-  if (_orientation.isStanding) {
+  if (Orientation.isStanding) {
     return BUTTON_PREV;
   }
   return BUTTON_NEXT;
@@ -291,7 +290,7 @@ int Buttons::buttonNextComp() {
 
 
 int Buttons::buttonPrevComp() {
-  if (_orientation.isStanding) {
+  if (Orientation.isStanding) {
     return BUTTON_NEXT;
   }
   return BUTTON_PREV;
