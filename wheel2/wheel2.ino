@@ -63,9 +63,6 @@
 #include "wheel.h"
 
 
-Wheel wheel;
-
-
 // The normal, core 0 setup
 void setup() {
   // Sets the size (in bits) of the value returned by analogRead(). It defaults to 10 bits.
@@ -73,7 +70,7 @@ void setup() {
 
   // Initialize Wheel
   Shared.init(APP_VERSION, APP_DATE);
-  wheel.init();
+  Wheel.init();
 
   enableInterupts(true);
 } // setup()

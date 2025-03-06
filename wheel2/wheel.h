@@ -17,11 +17,20 @@
 #include "storage.h"
 
 
-class Wheel {
-  public:
-    Wheel();
-    void init();
-}; // Wheel
+class Wheel_ {
+  private:
+    Wheel_() = default; // Make constructor private
 
+  public:
+    static Wheel_& getInstance(); // Accessor for singleton instance
+
+    Wheel_(const Wheel_&) = delete; // no copying
+    Wheel_& operator=(const Wheel_&) = delete;
+
+  public:
+    void init();
+}; // Wheel_
+
+extern Wheel_& Wheel;
 
 #endif // WHEEL_H
