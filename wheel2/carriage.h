@@ -14,6 +14,7 @@
 #include "arm.h"
 #include "plateau.h"
 #include "scanner.h"
+#include "speedcomp.h"
 
 #define CARRIAGE_HOME 44
 #define CARRIAGE_PARK CARRIAGE_HOME - 1.5 // 2.5 //2
@@ -31,15 +32,11 @@
 #define CARRIAGE_SENSOR_OFFSET 7.5 //mm
 
 
-class SpeedComp;
-
-
 class Carriage {
   private:
     Interval _interval;
     Plateau& _plateau;
     Scanner& _scanner;
-    SpeedComp* _speedcomp;
     bool _motorEnable = true;
     bool _headerShown = false;
     const int _stepperGearTeeth = 12; // 8;
@@ -77,7 +74,7 @@ class Carriage {
     float realPosition = CARRIAGE_HOME;
     float sensorPosition;
     Carriage(Plateau& plateau, Scanner& scanner);
-    void init(SpeedComp* speedcomp);
+    void init();
     void func();
     void gotoNextTrack();
     void gotoPreviousTrack();

@@ -5,8 +5,7 @@
 #include "helper.h"
 
 
-Plateau::Plateau(SpeedComp& speedcomp) :
-  _speedcomp(speedcomp),
+Plateau::Plateau() :
   _interval(5000, TM_MICROS),
   turnInterval(10, TM_MILLIS) {
 } // Plateau()
@@ -26,14 +25,14 @@ void Plateau::init() {
 
 void Plateau::func() {
   if (_interval.tick()) {
-    _speedcomp.update();
+    SpeedComp.update();
 
-    float speed = _speedcomp.speedCenterComp;
+    float speed = SpeedComp.speedCenterComp;
 
     if (motorOn) {
       _outBuff = pid(speed); // calculate motor power
       _outBuffPrev = _outBuff;
-      _outBuff += _speedcomp.unbalanceComp;
+      _outBuff += SpeedComp.unbalanceComp;
       _outBuff = limitFloat(_outBuff, -100, 100);
       
       if (!motorReverse) {
@@ -54,7 +53,7 @@ void Plateau::update() {
   if (!logic || Shared.state == S_RECORD_CLEAN) {
     return;
   }
-  float speed = _speedcomp.speed;
+  float speed = SpeedComp.speed;
 
   if (motorOn) { // is motor on?
     if (Shared.state == S_BAD_ORIENTATION
@@ -180,7 +179,7 @@ void Plateau::setRpm(eRpmMode rpmMode) {
   LOG_DEBUG("plateau.cpp", "[setRpm] autoRPM: " + String(_autoRpm));
   updateRpm();
 
-  _speedcomp.clearCompSamples();
+  SpeedComp.clearCompSamples();
   turnInterval.reset();
 } // setRpm
 

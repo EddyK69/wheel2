@@ -4,13 +4,12 @@
 #include "helper.h"
 
 Display::Display(Buttons& buttons, Carriage& carriage,
-  Orientation& orientation, Plateau& plateau, Scanner& scanner, SpeedComp& speedcomp, Storage& storage) :
+  Orientation& orientation, Plateau& plateau, Scanner& scanner, Storage& storage) :
   _buttons(buttons),
   _carriage(carriage),
   _orientation(orientation),
   _plateau(plateau),
   _scanner(scanner),
-  _speedcomp(speedcomp),
   _storage(storage),
   _interval(10000, TM_MICROS) {
 } // Display()
@@ -124,7 +123,7 @@ void Display::update() {
 
     //--------------------------------------------- RECORD CLEAN MODE
     } else if (Shared.state == S_RECORD_CLEAN) {
-      int rpmPoint = mapFloat(_speedcomp.speed - _plateau.targetRpm, 10, -10, 0, DISPLAY_LENGTH - 1);
+      int rpmPoint = mapFloat(SpeedComp.speed - _plateau.targetRpm, 10, -10, 0, DISPLAY_LENGTH - 1);
       drawBlock(rpmPoint - 2, rpmPoint + 2, 0.9);
 
       if (!_orientation.isStanding) {

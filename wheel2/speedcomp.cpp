@@ -6,11 +6,7 @@
 #include "plateau.h"
 
 
-SpeedComp::SpeedComp() {
-} // SpeedComp()
-
-
-void SpeedComp::init(Carriage* carriage, Plateau* plateau) { // to prevent circular reference
+void SpeedComp_::init(Carriage* carriage, Plateau* plateau) { // to prevent circular reference
   LOG_DEBUG("speedcomp.cpp", "[init]");
   _carriage = carriage;
   _plateau = plateau;
@@ -28,7 +24,7 @@ void SpeedComp::init(Carriage* carriage, Plateau* plateau) { // to prevent circu
 } // init()
 
 
-void SpeedComp::update() {
+void SpeedComp_::update() {
   if ((microsSinceBoot() - _speedInterval) > SPEEDCOMP_SAMPLES_MAX ) {
     if (_glitchCounter > 3) {
       shiftSamples(SPEEDCOMP_SAMPLES_MAX * _direction);
@@ -44,7 +40,7 @@ void SpeedComp::update() {
 } // update()
 
 
-void SpeedComp::stroboInterrupt() {
+void SpeedComp_::stroboInterrupt() {
   _time = microsSinceBoot();
   // _processTime = microsSinceBoot();
 
@@ -214,13 +210,13 @@ void SpeedComp::stroboInterrupt() {
 } // stroboInterrupt()
 
 
-void SpeedComp::clearCompSamplesOnT0() {
+void SpeedComp_::clearCompSamplesOnT0() {
   LOG_DEBUG("speedcomp.cpp", "[clearCompSamplesOnT0]");
   _clearCompSamplesQueue = true;
 } // clearCompSamplesOnT0()
 
 
-void SpeedComp::clearSamples() {
+void SpeedComp_::clearSamples() {
   LOG_DEBUG("speedcomp.cpp", "[clearSamples]");
   for (int i = 0; i < samples; i++) {
     _samplesArr[i] = SPEEDCOMP_SAMPLES_MAX;
@@ -228,14 +224,14 @@ void SpeedComp::clearSamples() {
 } // clearSamples()
 
 
-void SpeedComp::clearCompSamples() {
+void SpeedComp_::clearCompSamples() {
   LOG_DEBUG("speedcomp.cpp", "[clearCompSamples]");
   clearUnbalanceCompSamples();
   clearCenterCompSamples();
 } // clearCompSamples()
 
 
-void SpeedComp::clearUnbalanceCompSamples() {
+void SpeedComp_::clearUnbalanceCompSamples() {
   // LOG_DEBUG("speedcomp.cpp", "[clearUnbalanceCompSamples]");
   for (int i = 0; i < pulsesPerRev; i++) {
     _unbalansComp[i] = 0;
@@ -243,7 +239,7 @@ void SpeedComp::clearUnbalanceCompSamples() {
 } // clearUnbalanceCompSamples()
 
 
-void SpeedComp::clearCenterCompSamples() {
+void SpeedComp_::clearCenterCompSamples() {
   LOG_DEBUG("speedcomp.cpp", "[clearCenterCompSamples]");
   float pos = _carriage->realPosition;
 
@@ -264,7 +260,7 @@ void SpeedComp::clearCenterCompSamples() {
 } // clearCenterCompSamples()
 
 
-void SpeedComp::createUnbalanceFilterCurve(){
+void SpeedComp_::createUnbalanceFilterCurve(){
   LOG_DEBUG("speedcomp.cpp", "[createUnbalanceFilterCurve]");
 
   float total = 0;
@@ -285,14 +281,14 @@ void SpeedComp::createUnbalanceFilterCurve(){
 } // createUnbalanceFilterCurve()
 
 
-float SpeedComp::getSpeed() {
+float SpeedComp_::getSpeed() {
   _average = averageInterval();
   speedRaw = currentSpeed(_average) * _direction;
   return speedRaw; // don't compensate
 } // getSpeed()
 
 
-float SpeedComp::averageInterval() {
+float SpeedComp_::averageInterval() {
   int total = 0;
 
   for (byte i = 0; i < SPEEDCOMP_SAMPLES; i++) {
@@ -302,18 +298,18 @@ float SpeedComp::averageInterval() {
 } // averageInterval()
 
 
-float SpeedComp::currentSpeed(float inter) { // Calculate rpm
+float SpeedComp_::currentSpeed(float inter) { // Calculate rpm
   float value = ((1000000.0 * 60) / inter) / pulsesPerRev; // return total
   return limitFloat(value, -300, 300);
 } // currentSpeed()
 
 
-void SpeedComp::shiftSamples(int sample) {
+void SpeedComp_::shiftSamples(int sample) {
   _samplesArr[_sampleCounter++ % samples] = sample;
 } // shiftSamples()
 
 
-void SpeedComp::printGraphicData() {
+void SpeedComp_::printGraphicData() {
   if (!_headerShown) {
     Serial.println("GRAPH_HEADER: SpeedRaw, Speed, CarriageFourier");
     _headerShown = true;
@@ -327,7 +323,7 @@ void SpeedComp::printGraphicData() {
 }
 
 
-void SpeedComp::info() {
+void SpeedComp_::info() {
   // Serial.println(padRight("STROBO_SAMPLES", PADR) +            ": " + String(samples));
   // Serial.println(padRight("STROBO_PULSES_PER_REV", PADR) +     ": " + String(pulsesPerRev));
   Serial.println(padRight("STROBO_UNBAL_PHASE", PADR) +        ": " + String(unbalancePhase));
@@ -337,3 +333,12 @@ void SpeedComp::info() {
 
   Serial.println();
 } // info()
+
+
+SpeedComp_ &SpeedComp_::getInstance() {
+  static SpeedComp_ instance;
+  return instance;
+} // getInstance()
+
+
+SpeedComp_ &SpeedComp = SpeedComp.getInstance();

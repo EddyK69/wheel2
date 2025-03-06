@@ -19,7 +19,16 @@ class Carriage; // pre-declare class
 class Plateau; // pre-declare class
 
 
-class SpeedComp {
+class SpeedComp_ {
+  private:
+    SpeedComp_() = default; // Make constructor private
+
+  public:
+    static SpeedComp_& getInstance(); // Accessor for singleton instance
+
+    SpeedComp_(const SpeedComp_&) = delete; // no copying
+    SpeedComp_& operator=(const SpeedComp_&) = delete;
+
   private:
     Carriage* _carriage;
     Plateau* _plateau;
@@ -114,7 +123,6 @@ class SpeedComp {
     float trackSpacing;
     float centerCompTargetRpm;
 
-    SpeedComp();
     void init(Carriage* carriage, Plateau* plateau);
     void update();
     void clearCompSamples();
@@ -122,7 +130,8 @@ class SpeedComp {
     void stroboInterrupt();
     void createUnbalanceFilterCurve();
     void info();
-}; // SpeedComp
+}; // SpeedComp_
 
+extern SpeedComp_& SpeedComp;
 
 #endif // SPEEDCOMP_H

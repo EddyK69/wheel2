@@ -25,7 +25,6 @@ class Display {
     Orientation& _orientation;
     Plateau& _plateau;
     Scanner& _scanner;
-    SpeedComp& _speedcomp;
     Storage& _storage;
     int _trackCounter = 0;
     uint64_t _delay = 0;
@@ -40,8 +39,7 @@ class Display {
     void commit();
   public:
     Display(Buttons& buttons, Carriage& carriage,
-      Orientation& orientation, Plateau& plateau, Scanner& scanner, SpeedComp& speedcomp,
-      Storage& storage);
+      Orientation& orientation, Plateau& plateau, Scanner& scanner, Storage& storage);
     void init();
     void update();
     void bootLED();

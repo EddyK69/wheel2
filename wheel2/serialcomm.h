@@ -27,7 +27,6 @@ class SerialComm {
     Orientation& _orientation;
     Plateau& _plateau;
     Scanner& _scanner;
-    SpeedComp& _speedcomp;
     Storage& _storage;
     Interval _interval;
     Interval _uptimeInterval;
@@ -52,7 +51,7 @@ class SerialComm {
     void version();
   public:
     SerialComm(Bluetooth& bluetooth, Buttons& buttons, Carriage& carriage,
-      Orientation& orientation, Plateau& plateau, Scanner& scanner, SpeedComp& speedcomp, Storage& storage);
+      Orientation& orientation, Plateau& plateau, Scanner& scanner, Storage& storage);
     void init();
     void func();
 }; // SerialComm

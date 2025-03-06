@@ -17,7 +17,6 @@
 class Plateau {
   private:
     Interval _interval;
-    SpeedComp& _speedcomp;
     float _autoRpm;
     float _basicVoltage = 0;
     float _outBuff;
@@ -48,7 +47,7 @@ class Plateau {
     bool atSpeed;
     bool motorOn = false;
     bool motorReverse = false;
-    Plateau(SpeedComp& speedcomp);
+    Plateau();
     void init();
     void func();
     void motorStart();

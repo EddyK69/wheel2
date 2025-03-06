@@ -13,9 +13,8 @@ Carriage::Carriage(Plateau& plateau, Scanner& scanner) :
 } // Carriage()
 
 
-void Carriage::init(SpeedComp* speedcomp) { // to prevent circular reference
+void Carriage::init() {
   LOG_DEBUG("carriage.cpp", "[init]");
-  _speedcomp = speedcomp;
   setPwm(CARRIAGE_STEPPER_AP_PIN);
   setPwm(CARRIAGE_STEPPER_AN_PIN);
   setPwm(CARRIAGE_STEPPER_BP_PIN);
@@ -65,7 +64,7 @@ void Carriage::func() {
     realPosition = position + _Dcomp;
 
     if (offCenterCompensation) {
-      _offCenterCompFilter +=  (_speedcomp->carriageFourierFilter - _offCenterCompFilter) / 4;
+      _offCenterCompFilter +=  (SpeedComp.carriageFourierFilter - _offCenterCompFilter) / 4;
       realPosition += _offCenterCompFilter;
     }
 
@@ -151,7 +150,7 @@ void Carriage::stateUpdate() {
       _Dcomp = 0;
 
       emergencyStop();
-      _speedcomp->clearCompSamples(); // nice moment to stop
+      SpeedComp.clearCompSamples(); // nice moment to stop
 
       if (Shared.state == S_HOMING_BEFORE_PLAYING) {
         Shared.setState(S_GOTO_RECORD_START);
@@ -300,7 +299,7 @@ void Carriage::stateUpdate() {
         return;
       }
 
-      if (_speedcomp->trackSpacing > 0.01) {
+      if (SpeedComp.trackSpacing > 0.01) {
         movedForwardInterval.reset();
       } else if (movedForwardInterval.duration() > 4000) {
         if (position < 60 ){ // run-out groove? (54mm seems the farest from the middle
@@ -315,7 +314,7 @@ void Carriage::stateUpdate() {
       } 
 
       if (Shared.puristMode) {
-        if ((_speedcomp->wow < 0.15) || Arm.isNeedleDownFor(10000) ){
+        if ((SpeedComp.wow < 0.15) || Arm.isNeedleDownFor(10000) ){
           // LOG_NOTICE("carriage.cpp", "[stateUpdate] Seems to runs ok");
           Serial.println("Seems to runs ok");
           Shared.puristMode = false;

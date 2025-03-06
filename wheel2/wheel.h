@@ -27,7 +27,6 @@ class Wheel {
     Plateau plateau;
     Scanner scanner;
     SerialComm serialcomm;
-    SpeedComp speedcomp;
     Storage storage;
     Wheel();
     void init();

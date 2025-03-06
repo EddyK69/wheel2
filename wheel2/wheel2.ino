@@ -51,6 +51,7 @@
 #include "shared.h"
 #include "amplifier.h"
 #include "arm.h"
+#include "speedcomp.h"
 #include "wheel.h"
 
 
@@ -107,5 +108,5 @@ void enableInterupts(bool enabled) {
 
 
 void gpioCallback(uint gpio, uint32_t events) {
-  wheel.speedcomp.stroboInterrupt();
+  SpeedComp.stroboInterrupt();
 } // gpioCallback

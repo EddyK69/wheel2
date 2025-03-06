@@ -5,14 +5,13 @@
 
 
 SerialComm::SerialComm(Bluetooth& bluetooth, Buttons& buttons, Carriage& carriage,
-      Orientation& orientation, Plateau& plateau, Scanner& scanner, SpeedComp& speedcomp, Storage& storage) :
+      Orientation& orientation, Plateau& plateau, Scanner& scanner, Storage& storage) :
       _bluetooth(bluetooth),
       _buttons(buttons),
       _carriage(carriage),
       _orientation(orientation),
       _plateau(plateau),
       _scanner(scanner),
-      _speedcomp(speedcomp),
       _storage(storage),
       _interval(10000, TM_MICROS),
       _uptimeInterval(60, TM_MINS) {
@@ -83,7 +82,7 @@ void SerialComm::checkReceivedLine(String line, eCheckMode mode) {
   if (checkLineBool(    "G",      "Graphics",                   mode, _graphicData)) {                        return; }
   if (checkLineBool(    "PLG",    "RecordScanner graphics",     mode, _scanner.graphicData)) {                return; }
   if (checkLineBool(    "KG",     "Carriage graphics",          mode, _carriage.graphicData)) {               return; }
-  if (checkLineBool(    "SG",     "Strobo graphics",            mode, _speedcomp.graphicData)) {              return; }
+  if (checkLineBool(    "SG",     "Strobo graphics",            mode, SpeedComp.graphicData)) {               return; }
   if (checkLineBool(    "OG",     "Orientation graphics",       mode, _orientation.graphicData)) {            return; }
 
   //-------------------------------------------------- STATE --------------------------------------------------
@@ -134,17 +133,17 @@ void SerialComm::checkReceivedLine(String line, eCheckMode mode) {
 
   //-------------------------------------------------- STROBO --------------------------------------------------
   println(mode);
-  // if (checkLineInt(     "SSN",    "Strobo samples",             mode, _speedcomp.samples)) {                  return; }
-  if (checkLineBool(    "SOC",    "Strobo unbalance Comp. On",  mode, _speedcomp.unbalanceCompOn)) {          return; }
-  if (checkLineBool(    "SKC",    "Strobo OffCenter Comp.",     mode, _speedcomp.recordOffCenterComp)) {      return; }
+  // if (checkLineInt(     "SSN",    "Strobo samples",             mode, SpeedComp.samples)) {                   return; }
+  if (checkLineBool(    "SOC",    "Strobo unbalance Comp. On",  mode, SpeedComp.unbalanceCompOn)) {           return; }
+  if (checkLineBool(    "SKC",    "Strobo OffCenter Comp.",     mode, SpeedComp.recordOffCenterComp)) {       return; }
   if (checkLineBool(    "KC",     "Carriage OffCenter Comp.",   mode, _carriage.offCenterCompensation)) {     return; }
 
-  if (checkLineFloat(   "SOG",    "Strobo unbal. Comp. Weight", mode, _speedcomp.unbalanceCompWeight)) {      return; }
-  if (checkLineFloat(   "SOFB",   "Strobo unbal. Filter Width", mode, _speedcomp.unbalanceFilterWidth)) {_speedcomp.createUnbalanceFilterCurve(); return; }
-  if (checkLineInt(     "SOF",    "Strobo unbal. Phase",        mode, _speedcomp.unbalancePhase)) {           return; }
+  if (checkLineFloat(   "SOG",    "Strobo unbal. Comp. Weight", mode, SpeedComp.unbalanceCompWeight)) {       return; }
+  if (checkLineFloat(   "SOFB",   "Strobo unbal. Filter Width", mode, SpeedComp.unbalanceFilterWidth)) {SpeedComp.createUnbalanceFilterCurve(); return; }
+  if (checkLineInt(     "SOF",    "Strobo unbal. Phase",        mode, SpeedComp.unbalancePhase)) {            return; }
 
-  if (checkLineCommand( "SCZ",    "Strobo clearCompSamples On T0", mode)) { _speedcomp.clearCompSamplesOnT0(); return; }
-  if (checkLineCommand( "SCC",    "Strobo clearCompSamples",    mode)) { _speedcomp.clearCompSamples();       return; }
+  if (checkLineCommand( "SCZ",    "Strobo clearCompSamples On T0", mode)) { SpeedComp.clearCompSamplesOnT0(); return; }
+  if (checkLineCommand( "SCC",    "Strobo clearCompSamples",    mode)) { SpeedComp.clearCompSamples();        return; }
 
   //-------------------------------------------------- STORAGE --------------------------------------------------
   println(mode);
@@ -291,45 +290,45 @@ void SerialComm::printGraphicData() {
     Serial.println("GRAPH_HEADER: SpeedRaw-TRPM, Speed-CTRPM, PPR, CTPRM-TRPM, UnbalanceComp, ArmAngleCall, RealPosition, Trackspacing, ArmWeight");
     _headerShown = true;
   }
-  Serial.print(_speedcomp.speedRaw - _plateau.targetRpm, 3);
+  Serial.print(SpeedComp.speedRaw - _plateau.targetRpm, 3);
   Serial.print(", ");
-  Serial.print(_speedcomp.speed - _speedcomp.centerCompTargetRpm, 3);
+  Serial.print(SpeedComp.speed - SpeedComp.centerCompTargetRpm, 3);
 
   // Serial.print(", ");
-  // Serial.print(_speedcomp.speed, 3);
+  // Serial.print(SpeedComp.speed, 3);
   Serial.print(", ");
-  Serial.print((float)_speedcomp.rotationPosition / _speedcomp.pulsesPerRev, 3);
+  Serial.print((float)SpeedComp.rotationPosition / SpeedComp.pulsesPerRev, 3);
 
   // Serial.print(", ");
-  // Serial.print(_speedcomp._unbalanceFilterCurve[_speedcomp.rotationPosition]);
+  // Serial.print(SpeedComp._unbalanceFilterCurve[SpeedComp.rotationPosition]);
 
   // Serial.print(", ");
-  // Serial.print(_speedcomp.speedLowPass, 3);
+  // Serial.print(SpeedComp.speedLowPass, 3);
 
   // Serial.print(", ");
-  // Serial.print(_speedcomp._processInterval);
+  // Serial.print(SpeedComp._processInterval);
 
   // Serial.print(", ");
-  // Serial.print(_speedcomp.speedLowPass - _plateau.targetRpm, 3);
+  // Serial.print(SpeedComp.speedLowPass - _plateau.targetRpm, 3);
   // Serial.print(", ");
-  // Serial.print(_speedcomp.lowpassRect, 3);
+  // Serial.print(SpeedComp.lowpassRect, 3);
   // Serial.print(", ");
-  // Serial.print(_speedcomp.wow, 3);
+  // Serial.print(SpeedComp.wow, 3);
 
   // Serial.print(", ");
-  // Serial.print(_speedcomp.speedHighPass, 3);
-
-  Serial.print(", ");
-  Serial.print(_speedcomp.centerCompTargetRpm - _plateau.targetRpm, 3);
-
-  // Serial.print(", ");
-  // Serial.print(_speedcomp.rotationPosition / float(_speedcomp.pulsesPerRev));
-
-  // Serial.print(", ");
-  // Serial.print(_speedcomp.preComp, 4);
+  // Serial.print(SpeedComp.speedHighPass, 3);
 
   Serial.print(", ");
-  Serial.print(_speedcomp.unbalanceComp, 4);
+  Serial.print(SpeedComp.centerCompTargetRpm - _plateau.targetRpm, 3);
+
+  // Serial.print(", ");
+  // Serial.print(SpeedComp.rotationPosition / float(SpeedComp.pulsesPerRev));
+
+  // Serial.print(", ");
+  // Serial.print(SpeedComp.preComp, 4);
+
+  Serial.print(", ");
+  Serial.print(SpeedComp.unbalanceComp, 4);
 
   // Serial.print(", ");
   // Serial.print(_plateau._outBuff, 2);
@@ -356,16 +355,16 @@ void SerialComm::printGraphicData() {
   Serial.print(_carriage.realPosition, 3);
 
   // // Serial.print(", ");
-  // // Serial.print(_speedcomp.carriagePosMiddle, 3);
+  // // Serial.print(SpeedComp.carriagePosMiddle, 3);
 
   // // Serial.print(", ");
-  // // Serial.print(_speedcomp.carriagePosMiddle + _speedcomp.carriageFourier, 3);
+  // // Serial.print(SpeedComp.carriagePosMiddle + SpeedComp.carriageFourier, 3);
 
   // Serial.print(", ");
-  // Serial.print(_speedcomp.carriagePosMiddle + _speedcomp.carriageFourierFilter, 3);
+  // Serial.print(SpeedComp.carriagePosMiddle + SpeedComp.carriageFourierFilter, 3);
 
   Serial.print(", ");
-  Serial.print(_speedcomp.trackSpacing, 3);
+  Serial.print(SpeedComp.trackSpacing, 3);
 
   Serial.print(", ");
   Serial.print(Arm.weight, 3);
@@ -381,7 +380,7 @@ void SerialComm::report() {
   Serial.println();
   _storage.info();
   _orientation.info();
-  // _speedcomp.info();
+  // SpeedComp.info();
   Serial.println("----------------------------------------------");
 } // report()
 
@@ -396,7 +395,7 @@ void SerialComm::info() {
   _storage.info();
   _orientation.info();
   _plateau.info();
-  _speedcomp.info();
+  SpeedComp.info();
   _carriage.info();
   _scanner.info();
   Arm.info();
