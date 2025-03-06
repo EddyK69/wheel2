@@ -19,7 +19,6 @@
 
 class Wheel {
   public:
-    Buttons buttons;
     Display display;
     SerialComm serialcomm;
     Wheel();

@@ -4,22 +4,13 @@
 #include "helper.h"
 
 
-Buttons::Buttons() :
-  _interval(10000, TM_MICROS),
-  rpmDisplayActionInterval(0, TM_MILLIS),
-  volumeDisplayActionInterval(0, TM_MILLIS),
-  ledBlinkInterval(0, TM_MILLIS),
-  _allButtonsInterval(0, TM_MILLIS) {
-} // Buttons()
-
-
-void Buttons::init() {
+void Buttons_::init() {
   LOG_DEBUG("buttons.cpp", "[init]");
   // Nothing to do really ;)
 } // init()
 
 
-void Buttons::update() {
+void Buttons_::update() {
   if (_interval.tick()) {
     readData();
 
@@ -78,7 +69,7 @@ void Buttons::update() {
 } // update()
 
 
-void Buttons::readData() {
+void Buttons_::readData() {
   gpio_put(DISPLAY_LATCH_PIN, 0);
   delayMicroseconds(1);
   gpio_put(DISPLAY_LATCH_PIN, 1);
@@ -94,7 +85,7 @@ void Buttons::readData() {
 } // readData()
 
 
-void Buttons::logic(int button) {
+void Buttons_::logic(int button) {
   //--------------------------------------------- SHORT PRESS
   if (state[button] == BUTTON_RELEASE && _buttonIn[button] == BUTTON_PRESS) {
     state[button] = BUTTON_PRESS;
@@ -262,22 +253,22 @@ void Buttons::logic(int button) {
 } // logic()
 
 
-void Buttons::ledBlink() {
+void Buttons_::ledBlink() {
   ledBlinkInterval.reset();
 } // ledBlink()
 
 
-bool Buttons::isButtonNext(int button) {
+bool Buttons_::isButtonNext(int button) {
   return button == buttonNextComp();
 } // isButtonNext()
 
 
-bool Buttons::isButtonPrev(int button) {
+bool Buttons_::isButtonPrev(int button) {
   return button == buttonPrevComp();
 } // isButtonPrev()
 
 
-int Buttons::buttonNextComp() {
+int Buttons_::buttonNextComp() {
   if (Orientation.isStanding) {
     return BUTTON_PREV;
   }
@@ -285,7 +276,7 @@ int Buttons::buttonNextComp() {
 } // buttonNextComp()
 
 
-int Buttons::buttonPrevComp() {
+int Buttons_::buttonPrevComp() {
   if (Orientation.isStanding) {
     return BUTTON_NEXT;
   }
@@ -293,13 +284,13 @@ int Buttons::buttonPrevComp() {
 } // buttonPrevComp()
 
 
-void Buttons::log(int button, String action) {
+void Buttons_::log(int button, String action) {
     LOG_DEBUG("buttons.cpp", "[logic] " + getButton(button) + ": " + action);
   // Serial.println(getButton(button) + ": " + action);
 } // log()
 
 
-String Buttons::getButton(int button) {
+String Buttons_::getButton(int button) {
   String strButton = "BUTTON_UNKNOWN";
 
   if        (button == BUTTON_PLAY) { strButton = "BUTTON_PLAY";
@@ -310,7 +301,7 @@ String Buttons::getButton(int button) {
 } // getButton()
 
 
-void Buttons::info() {
+void Buttons_::info() {
   Serial.print(padRight("BUTTONS", PADR) + ": ");
   for (int button = 0; button < BUTTON_COUNT; button++) {
     Serial.print(String(_buttonIn[button]) + " ");
@@ -318,3 +309,12 @@ void Buttons::info() {
   Serial.println();
   Serial.println();
 } // info()
+
+
+Buttons_ &Buttons_::getInstance() {
+  static Buttons_ instance;
+  return instance;
+} // getInstance()
+
+
+Buttons_ &Buttons = Buttons.getInstance();

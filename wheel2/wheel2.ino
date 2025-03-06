@@ -52,6 +52,7 @@
 #include "amplifier.h"
 #include "arm.h"
 #include "bluetooth.h"
+#include "buttons.h"
 #include "carriage.h"
 #include "orientation.h"
 #include "plateau.h"
@@ -100,7 +101,7 @@ void setup1() {
 void loop1() {
   wheel.display.update();
   wheel.serialcomm.func();
-  wheel.buttons.update();
+  Buttons.update();
   Arm.func();
 } // loop1()
 

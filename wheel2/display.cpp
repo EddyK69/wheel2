@@ -3,8 +3,7 @@
 #include "pins.h"
 #include "helper.h"
 
-Display::Display(Buttons& buttons) :
-  _buttons(buttons),
+Display::Display() :
   _interval(10000, TM_MICROS) {
 } // Display()
 
@@ -148,7 +147,7 @@ void Display::update() {
       drawBlock(armAnglePoint - 2, armAnglePoint + 2, 0.9);
 
     //--------------------------------------------- RPM
-    } else if (_buttons.rpmDisplayActionInterval.duration() < 2000) {
+    } else if (Buttons.rpmDisplayActionInterval.duration() < 2000) {
 
         int blocks = 1; // rpmMode == AUTO
 
@@ -169,7 +168,7 @@ void Display::update() {
         }  
 
     //--------------------------------------------- VOLUME
-    } else if (_buttons.volumeDisplayActionInterval.duration() < 2000
+    } else if (Buttons.volumeDisplayActionInterval.duration() < 2000
         && Shared.state != S_SKIP_FORWARD && Shared.state != S_SKIP_REVERSE
         &&  Shared.state != S_GOTO_TRACK && Shared.state != S_PAUSE) {
       int volPoint = mapFloat(Amplifier.volume, 0, 63, 1, _dispHalf);
@@ -235,18 +234,18 @@ void Display::update() {
     }
 
     //--------------------------------------------- BUTTON BLINK
-    if (_buttons.ledBlinkInterval.duration() < 100) {
+    if (Buttons.ledBlinkInterval.duration() < 100) {
       int buttonSize = 6;
       int buttonSizeHalf = buttonSize / 2;
       int buttonOffMiddle = 0.23 * DISPLAY_LENGTH;
 
-      if (_buttons.state[BUTTON_PLAY] != BUTTON_RELEASE) {
+      if (Buttons.state[BUTTON_PLAY] != BUTTON_RELEASE) {
         drawBlock(_dispHalf - buttonSizeHalf, _dispHalf + buttonSizeHalf, 0.9);
       }
-      if (_buttons.state[BUTTON_PREV] != BUTTON_RELEASE) {
+      if (Buttons.state[BUTTON_PREV] != BUTTON_RELEASE) {
         drawBlock(_dispHalf - buttonOffMiddle, _dispHalf - buttonOffMiddle - buttonSize, 0.9);
       }
-      if (_buttons.state[BUTTON_NEXT] != BUTTON_RELEASE) {
+      if (Buttons.state[BUTTON_NEXT] != BUTTON_RELEASE) {
         drawBlock(_dispHalf + buttonOffMiddle, _dispHalf + buttonOffMiddle + buttonSize, 0.9);
       }
     }

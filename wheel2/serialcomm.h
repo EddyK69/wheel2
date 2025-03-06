@@ -21,7 +21,6 @@
 
 class SerialComm {
   private:
-    Buttons& _buttons;
     Interval _interval;
     Interval _uptimeInterval;
     String _line = "";
@@ -44,7 +43,7 @@ class SerialComm {
     void info();
     void version();
   public:
-    SerialComm(Buttons& buttons);
+    SerialComm();
     void init();
     void func();
 }; // SerialComm

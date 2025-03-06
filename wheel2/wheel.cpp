@@ -4,9 +4,8 @@
 
 
 Wheel::Wheel() :
-    buttons(),
-    display(buttons),
-    serialcomm(buttons) {
+    display(),
+    serialcomm() {
 } // Wheel()
 
 
@@ -19,7 +18,7 @@ void Wheel::init() {
   Amplifier.init();
   Orientation.init();
   Arm.init();
-  buttons.init();
+  Buttons.init();
   Carriage.init();
   Scanner.init();
   Plateau.init();

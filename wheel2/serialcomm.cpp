@@ -4,8 +4,7 @@
 #include "helper.h"
 
 
-SerialComm::SerialComm(Buttons& buttons) :
-      _buttons(buttons),
+SerialComm::SerialComm() :
       _interval(10000, TM_MICROS),
       _uptimeInterval(60, TM_MINS) {
 } // SerialComm()
@@ -392,7 +391,7 @@ void SerialComm::info() {
   Carriage.info();
   Scanner.info();
   Arm.info();
-  _buttons.info();
+  Buttons.info();
   Shared.info();
   Serial.println("----------------------------------------------");
 } // info()
