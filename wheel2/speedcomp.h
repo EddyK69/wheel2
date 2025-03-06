@@ -13,19 +13,17 @@
 #define SPEEDCOMP_PPR_MAX     1000
 
 
-class Carriage; // pre-declare class
-
-
-class Plateau; // pre-declare class
-
-
-class SpeedComp {
+class SpeedComp_ {
   private:
-    Shared& _shared;
-    Arm& _arm;
-    Carriage* _carriage;
-    Plateau* _plateau;
+    SpeedComp_() = default; // Make constructor private
 
+  public:
+    static SpeedComp_& getInstance(); // Accessor for singleton instance
+
+    SpeedComp_(const SpeedComp_&) = delete; // no copying
+    SpeedComp_& operator=(const SpeedComp_&) = delete;
+
+  private:
     //-------------------- speed
     volatile uint64_t _speedInterval;
     volatile uint64_t _time;
@@ -116,15 +114,15 @@ class SpeedComp {
     float trackSpacing;
     float centerCompTargetRpm;
 
-    SpeedComp(Shared& shared, Arm& arm);
-    void init(Carriage* carriage, Plateau* plateau);
+    void init();
     void update();
     void clearCompSamples();
     void clearCompSamplesOnT0();
     void stroboInterrupt();
     void createUnbalanceFilterCurve();
     void info();
-}; // SpeedComp
+}; // SpeedComp_
 
+extern SpeedComp_& SpeedComp;
 
 #endif // SPEEDCOMP_H

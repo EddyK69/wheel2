@@ -4,16 +4,7 @@
 #include "helper.h"
 
 
-Bluetooth::Bluetooth(Shared& shared, Carriage& carriage, Plateau& plateau) :
-  _shared(shared),
-  _carriage(carriage),
-  _plateau(plateau),
-  _interval(200, TM_MILLIS),
-  _checkBeforeStartInterval(2000, TM_MILLIS) {
-} // Bluetooth()
-
-
-void Bluetooth::init() {
+void Bluetooth_::init() {
   LOG_DEBUG("bluetooth.cpp", "[init]");
   Serial2.setRX(BT_RXD_PIN);
   Serial2.setTX(BT_TXD_PIN);
@@ -26,7 +17,7 @@ void Bluetooth::init() {
 } // init()
 
 
-void Bluetooth::func() {
+void Bluetooth_::func() {
   if (millisSinceBoot() < 1000) {
     return;
   }
@@ -74,7 +65,7 @@ void Bluetooth::func() {
 } // func()
 
 
-void Bluetooth::write(String command) {
+void Bluetooth_::write(String command) {
   Serial2.print(command + "\r\n");
 
   // LOG_DEBUG("bluetooth.cpp", "[write] BT OUT:" + command);
@@ -84,7 +75,7 @@ void Bluetooth::write(String command) {
 } // write()
 
 
-void Bluetooth::encode() {
+void Bluetooth_::encode() {
   // LOG_DEBUG("bluetooth.cpp", "[encode] BT IN:" + _buffer);
   if (debug) {
     Serial.println("BT IN:" + _buffer);
@@ -99,30 +90,30 @@ void Bluetooth::encode() {
       LOG_DEBUG("bluetooth.cpp", "[encode] KNOP_IN:" + _buffer);
 
       // if (_buffer == BT_PLAY) {
-      //   if (_shared.state == S_PAUSE || _shared.state == S_PLAYING) { // maybe remove S_PLAYING?
-      //     _carriage.pause();
-      //   } else if(_shared.state == S_HOME) {
-      //     _plateau.play();
+      //   if (Shared.state == S_PAUSE || Shared.state == S_PLAYING) { // maybe remove S_PLAYING?
+      //     Carriage.pause();
+      //   } else if(Shared.state == S_HOME) {
+      //     Plateau.play();
       //   }
       // }
 
       if (_buffer == BT_PLAY) {
-        if (_shared.state == S_PAUSE) { 
-          _carriage.pause();
-        } else if (_shared.state == S_HOME) {
-          _plateau.play();
+        if (Shared.state == S_PAUSE) { 
+          Carriage.pause();
+        } else if (Shared.state == S_HOME) {
+          Plateau.play();
         }
       } else if (_buffer == BT_PAUSE) {
-        if (_shared.state == S_PAUSE || _shared.state == S_PLAYING) { // maybe remove S_PLAYING?
-          _carriage.pause();
+        if (Shared.state == S_PAUSE || Shared.state == S_PLAYING) { // maybe remove S_PLAYING?
+          Carriage.pause();
         }
       } else if (_buffer == BT_NEXT_TRACK) {
-        if (_shared.state == S_PLAYING || _shared.state == S_PAUSE || _shared.state == S_GOTO_TRACK) {
-          _carriage.gotoNextTrack();
+        if (Shared.state == S_PLAYING || Shared.state == S_PAUSE || Shared.state == S_GOTO_TRACK) {
+          Carriage.gotoNextTrack();
         }
       } else if (_buffer == BT_PREV_TRACK) {
-        if (_shared.state == S_PLAYING || _shared.state == S_PAUSE || _shared.state == S_GOTO_TRACK) {
-          _carriage.gotoPreviousTrack();
+        if (Shared.state == S_PLAYING || Shared.state == S_PAUSE || Shared.state == S_GOTO_TRACK) {
+          Carriage.gotoPreviousTrack();
         }
       }
     } else if (_buffer.startsWith(BT_BUTTON_OUT)) {
@@ -139,3 +130,12 @@ void Bluetooth::encode() {
     }
   }
 } // encode()
+
+
+Bluetooth_ &Bluetooth_::getInstance() {
+  static Bluetooth_ instance;
+  return instance;
+} // getInstance()
+
+
+Bluetooth_ &Bluetooth = Bluetooth.getInstance();

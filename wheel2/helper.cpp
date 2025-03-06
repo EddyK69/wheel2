@@ -103,14 +103,15 @@ String getRpmState(eRpmMode rpm) {
 String getError(eErrors error) {
   String strError = "E_UNKNOWN";
 
-  if        (error == E_NONE)                  { strError = "E_NONE";
-  } else if (error == E_NEEDLE_MOVE_BACKWARDS) { strError = "E_NEEDLE_MOVE_BACKWARDS";
-  } else if (error == E_NEEDLE_DIDNT_MOVE)     { strError = "E_NEEDLE_DIDNT_MOVE";
-  } else if (error == E_SPEED_UP_FAILED)       { strError = "E_SPEED_UP_FAILED";
-  } else if (error == E_HOMING_FAILED)         { strError = "E_HOMING_FAILED";
-  } else if (error == E_ARMANGLE_LIMIT_POS)    { strError = "E_ARMANGLE_LIMIT_POS";
-  } else if (error == E_ARMANGLE_LIMIT_POS)    { strError = "E_ARMANGLE_LIMIT_POS";
-  } else if (error == E_TO_MUCH_TRAVEL)        { strError = "E_TO_MUCH_TRAVEL";
+  if        (error == E_NONE)                    { strError = "E_NONE";
+  } else if (error == E_NEEDLE_MOVE_BACKWARDS)   { strError = "E_NEEDLE_MOVE_BACKWARDS";
+  } else if (error == E_NEEDLE_DIDNT_MOVE)       { strError = "E_NEEDLE_DIDNT_MOVE";
+  } else if (error == E_SPEED_UP_FAILED)         { strError = "E_SPEED_UP_FAILED";
+  } else if (error == E_HOMING_FAILED)           { strError = "E_HOMING_FAILED";
+  } else if (error == E_ARMANGLE_LIMIT_POS)      { strError = "E_ARMANGLE_LIMIT_POS";
+  } else if (error == E_ARMANGLE_LIMIT_POS)      { strError = "E_ARMANGLE_LIMIT_POS";
+  } else if (error == E_TO_MUCH_TRAVEL)          { strError = "E_TO_MUCH_TRAVEL";
+  } else if (error == E_PLATEAU_COULD_NOT_START) { strError = "E_PLATEAU_COULD_NOT_START";
   }
   return strError;
 } // getError()

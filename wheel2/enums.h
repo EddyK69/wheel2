@@ -35,6 +35,7 @@ enum eStates {
 enum eErrors {
   E_NONE = 0,
 
+  E_PLATEAU_COULD_NOT_START = 1,
   E_NEEDLE_MOVE_BACKWARDS = 2,  // needle move backwards (outside); this means that needle might not have reached record of bad tracking
   E_NEEDLE_DIDNT_MOVE = 3,      // needle hasn't moved for a long time; this means bad tracking or the needle is not on the record
 
@@ -50,6 +51,7 @@ enum eErrors {
   E_MAX                         // Max value of eErrors
 }; // eErrors
 
+//1 if the plateau could not start up
 //2 the needle moved backwards (so the needle did not track or there are no tracks)
 //3 the needle did not move for too long
 //4 the platter motor could not get up to speed (not used)

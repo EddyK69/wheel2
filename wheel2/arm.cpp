@@ -5,16 +5,7 @@
 #include "pwm.h"
 
 
-Arm::Arm(Shared& shared) :
-  _shared(shared),
-  _interval(10, TM_MILLIS),
-  _needleDownInterval(0, TM_MILLIS),
-  _motorOnInterval(0, TM_MILLIS),
-  _motorOffInterval(0, TM_MILLIS) {
-} // Arm()
-
-
-void Arm::init() {
+void Arm_::init() {
   LOG_DEBUG("arm.cpp", "[init]");
   setPwm(ARM_MOTOR_PIN);
 
@@ -23,17 +14,17 @@ void Arm::init() {
 } // init()
 
 
-void Arm::func() {
+void Arm_::func() {
   if (_interval.tick()) {
-    if (_shared.state == S_CALIBRATE) {
+    if (Shared.state == S_CALIBRATE) {
       weight = pwm2ArmWeight(force);
       pwmWriteFloat(ARM_MOTOR_PIN, force);
       return;
     }
 
-    if (_shared.state == S_HOMING_BEFORE_PLAYING
-      || _shared.state == S_HOMING_BEFORE_CLEANING
-      || _shared.state == S_HOMING) {
+    if (Shared.state == S_HOMING_BEFORE_PLAYING
+      || Shared.state == S_HOMING_BEFORE_CLEANING
+      || Shared.state == S_HOMING) {
       if (motorOn) { // motorOn == true
         // LOG_CRITICAL("arm.cpp", "[func] Needle should not have been turned on!");
         Serial.println("Needle should not have been turned on!");
@@ -73,19 +64,19 @@ void Arm::func() {
 } // func()
 
 
-bool Arm::putNeedleInGrove() {
+bool Arm_::putNeedleInGrove() {
   motorOn = true;
   return isNeedleInGrove();
 } // putNeedleInGrove()
 
 
-bool Arm::dockNeedle() {
+bool Arm_::dockNeedle() {
   motorOn = false;
   return isNeedleDocked();
 } // dockNeedle()
 
 
-bool Arm::needleEmergencyStop() {
+bool Arm_::needleEmergencyStop() {
   LOG_DEBUG("arm.cpp", "[needleEmergencyStop]");
   weight = ARM_DOCKED_WEIGHT;
   motorOn = false;
@@ -93,28 +84,28 @@ bool Arm::needleEmergencyStop() {
 } // needleEmergencyStop()
 
 
-bool Arm::isNeedleInGrove() {
+bool Arm_::isNeedleInGrove() {
   return weight == targetWeight;
 } // isNeedleInGrove()
 
 
-bool Arm::isNeedleDocked() {
+bool Arm_::isNeedleDocked() {
   return weight == ARM_DOCKED_WEIGHT;
 } // isNeedleDocked()
 
 
-bool Arm::isNeedleDownFor(int ms) {
+bool Arm_::isNeedleDownFor(int ms) {
   return isNeedleInGrove() && _needleDownInterval.duration() > ms;
 } // isNeedleDownFor()
 
 
-void Arm::centerArmAngle() {
+void Arm_::centerArmAngle() {
   // LOG_DEBUG("arm.cpp", "[centerArmAngle]");
   armAngleOffset = armAngleSlow;
 } // centerArmAngle
 
 
-void Arm::calibrateAngle() {
+void Arm_::calibrateAngle() {
   LOG_DEBUG("arm.cpp", "[calibrateAngle]");
   armAngleMin = armAngleMinCall;
   armAngleMax = armAngleMaxCall;
@@ -126,18 +117,18 @@ void Arm::calibrateAngle() {
 } // calibrateAngle()
 
 
-float Arm::armWeight2Pwm(float weight) {
+float Arm_::armWeight2Pwm(float weight) {
   float pwm = mapFloat(weight, ARM_MIN_WEIGHT, ARM_MAX_WEIGHT, forceLow, forceHigh);
   return limitFloat(pwm, 0, 1);
 } // armWeight2Pwm()
 
 
-float Arm::pwm2ArmWeight(float pwm) {
+float Arm_::pwm2ArmWeight(float pwm) {
   return mapFloat(pwm, forceLow, forceHigh, ARM_MIN_WEIGHT, ARM_MAX_WEIGHT);
 } // pwm2ArmWeight()
 
 
-void Arm::info() {
+void Arm_::info() {
   Serial.println(padRight("ARM_FORCE_LOW", PADR) +     ": " + String(forceLow,  5));
   Serial.println(padRight("ARM_FORCE_HIGH", PADR) +    ": " + String(forceHigh, 5));
   Serial.println(padRight("ARM_FORCE", PADR) +         ": " + String(force,  5));
@@ -147,3 +138,12 @@ void Arm::info() {
   Serial.println(padRight("NEEDLE", PADR) +            ": " + String(isNeedleInGrove() ? "DOWN" : "UP"));
   Serial.println();
 } // info()
+
+
+Arm_ &Arm_::getInstance() {
+  static Arm_ instance;
+  return instance;
+} // getInstance()
+
+
+Arm_ &Arm = Arm.getInstance();
