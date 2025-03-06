@@ -5,12 +5,6 @@
 #include "helper.h"
 
 
-// Plateau_::Plateau() :
-//   _interval(5000, TM_MICROS),
-//   turnInterval(10, TM_MILLIS) {
-// } // Plateau()
-
-
 void Plateau_::init() {
   LOG_DEBUG("plateau.cpp", "[init]");
 

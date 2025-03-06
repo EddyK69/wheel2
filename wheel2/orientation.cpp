@@ -116,7 +116,6 @@ void Orientation_::info() {
 } // info()
 
 
-
 Orientation_ &Orientation_::getInstance() {
   static Orientation_ instance;
   return instance;
