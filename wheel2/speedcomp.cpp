@@ -19,11 +19,11 @@ void SpeedComp_::init() {
   }
 
   createUnbalanceFilterCurve();
-} // init()
+}  // init()
 
 
 void SpeedComp_::update() {
-  if ((microsSinceBoot() - _speedInterval) > SPEEDCOMP_SAMPLES_MAX ) {
+  if ((microsSinceBoot() - _speedInterval) > SPEEDCOMP_SAMPLES_MAX) {
     if (_glitchCounter > 3) {
       shiftSamples(SPEEDCOMP_SAMPLES_MAX * _direction);
       speedRaw = 0;
@@ -35,7 +35,7 @@ void SpeedComp_::update() {
   } else {
     _glitchCounter = 0;
   }
-} // update()
+}  // update()
 
 
 void SpeedComp_::stroboInterrupt() {
@@ -44,11 +44,8 @@ void SpeedComp_::stroboInterrupt() {
 
   //------------------------------------------------------------ DIRECTION
   _direction = 1;
-  _sens = (gpio_get(PLATEAU_A_PIN) << 1 ) | gpio_get(PLATEAU_B_PIN);
-  if (_sens == 0b00 && _sensPrev == 0b01 ||
-      _sens == 0b01 && _sensPrev == 0b11 ||
-      _sens == 0b11 && _sensPrev == 0b10 ||
-      _sens == 0b10 && _sensPrev == 0b00) {
+  _sens = (gpio_get(PLATEAU_A_PIN) << 1) | gpio_get(PLATEAU_B_PIN);
+  if (_sens == 0b00 && _sensPrev == 0b01 || _sens == 0b01 && _sensPrev == 0b11 || _sens == 0b11 && _sensPrev == 0b10 || _sens == 0b10 && _sensPrev == 0b00) {
     _direction = -1;
   }
   _sensPrev = _sens;
@@ -78,8 +75,8 @@ void SpeedComp_::stroboInterrupt() {
   speed += (speedRaw - speed) / 10;
   // _processInterval = microsSinceBoot() - _processTime;
 
-  if (rotationPosition == 0) { // one rotation
-    if (_clearCompSamplesQueue) { // T = 0, Comp reset
+  if (rotationPosition == 0) {     // one rotation
+    if (_clearCompSamplesQueue) {  // T = 0, Comp reset
       _clearCompSamplesQueue = false;
       _counterSinceReset = 0;
       clearUnbalanceCompSamples();
@@ -104,11 +101,11 @@ void SpeedComp_::stroboInterrupt() {
 
   float carriagePosOffCenter = Carriage.realPosition - carriagePosMiddle;
 
-  if (Arm.isNeedleDownFor(1000) && Shared.state == S_PLAYING) { // needle has to be down while playing before calculation
+  if (Arm.isNeedleDownFor(1000) && Shared.state == S_PLAYING) {  // needle has to be down while playing before calculation
     _carriageSin -= _carriageSinValues[rotationPosition];
     _carriageSinValues[rotationPosition] = _sinus[rotationPosition] * carriagePosOffCenter;
     _carriageSin += _carriageSinValues[rotationPosition];
-    
+
     _carriageCos -= _carriageCosValues[rotationPosition];
     _carriageCosValues[rotationPosition] = _cosin[rotationPosition] * carriagePosOffCenter;
     _carriageCos += _carriageCosValues[rotationPosition];
@@ -117,9 +114,9 @@ void SpeedComp_::stroboInterrupt() {
     _carriageCosFilt += (_carriageCos - _carriageCosFilt) / 2000;
   }
 
-  carriageFourier  = ( ( (_sinus[rotationPosition] * _carriageSin) + ( _cosin[rotationPosition] * _carriageCos) ) / pulsesPerRev ) * 2;
-  carriageFourierFilter  = ( ( ( _sinus[rotationPosition] * _carriageSinFilt )  +  ( _cosin[rotationPosition] * _carriageCosFilt ) ) / pulsesPerRev) * 2;
-  
+  carriageFourier = (((_sinus[rotationPosition] * _carriageSin) + (_cosin[rotationPosition] * _carriageCos)) / pulsesPerRev) * 2;
+  carriageFourierFilter = (((_sinus[rotationPosition] * _carriageSinFilt) + (_cosin[rotationPosition] * _carriageCosFilt)) / pulsesPerRev) * 2;
+
 
   //------------------------------------------------------------ too big break-out ERROR
   float sinBuff = _carriageSinFilt / pulsesPerRev;
@@ -134,12 +131,12 @@ void SpeedComp_::stroboInterrupt() {
 
   //------------------------------------------------------------ COMP SPEEDS
   // phase shift: 8 of 16 samples avg filter, and 9 from found filter
-  int leadCounter = roundTrip(rotationPosition - (8+9), pulsesPerRev);
-  float offCenterSpeedComp = ( ( (_sinus[leadCounter] * _carriageSinFilt) + (_cosin[leadCounter] * _carriageCosFilt) ) / pulsesPerRev) * 2;
+  int leadCounter = roundTrip(rotationPosition - (8 + 9), pulsesPerRev);
+  float offCenterSpeedComp = (((_sinus[leadCounter] * _carriageSinFilt) + (_cosin[leadCounter] * _carriageCosFilt)) / pulsesPerRev) * 2;
 
   _centerComp = ((carriagePosMiddle - offCenterSpeedComp) / carriagePosMiddle);
   centerCompTargetRpm = Plateau.targetRpm * _centerComp;
-  
+
   if (recordOffCenterComp) {
     speedCenterComp = speed / _centerComp;
   } else {
@@ -158,7 +155,7 @@ void SpeedComp_::stroboInterrupt() {
     wow += (lowpassRect - wow) / 1000;
   }
 
-  if (wow < 0.1 && _wowFirstLow) { // _wowFirstLow == true
+  if (wow < 0.1 && _wowFirstLow) {  // _wowFirstLow == true
     _wowFirstLow = false;
     // LOG_DEBUG("speedcomp.cpp", "[stroboInterrupt] Runs synchrone again after " + String(_counterSinceReset / float(pulsesPerRev)) + " turns");
     // LOG_DEBUG("speedcomp.cpp", "[stroboInterrupt] Unbalance Phase       : " + String(unbalancePhase));
@@ -167,21 +164,19 @@ void SpeedComp_::stroboInterrupt() {
     _counterSinceReset = 0;
   }
 
-  if (wow > 0.3 && !_wowFirstLow) { // _wowFirstLow == false
+  if (wow > 0.3 && !_wowFirstLow) {  // _wowFirstLow == false
     _wowFirstLow = true;
   }
 
 
   //------------------------------------------------------------ UNBALANCE COMPENSATION
-  if (unbalanceCompOn                      // all prereqs when compensation should be off
-      && Plateau.motorOn 
-      && Plateau.turnInterval.duration() > 1000 // should be on for 1 sec.
-      && Plateau.atSpeed                        // and speeded up
-      && isApprox(speed, Plateau.targetRpm, 10) // not more than 10rpm from target rpm
-      && ((Arm.isNeedleDownFor(2000) && Shared.state == S_PLAYING) ||
-      Shared.state == S_HOMING_BEFORE_PLAYING ||    
-      Shared.state == S_GOTO_RECORD_START)) { 
-    
+  if (unbalanceCompOn  // all prereqs when compensation should be off
+      && Plateau.motorOn
+      && Plateau.turnInterval.duration() > 1000  // should be on for 1 sec.
+      && Plateau.atSpeed                         // and speeded up
+      && isApprox(speed, Plateau.targetRpm, 10)  // not more than 10rpm from target rpm
+      && ((Arm.isNeedleDownFor(2000) && Shared.state == S_PLAYING) || Shared.state == S_HOMING_BEFORE_PLAYING || Shared.state == S_GOTO_RECORD_START)) {
+
     int speedError = (speedCenterComp - Plateau.targetRpm) * 1000.0;
     int value;
     for (int i = 0; i < _unbalanceFilterCurveWidth; i++) {
@@ -195,7 +190,7 @@ void SpeedComp_::stroboInterrupt() {
   }
 
   if (unbalanceCompOn) {
-    unbalanceComp = - (_unbalansComp[roundTrip(rotationPosition + unbalancePhase, pulsesPerRev)] / (100000000.0)) * unbalanceCompWeight;
+    unbalanceComp = -(_unbalansComp[roundTrip(rotationPosition + unbalancePhase, pulsesPerRev)] / (100000000.0)) * unbalanceCompWeight;
   } else {
     unbalanceComp = 0;
   }
@@ -205,13 +200,13 @@ void SpeedComp_::stroboInterrupt() {
   } else {
     _headerShown = false;
   }
-} // stroboInterrupt()
+}  // stroboInterrupt()
 
 
 void SpeedComp_::clearCompSamplesOnT0() {
   LOG_DEBUG("speedcomp.cpp", "[clearCompSamplesOnT0]");
   _clearCompSamplesQueue = true;
-} // clearCompSamplesOnT0()
+}  // clearCompSamplesOnT0()
 
 
 void SpeedComp_::clearSamples() {
@@ -219,14 +214,14 @@ void SpeedComp_::clearSamples() {
   for (int i = 0; i < samples; i++) {
     _samplesArr[i] = SPEEDCOMP_SAMPLES_MAX;
   }
-} // clearSamples()
+}  // clearSamples()
 
 
 void SpeedComp_::clearCompSamples() {
   LOG_DEBUG("speedcomp.cpp", "[clearCompSamples]");
   clearUnbalanceCompSamples();
   clearCenterCompSamples();
-} // clearCompSamples()
+}  // clearCompSamples()
 
 
 void SpeedComp_::clearUnbalanceCompSamples() {
@@ -234,7 +229,7 @@ void SpeedComp_::clearUnbalanceCompSamples() {
   for (int i = 0; i < pulsesPerRev; i++) {
     _unbalansComp[i] = 0;
   }
-} // clearUnbalanceCompSamples()
+}  // clearUnbalanceCompSamples()
 
 
 void SpeedComp_::clearCenterCompSamples() {
@@ -255,10 +250,10 @@ void SpeedComp_::clearCenterCompSamples() {
 
   _carriagePosMiddlePre = pos * pulsesPerRev;
   carriagePosMiddle = pos;
-} // clearCenterCompSamples()
+}  // clearCenterCompSamples()
 
 
-void SpeedComp_::createUnbalanceFilterCurve(){
+void SpeedComp_::createUnbalanceFilterCurve() {
   LOG_DEBUG("speedcomp.cpp", "[createUnbalanceFilterCurve]");
 
   float total = 0;
@@ -266,24 +261,24 @@ void SpeedComp_::createUnbalanceFilterCurve(){
 
   for (int i = 0; i < pulsesPerRev / 2; i++) {
     float j = float(i) / pulsesPerRev;
-    float value = exp(-unbalanceFilterWidth * (j*j));
+    float value = exp(-unbalanceFilterWidth * (j * j));
 
     if (value > 0.01) {
       _unbalanceFilterCurve[i] = value * 1000;
     } else {
-      if ( _unbalanceFilterCurveWidth > i ) {
+      if (_unbalanceFilterCurveWidth > i) {
         _unbalanceFilterCurveWidth = i;
       }
     }
   }
-} // createUnbalanceFilterCurve()
+}  // createUnbalanceFilterCurve()
 
 
 float SpeedComp_::getSpeed() {
   _average = averageInterval();
   speedRaw = currentSpeed(_average) * _direction;
-  return speedRaw; // don't compensate
-} // getSpeed()
+  return speedRaw;  // don't compensate
+}  // getSpeed()
 
 
 float SpeedComp_::averageInterval() {
@@ -293,18 +288,18 @@ float SpeedComp_::averageInterval() {
     total += _samplesArr[i];
   }
   return total / float(SPEEDCOMP_SAMPLES);
-} // averageInterval()
+}  // averageInterval()
 
 
-float SpeedComp_::currentSpeed(float inter) { // Calculate rpm
-  float value = ((1000000.0 * 60) / inter) / pulsesPerRev; // return total
+float SpeedComp_::currentSpeed(float inter) {               // Calculate rpm
+  float value = ((1000000.0 * 60) / inter) / pulsesPerRev;  // return total
   return limitFloat(value, -300, 300);
-} // currentSpeed()
+}  // currentSpeed()
 
 
 void SpeedComp_::shiftSamples(int sample) {
   _samplesArr[_sampleCounter++ % samples] = sample;
-} // shiftSamples()
+}  // shiftSamples()
 
 
 void SpeedComp_::printGraphicData() {
@@ -324,19 +319,19 @@ void SpeedComp_::printGraphicData() {
 void SpeedComp_::info() {
   // Serial.println(padRight("STROBO_SAMPLES", PADR) +            ": " + String(samples));
   // Serial.println(padRight("STROBO_PULSES_PER_REV", PADR) +     ": " + String(pulsesPerRev));
-  Serial.println(padRight("STROBO_UNBAL_PHASE", PADR) +        ": " + String(unbalancePhase));
-  Serial.println(padRight("STROBO_UNBAL_COMP_WEIGHT", PADR) +  ": " + String(unbalanceCompWeight));
-  Serial.println(padRight("STROBO_UNBAL_FILT_WIDTH", PADR) +   ": " + String(unbalanceFilterWidth));
+  Serial.println(padRight("STROBO_UNBAL_PHASE", PADR) + ": " + String(unbalancePhase));
+  Serial.println(padRight("STROBO_UNBAL_COMP_WEIGHT", PADR) + ": " + String(unbalanceCompWeight));
+  Serial.println(padRight("STROBO_UNBAL_FILT_WIDTH", PADR) + ": " + String(unbalanceFilterWidth));
   Serial.println(padRight("STROBO_UNBAL_FILT_CURVE_W", PADR) + ": " + String(_unbalanceFilterCurveWidth));
 
   Serial.println();
-} // info()
+}  // info()
 
 
 SpeedComp_ &SpeedComp_::getInstance() {
   static SpeedComp_ instance;
   return instance;
-} // getInstance()
+}  // getInstance()
 
 
 SpeedComp_ &SpeedComp = SpeedComp.getInstance();

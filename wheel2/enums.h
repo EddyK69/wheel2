@@ -1,15 +1,14 @@
-#ifndef ENUMS_H
-#define ENUMS_H
+#pragma once
 
 #include <Arduino.h>
 
 
 enum eStates {
-  S_STOPPING,   // wait until needle is up and arm angle is 0
+  S_STOPPING,  // wait until needle is up and arm angle is 0
   S_HOMING,
-  S_PARKING,    // somewhat move outside after homing
-  S_HOME,       // do nothing
-  
+  S_PARKING,  // somewhat move outside after homing
+  S_HOME,     // do nothing
+
   S_HOMING_BEFORE_PLAYING,
   S_GOTO_RECORD_START,
   S_PLAY_TILL_END,
@@ -28,8 +27,8 @@ enum eStates {
   S_HOMING_FAILED,
   S_BAD_ORIENTATION,
 
-  S_MAX                         // Max value of eStates
-}; // eStates
+  S_MAX  // Max value of eStates
+};       // eStates
 
 
 enum eErrors {
@@ -41,15 +40,15 @@ enum eErrors {
 
   E_SPEED_UP_FAILED = 4,
 
-  E_HOMING_FAILED = 5,          // could not finish homing; this means that there might be an obstruction (cable), of the toothed track is unstable, or calibration is bad
+  E_HOMING_FAILED = 5,  // could not finish homing; this means that there might be an obstruction (cable), of the toothed track is unstable, or calibration is bad
 
-  E_ARMANGLE_LIMIT_POS = 6,     // the arm is close to its limit; maybe stuck to home position or hard bump
-  E_ARMANGLE_LIMIT_NEG = 7,     // the arm is close to its limit; maybe an obstruction outside of the carriage, or hard bump
+  E_ARMANGLE_LIMIT_POS = 6,  // the arm is close to its limit; maybe stuck to home position or hard bump
+  E_ARMANGLE_LIMIT_NEG = 7,  // the arm is close to its limit; maybe an obstruction outside of the carriage, or hard bump
 
-  E_TO_MUCH_TRAVEL = 8,         // if the record is far off-center for tracking of a huge tracking error (hard bump) during tracking?
+  E_TO_MUCH_TRAVEL = 8,  // if the record is far off-center for tracking of a huge tracking error (hard bump) during tracking?
 
-  E_MAX                         // Max value of eErrors
-}; // eErrors
+  E_MAX  // Max value of eErrors
+};       // eErrors
 
 //1 if the plateau could not start up
 //2 the needle moved backwards (so the needle did not track or there are no tracks)
@@ -65,14 +64,14 @@ enum eTimeMode {
   TM_MILLIS,
   TM_SECS,
   TM_MINS
-}; // eTimeMode
+};  // eTimeMode
 
 
 enum eCheckMode {
   CM_NONE,
   CM_COMMAND,
   CM_VALUE
-}; // eCheckMode
+};  // eCheckMode
 
 
 enum eRpmMode {
@@ -80,13 +79,11 @@ enum eRpmMode {
   RPM_33 = 3,
   RPM_45 = 4,
   RPM_78 = 7
-}; // eRpmMode
+};  // eRpmMode
 
 enum eRecordDiameter {
   R_7INCH,
   R_10INCH,
   R_12INCH,
   R_OTHER
-}; // eRecordDiameter
-
-#endif // ENUMS_H
+};  // eRecordDiameter

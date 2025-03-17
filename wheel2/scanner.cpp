@@ -9,13 +9,13 @@
 void Scanner_::init() {
   LOG_DEBUG("scanner.cpp", "[init]");
   setPwm(SCANNER_LED_PIN);
-  setLedMilliAmp(0); // 10mA
-} // init()
+  setLedMilliAmp(0);  // 10mA
+}  // init()
 
 
 void Scanner_::func() {
   if (_interval.tick()) {
-    if (Shared.state == S_HOME) { // if carriage @home, stop scanner
+    if (Shared.state == S_HOME) {  // if carriage @home, stop scanner
       clearTracks();
       scanLedOff();
       return;
@@ -42,11 +42,10 @@ void Scanner_::func() {
     } else {
       setLedMilliAmp(current);
     }
-    _cut = !_cut; // toggle led
+    _cut = !_cut;  // toggle led
 
     currentTrack = getCurrentTrack();
-    if ((Shared.state == S_PLAYING || Shared.state == S_PAUSE || Shared.state == S_SKIP_FORWARD || Shared.state == S_SKIP_REVERSE) &&
-      currentTrack > 0 && currentTrack != _currentTrackPrev) {
+    if ((Shared.state == S_PLAYING || Shared.state == S_PAUSE || Shared.state == S_SKIP_FORWARD || Shared.state == S_SKIP_REVERSE) && currentTrack > 0 && currentTrack != _currentTrackPrev) {
       Serial.println("TRACK: " + String(currentTrack) + "-" + String(trackCount));
       _currentTrackPrev = currentTrack;
     }
@@ -56,8 +55,8 @@ void Scanner_::func() {
     } else {
       _headerShown = false;
     }
-  } // _interval.tick()
-} // func()
+  }  // _interval.tick()
+}  // func()
 
 
 void Scanner_::check() {
@@ -82,7 +81,7 @@ void Scanner_::check() {
 
   for (int i = 0; i < _bufferLength; i++) {
     float value = _buffer[i][1];
-    
+
     if (value < (newThreshold / 2) && _trackBelowThreshold) {
       _trackBelowThreshold = false;
     }
@@ -91,7 +90,7 @@ void Scanner_::check() {
       newTrack(_buffer[i][0]);
     }
   }
-} // check()
+}  // check()
 
 
 void Scanner_::setTracksAs7inch() {
@@ -104,7 +103,7 @@ void Scanner_::setTracksAs7inch() {
     // LOG_NOTICE("scanner.cpp", "[setTracksAs7inch] Adjusted record-end");
     Serial.println("Adjusted record-end");
   }
-} // setTrackAs7inch()
+}  // setTrackAs7inch()
 
 
 void Scanner_::newTrack(float pos) {
@@ -122,7 +121,7 @@ void Scanner_::newTrack(float pos) {
 
   tracks[trackCount] = pos;
   trackCount++;
-} // newTrack()
+}  // newTrack()
 
 
 void Scanner_::recordDetection() {
@@ -139,12 +138,12 @@ void Scanner_::recordDetection() {
     Plateau.stop();
     return;
   }
-} // recordDetection()
+}  // recordDetection()
 
 
 bool Scanner_::isRecordPresent() {
   return _recordPresentFiltered > 0.5;
-} // isRecordPresent()
+}  // isRecordPresent()
 
 
 void Scanner_::scanForTracks() {
@@ -157,7 +156,7 @@ void Scanner_::scanForTracks() {
 
   float value = -_diff;
 
-  _buffer[_bufferCounter][0] = Carriage.sensorPosition; // save for after-check
+  _buffer[_bufferCounter][0] = Carriage.sensorPosition;  // save for after-check
   _buffer[_bufferCounter][1] = value;
   _bufferCounter++;
 
@@ -168,7 +167,7 @@ void Scanner_::scanForTracks() {
     _trackBelowThreshold = true;
     newTrack(Carriage.sensorPosition);
   }
-} // scanForTracks()
+}  // scanForTracks()
 
 
 void Scanner_::clearTracks() {
@@ -177,7 +176,7 @@ void Scanner_::clearTracks() {
   tracks[trackCount] = 1;
   currentTrack = 0;
   _currentTrackPrev = 0;
-} // clearTracks()
+}  // clearTracks()
 
 
 int Scanner_::getCurrentTrack() {
@@ -189,26 +188,27 @@ int Scanner_::getCurrentTrack() {
     track--;
   }
 
-  return limitInt(trackCount - track, 0, trackCount);;
-} // currentTrack()
+  return limitInt(trackCount - track, 0, trackCount);
+  ;
+}  // currentTrack()
 
 
 void Scanner_::scanLedOff() {
   // LOG_DEBUG("scanner.cpp", "[scanLedOff]");
-  pwmWrite(SCANNER_LED_PIN, 0); // 100ohm + 1volt led drop
-} // scanLedOff()
+  pwmWrite(SCANNER_LED_PIN, 0);  // 100ohm + 1volt led drop
+}  // scanLedOff()
 
 
 void Scanner_::setLedMilliAmp(float amp) {
   // LOG_DEBUG("scanner.cpp", "[setLedMilliAmp]");
   amp /= 1000.0;
-  pwmWrite(SCANNER_LED_PIN, volt2pwm(1 + (100 * amp))); // 100ohm + 1volt led drop
-} // setLedMilliAmp()
+  pwmWrite(SCANNER_LED_PIN, volt2pwm(1 + (100 * amp)));  // 100ohm + 1volt led drop
+}  // setLedMilliAmp()
 
 
 int Scanner_::volt2pwm(float volt) {
   return (volt * PWM_PMAX) / 3.3;
-} // volt2pwm()
+}  // volt2pwm()
 
 
 void Scanner_::printGraphicData() {
@@ -224,13 +224,13 @@ void Scanner_::printGraphicData() {
   Serial.print(", ");
   Serial.print(current * 100);
   Serial.println();
-} // printGraphicData()
+}  // printGraphicData()
 
 
 void Scanner_::info() {
-  Serial.println(padRight("SCANNER_TOTAL_TRACKS", PADR) +  ": " + String(trackCount));
+  Serial.println(padRight("SCANNER_TOTAL_TRACKS", PADR) + ": " + String(trackCount));
   Serial.println(padRight("SCANNER_CURRENT_TRACK", PADR) + ": " + String(currentTrack));
-  if (trackCount > 0 ) {
+  if (trackCount > 0) {
     Serial.println(padRight("SCANNER_TRACK_1", PADR) + ": " + String(recordStart));
     for (int t = trackCount - 1; t > 0; t--) {
       Serial.println(padRight("SCANNER_TRACK_" + String(trackCount - t + 1), PADR) + ": " + String(tracks[t]));
@@ -238,13 +238,13 @@ void Scanner_::info() {
     Serial.println(padRight("SCANNER_RECORD_END", PADR) + ": " + String(tracks[0]));
   }
   Serial.println();
-} // info()
+}  // info()
 
 
 Scanner_ &Scanner_::getInstance() {
   static Scanner_ instance;
   return instance;
-} // getInstance()
+}  // getInstance()
 
 
 Scanner_ &Scanner = Scanner.getInstance();

@@ -6,38 +6,38 @@
 #include "helper.h"
 
 
-Interval::Interval(uint64_t interval, eTimeMode mode = TM_MILLIS) :
-  interval(interval),
-  _mode(mode) {
+Interval::Interval(uint64_t interval, eTimeMode mode = TM_MILLIS)
+  : interval(interval),
+    _mode(mode) {
   _timenowPrev = timenow();
-} // Interval()
+}  // Interval()
 
 
 bool Interval::tick() {
   uint64_t now = timenow();
   if (now - _timenowPrev >= interval) {
-      _timenowPrevPrev = _timenowPrev;
-      _timenowPrev += interval;
+    _timenowPrevPrev = _timenowPrev;
+    _timenowPrev += interval;
 
-      if (now - _timenowPrev >= interval) {
-        _timenowPrevPrev = _timenowPrev;
-        _timenowPrev = now;
-      }
-      return true;
+    if (now - _timenowPrev >= interval) {
+      _timenowPrevPrev = _timenowPrev;
+      _timenowPrev = now;
+    }
+    return true;
   }
   return false;
-} // tick()
+}  // tick()
 
 
 uint64_t Interval::duration() {
   return timenow() - _timenowPrev;
-} // duration()
+}  // duration()
 
 
 void Interval::reset() {
   _timenowPrev = timenow();
   _onetimeLatch = true;
-} // reset()
+}  // reset()
 
 
 uint64_t Interval::timenow() {
@@ -52,18 +52,18 @@ uint64_t Interval::timenow() {
   } else {
     return 0;
   }
-} // timenow()
+}  // timenow()
 
 
 void Interval::offset(uint64_t offst) {
   _timenowPrev += offst;
-} // offset()
+}  // offset()
 
 
 bool Interval::once() {
-  if (_onetimeLatch && ((timenow() - _timenowPrev)  > interval)) {
+  if (_onetimeLatch && ((timenow() - _timenowPrev) > interval)) {
     _onetimeLatch = false;
     return true;
   }
   return false;
-} // once()
+}  // once()

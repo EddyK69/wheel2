@@ -14,7 +14,7 @@ void Bluetooth_::init() {
   // Serial2.begin(9600);
 
   write("AT+");
-} // init()
+}  // init()
 
 
 void Bluetooth_::func() {
@@ -62,7 +62,7 @@ void Bluetooth_::func() {
     //   }
     // }
   }
-} // func()
+}  // func()
 
 
 void Bluetooth_::write(String command) {
@@ -72,7 +72,7 @@ void Bluetooth_::write(String command) {
   if (debug) {
     Serial.println("BT OUT:" + command);
   }
-} // write()
+}  // write()
 
 
 void Bluetooth_::encode() {
@@ -98,13 +98,13 @@ void Bluetooth_::encode() {
       // }
 
       if (_buffer == BT_PLAY) {
-        if (Shared.state == S_PAUSE) { 
+        if (Shared.state == S_PAUSE) {
           Carriage.pause();
         } else if (Shared.state == S_HOME) {
           Plateau.play();
         }
       } else if (_buffer == BT_PAUSE) {
-        if (Shared.state == S_PAUSE || Shared.state == S_PLAYING) { // maybe remove S_PLAYING?
+        if (Shared.state == S_PAUSE || Shared.state == S_PLAYING) {  // maybe remove S_PLAYING?
           Carriage.pause();
         }
       } else if (_buffer == BT_NEXT_TRACK) {
@@ -129,13 +129,13 @@ void Bluetooth_::encode() {
       _wirelessVersion = true;  // ff checken of er wel een bluetooth module is aangesloten
     }
   }
-} // encode()
+}  // encode()
 
 
 Bluetooth_ &Bluetooth_::getInstance() {
   static Bluetooth_ instance;
   return instance;
-} // getInstance()
+}  // getInstance()
 
 
 Bluetooth_ &Bluetooth = Bluetooth.getInstance();

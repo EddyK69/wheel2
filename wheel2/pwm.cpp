@@ -8,17 +8,17 @@ void setPwm(int pin) {
   gpio_set_function(pin, GPIO_FUNC_PWM);
   pwm_set_enabled(pwm_gpio_to_slice_num(pin), true);
   pwm_set_wrap(pwm_gpio_to_slice_num(pin), PWM_PMAX + 1);
-} // setPwm()
+}  // setPwm()
 
 
 void pwmWriteFloat(int pin, float level) {
   pwmWrite(pin, level * PWM_PMAX);
-} // pwmWriteFloat()
+}  // pwmWriteFloat()
 
 
 void pwmWrite(int pin, int level) {
   pwm_set_chan_level(pwm_gpio_to_slice_num(pin), pwm_gpio_to_channel(pin), level);
-} // pwmWrite()
+}  // pwmWrite()
 
 
 void pwmPhase(float force, int pinP, int pinN, bool reversed) {
@@ -41,22 +41,22 @@ void pwmPhase(float force, int pinP, int pinN, bool reversed) {
       pwmWrite(pinN, abs(phase));
     }
   }
-} // pwmPhase()
+}  // pwmPhase()
 
 
 void pwmStepper(float angle, int pinAP, int pinAN, int pinBP, int pinBN, bool reversed) {
   pwmPhase(sin(angle), pinAP, pinAN, reversed);
   pwmPhase(cos(angle), pinBP, pinBN, reversed);
-} // pwmStepper()
+}  // pwmStepper()
 
 
 void pwmDisableStepper(int pinAP, int pinAN, int pinBP, int pinBN) {
   pwmPhaseDisable(pinAP, pinAN);
   pwmPhaseDisable(pinBP, pinBN);
-} // pwmDisableStepper()
+}  // pwmDisableStepper()
 
 
 void pwmPhaseDisable(int pinP, int pinN) {
   pwmWrite(pinP, 0);
   pwmWrite(pinN, 0);
-} // pwmPhaseDisable()
+}  // pwmPhaseDisable()

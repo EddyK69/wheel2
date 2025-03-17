@@ -18,7 +18,7 @@ void Shared_::setState(eStates newState) {
   state = newState;
   // LOG_DEBUG("shared.cpp", "[setState] State changed to " + getState(state));
   Serial.println("STATE: " + getState(state));
-} // setState()
+}  // setState()
 
 
 void Shared_::setError(eErrors newError) {
@@ -29,7 +29,7 @@ void Shared_::setError(eErrors newError) {
   Serial.println("STATE: " + getState(state));
   errorCount[error] += 1;
   Serial.println("TOTAL_ERRORS: " + String(getTotalErrors()));
-} // setError()
+}  // setError()
 
 
 bool Shared_::firstTimeStateChanged() {
@@ -38,7 +38,7 @@ bool Shared_::firstTimeStateChanged() {
     return true;
   }
   return false;
-} // firstTimeStateChanged()
+}  // firstTimeStateChanged()
 
 
 int Shared_::getTotalErrors() {
@@ -47,7 +47,7 @@ int Shared_::getTotalErrors() {
     totalErrors += errorCount[error];
   }
   return totalErrors;
-} // getTotalErrors()
+}  // getTotalErrors()
 
 
 void Shared_::info() {
@@ -60,13 +60,13 @@ void Shared_::info() {
   Serial.println(padRight("TOTAL_ERRORS", PADR) + ": " + String(getTotalErrors()));
 
   Serial.println();
-} // info()
+}  // info()
 
 
 Shared_ &Shared_::getInstance() {
   static Shared_ instance;
   return instance;
-} // getInstance()
+}  // getInstance()
 
 
 Shared_ &Shared = Shared.getInstance();

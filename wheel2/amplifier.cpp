@@ -8,14 +8,14 @@ void Amplifier_::init() {
   LOG_DEBUG("amplifier.cpp", "[init]");
   pinMode(AMP_HEADSET_EN_PIN, OUTPUT);
   digitalWrite(AMP_HEADSET_EN_PIN, 1);
-} // init()
+}  // init()
 
 
 void Amplifier_::func() {
   if (_interval.tick()) {
     if (!isNeedeDownLongEnough() && !volumeOverRide) {
       digitalWrite(AMP_HEADSET_EN_PIN, 0);
-      _volumePrev = -88; // to force resend trigger
+      _volumePrev = -88;  // to force resend trigger
       // LOG_DEBUG("amplifier.cpp", "[volumeFunc] Sound off");
       return;
     }
@@ -43,20 +43,20 @@ void Amplifier_::func() {
         Serial.println("VOLUME: " + String(volume));
       }
     }
-  } // _interval.tick()
-} // func()
+  }  // _interval.tick()
+}  // func()
 
 
 bool Amplifier_::isNeedeDownLongEnough() {
   // no sound when in puristMode
   return Arm.isNeedleDownFor(2000) && Shared.state == S_PLAYING && !Shared.puristMode;
-} // isNeedeDownLongEnough
+}  // isNeedeDownLongEnough
 
 
 Amplifier_ &Amplifier_::getInstance() {
   static Amplifier_ instance;
   return instance;
-} // getInstance()
+}  // getInstance()
 
 
 Amplifier_ &Amplifier = Amplifier.getInstance();

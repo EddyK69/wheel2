@@ -1,5 +1,4 @@
-#ifndef HELPER_H
-#define HELPER_H
+#pragma once
 
 #include <Arduino.h>
 #include "enums.h"
@@ -25,5 +24,3 @@ uint64_t millisSinceBoot();
 uint64_t secsSinceBoot();
 uint64_t minsSinceBoot();
 String msToString(uint64_t ms);
-
-#endif // HELPER_H

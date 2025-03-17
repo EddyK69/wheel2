@@ -1,5 +1,4 @@
-#ifndef PWM_H
-#define PWM_H
+#pragma once
 
 #define PWM_PMAX 4000
 
@@ -13,6 +12,3 @@ void pwmPhase(float force, int pinP, int pinN, bool reversed = false);
 void pwmStepper(float angle, int pinAP, int pinAN, int pinBP, int pinBN, bool reversed = false);
 void pwmDisableStepper(int pinAP, int pinAN, int pinBP, int pinBN);
 void pwmPhaseDisable(int pinP, int pinN);
-
-
-#endif // PWM_H

@@ -39,7 +39,7 @@
 
 #define APP_VERSION 209
 
-#define APP_DATE __DATE__ " " __TIME__ // __DATE__ & __TIME__ only updates when compiling when in the main *.ino sketch file, NOT in de *.cpp files!!
+#define APP_DATE __DATE__ " " __TIME__  // __DATE__ & __TIME__ only updates when compiling when in the main *.ino sketch file, NOT in de *.cpp files!!
 
 #include "log.h"
 #include "pico/time.h"
@@ -87,11 +87,11 @@ void setup() {
   // Set pinmodes
   pinMode(SLEEPMODE_PIN, OUTPUT);
   pinMode(LED_PIN, OUTPUT);
-  digitalWrite(SLEEPMODE_PIN, 1); // keep battery on
+  digitalWrite(SLEEPMODE_PIN, 1);  // keep battery on
   // digitalWrite(LED_PIN, 1); // turn LED on
 
   enableInterupts(true);
-} // setup()
+}  // setup()
 
 
 // core 0 loop
@@ -104,14 +104,14 @@ void loop() {
 
   Bluetooth.func();
 
-  Display.bootLED(); // turn LED on
-} // loop()
+  Display.bootLED();  // turn LED on
+}  // loop()
 
 
 // Running on core 1
 void setup1() {
   Display.init();
-} // setup1()
+}  // setup1()
 
 
 // core 1 loop
@@ -120,16 +120,16 @@ void loop1() {
   SerialComm.func();
   Buttons.update();
   Arm.func();
-} // loop1()
+}  // loop1()
 
 
 void enableInterupts(bool enabled) {
   LOG_DEBUG("wheel2.ino", "enableInterupts");
   gpio_set_irq_enabled_with_callback(PLATEAU_A_PIN, GPIO_IRQ_EDGE_RISE + GPIO_IRQ_EDGE_FALL, enabled, &gpioCallback);
   gpio_set_irq_enabled_with_callback(PLATEAU_B_PIN, GPIO_IRQ_EDGE_RISE + GPIO_IRQ_EDGE_FALL, enabled, &gpioCallback);
-} // enableInterupts
+}  // enableInterupts
 
 
 void gpioCallback(uint gpio, uint32_t events) {
   SpeedComp.stroboInterrupt();
-} // gpioCallback
+}  // gpioCallback

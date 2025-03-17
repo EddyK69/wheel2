@@ -8,11 +8,11 @@
 void Orientation_::init() {
   LOG_DEBUG("orientation.cpp", "[init]");
   setI2CPins();
-} // init()
+}  // init()
 
 
 void Orientation_::update() {
-  if (_interval.tick() && millisSinceBoot() > 200) { // turned on for 200ms?
+  if (_interval.tick() && millisSinceBoot() > 200) {  // turned on for 200ms?
     if (_firstTime) {
       _firstTime = false;
       reset();
@@ -66,8 +66,8 @@ void Orientation_::update() {
     } else {
       _headerShown = false;
     }
-  } // _interval.tick()
-} // update()
+  }  // _interval.tick()
+}  // update()
 
 
 void Orientation_::calibrate() {
@@ -76,29 +76,29 @@ void Orientation_::calibrate() {
   offsetY += y;
   offsetZ += (z + 1);
   LOG_DEBUG("orientation.cpp", "[update] OffsetX: " + String(offsetX, 5) + " OffsetY: " + String(offsetY, 5) + " OffsetZ: " + String(offsetZ, 5));
-} // calibrate()
+}  // calibrate()
 
 
 void Orientation_::reset() {
   LOG_DEBUG("orientation.cpp", "[reset]");
   // reset
-  i2cWrite(_i2cAdress, 0x36, 0xB6); // soft reset
+  i2cWrite(_i2cAdress, 0x36, 0xB6);  // soft reset
   i2cWrite(_i2cAdress, 0x36, 0x00);
 
   delay(10);
 
   // set_mode
   uint8_t data = i2cRead(_i2cAdress, 0x11);
-  setBit(&data, 7, 1); // 1 = active, 0 = inactive;
+  setBit(&data, 7, 1);  // 1 = active, 0 = inactive;
   i2cWrite(_i2cAdress, 0x11, data);
-} // reset()
+}  // reset()
 
 
 void Orientation_::printGraphicData() {
   if (!_headerShown) {
     Serial.println("GRAPH_HEADER: X-axis, Y-axis, Z-axis");
     _headerShown = true;
-  }      
+  }
   Serial.print(x, 5);
   Serial.print(", ");
   Serial.print(y, 5);
@@ -109,17 +109,17 @@ void Orientation_::printGraphicData() {
 
 
 void Orientation_::info() {
-  Serial.println(padRight("ORIENTATION_RAW_XYZ", PADR) +  ": " + "X:" + String(_rawX, 3) + " Y:" + String(_rawY, 3) + " Z:" + String(_rawZ, 3));
-  Serial.println(padRight("ORIENTATION_XYZ", PADR) +      ": " + "X:" + String(x, 3) + " Y:" + String(y, 3) + " Z:" + String(z, 3));
+  Serial.println(padRight("ORIENTATION_RAW_XYZ", PADR) + ": " + "X:" + String(_rawX, 3) + " Y:" + String(_rawY, 3) + " Z:" + String(_rawZ, 3));
+  Serial.println(padRight("ORIENTATION_XYZ", PADR) + ": " + "X:" + String(x, 3) + " Y:" + String(y, 3) + " Z:" + String(z, 3));
   Serial.println(padRight("ORIENTATION_POSITION", PADR) + ": " + String(isStanding ? "STANDING" : "NORMAL"));
   Serial.println();
-} // info()
+}  // info()
 
 
 Orientation_ &Orientation_::getInstance() {
   static Orientation_ instance;
   return instance;
-} // getInstance()
+}  // getInstance()
 
 
 Orientation_ &Orientation = Orientation.getInstance();

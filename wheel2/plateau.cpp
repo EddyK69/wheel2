@@ -8,13 +8,13 @@
 void Plateau_::init() {
   LOG_DEBUG("plateau.cpp", "[init]");
 
-  pinMode(PLATEAU_A_PIN,  INPUT_PULLUP);
-  pinMode(PLATEAU_B_PIN,  INPUT_PULLUP);
+  pinMode(PLATEAU_A_PIN, INPUT_PULLUP);
+  pinMode(PLATEAU_B_PIN, INPUT_PULLUP);
   pinMode(PLATEAU_EN_PIN, OUTPUT);
 
   setPwm(PLATEAU_MOTOR_P_PIN);
   setPwm(PLATEAU_MOTOR_N_PIN);
-} // init()
+}  // init()
 
 
 void Plateau_::func() {
@@ -24,23 +24,23 @@ void Plateau_::func() {
     float speed = SpeedComp.speedCenterComp;
 
     if (motorOn) {
-      _outBuff = pid(speed); // calculate motor power
+      _outBuff = pid(speed);  // calculate motor power
       _outBuffPrev = _outBuff;
       _outBuff += SpeedComp.unbalanceComp;
       _outBuff = limitFloat(_outBuff, -100, 100);
-      
+
       if (!motorReverse) {
-        pwmPhase(_outBuff / 100.0, PLATEAU_MOTOR_N_PIN, PLATEAU_MOTOR_P_PIN); // old motor
+        pwmPhase(_outBuff / 100.0, PLATEAU_MOTOR_N_PIN, PLATEAU_MOTOR_P_PIN);  // old motor
       } else {
-        pwmPhase(_outBuff / 100.0, PLATEAU_MOTOR_P_PIN, PLATEAU_MOTOR_N_PIN); // new motor
+        pwmPhase(_outBuff / 100.0, PLATEAU_MOTOR_P_PIN, PLATEAU_MOTOR_N_PIN);  // new motor
       }
-    } else { // motorOn == false
+    } else {  // motorOn == false
       pwmPhase(0, PLATEAU_MOTOR_P_PIN, PLATEAU_MOTOR_N_PIN);
-      _basicVoltage = 0; // reset I
+      _basicVoltage = 0;  // reset I
     }
     update();
-  } // _interval.tick()
-} // func()
+  }  // _interval.tick()
+}  // func()
 
 
 void Plateau_::update() {
@@ -49,39 +49,39 @@ void Plateau_::update() {
   }
   float speed = SpeedComp.speed;
 
-  if (motorOn) { // is motor on?
+  if (motorOn) {  // is motor on?
     if (Shared.state == S_BAD_ORIENTATION
-      || Shared.state == S_HOME
-      // || Shared.state == S_PARKING
-      // || Shared.state == S_HOMING
-      ) {
+        || Shared.state == S_HOME
+        // || Shared.state == S_PARKING
+        // || Shared.state == S_HOMING
+    ) {
       // LOG_ALERT("plateau.cpp", "[update] Seems that plateau is still turning!!");
       Serial.println("PLATEAU: STILL TURNING!");
       stop();
       return;
     }
 
-    if (atSpeed) { // atSpeed == true
+    if (atSpeed) {  // atSpeed == true
       // if (speed > targetRpm * 4) { // too fast 200%
       //   LOG_ALERT("plateau.cpp", "[update] Too fast!!");
       //   Serial.println("PLATEAU: TOO FAST");
       //   stop();
       //   return;
       // }
-      if (speed < targetRpm * 0.65 && turnInterval.duration() > 1500) { // too slow 65%
+      if (speed < targetRpm * 0.65 && turnInterval.duration() > 1500) {  // too slow 65%
         // LOG_NOTICE("plateau.cpp", "[update] Stopped by hand");
         Serial.println("PLATEAU: STOPPED BY HAND");
         stop();
         return;
       }
-    } else { // atSpeed == false
-      if (speed > (targetRpm * 0.95)) { // at speed 95%
+    } else {                             // atSpeed == false
+      if (speed > (targetRpm * 0.95)) {  // at speed 95%
         // LOG_INFO("plateau.cpp", "[update] At speed");
         Serial.println("PLATEAU: AT SPEED");
         atSpeed = true;
         return;
       }
-      if (speed < (targetRpm * 0.1) && turnInterval.duration() > 750) { // <5% target speed after short time
+      if (speed < (targetRpm * 0.1) && turnInterval.duration() > 750) {  // <5% target speed after short time
         // LOG_ALERT("plateau.cpp", "[update] Could not speed up!!");
         Shared.setError(E_PLATEAU_COULD_NOT_START);
 
@@ -90,25 +90,24 @@ void Plateau_::update() {
         return;
       }
     }
-  } else { // motorOn = false
-    if (turnInterval.duration() > 1000 && !_spinningDown) { // spinned by swing
-      if (speed > (PLATEAU_RPM33 * 0.666) && (Shared.state == S_HOME 
-        || Shared.state == S_HOMING || Shared.state == S_PARKING)) { // 50% of 33.3 speed
+  } else {                                                                                                                         // motorOn = false
+    if (turnInterval.duration() > 1000 && !_spinningDown) {                                                                        // spinned by swing
+      if (speed > (PLATEAU_RPM33 * 0.666) && (Shared.state == S_HOME || Shared.state == S_HOMING || Shared.state == S_PARKING)) {  // 50% of 33.3 speed
         // LOG_INFO("plateau.cpp", "[update] Started by swing");
         Serial.println("PLATEAU: STARTED BY SWING");
         play();
         return;
       }
     }
-    if (_spinningDown && speed < (PLATEAU_RPM33 * 0.05)) { // <5% of 33.3 speed (spinning down)
+    if (_spinningDown && speed < (PLATEAU_RPM33 * 0.05)) {  // <5% of 33.3 speed (spinning down)
       _spinningDown = false;
       turnInterval.reset();
       // LOG_INFO("plateau.cpp", "[update] Stopped");
       Serial.println("PLATEAU: STOPPED");
       return;
     }
-  } // motorOn
-} // update()
+  }  // motorOn
+}  // update()
 
 
 void Plateau_::motorStart() {
@@ -116,11 +115,11 @@ void Plateau_::motorStart() {
   motorOn = true;
   setRpm(RPM_33);
 
-  _basicVoltage = 30; // 50; //40; //60; //75;
+  _basicVoltage = 30;  // 50; //40; //60; //75;
 
   Serial.println("PLATEAU: ON");
   // startUseCounter();
-} // motorStart
+}  // motorStart
 
 
 void Plateau_::motorStop() {
@@ -134,7 +133,7 @@ void Plateau_::motorStop() {
 
   Serial.println("PLATEAU: OFF");
   stopUseCounter();
-} // motorStop
+}  // motorStop
 
 
 void Plateau_::updateRpm() {
@@ -152,7 +151,7 @@ void Plateau_::updateRpm() {
     targetRpm = PLATEAU_RPM78;
   }
   LOG_DEBUG("plateau.cpp", "[updateRpm] targetRpm: " + String(targetRpm));
-} // updateRpm
+}  // updateRpm
 
 
 void Plateau_::setRpm(eRpmMode rpmMode) {
@@ -177,7 +176,7 @@ void Plateau_::setRpm(eRpmMode rpmMode) {
 
   SpeedComp.clearCompSamples();
   turnInterval.reset();
-} // setRpm
+}  // setRpm
 
 
 void Plateau_::setPlayCount(eRecordDiameter rd) {
@@ -191,7 +190,7 @@ void Plateau_::setPlayCount(eRecordDiameter rd) {
   } else
     _playCountOther++;
   startUseCounter();
-} // setPlayCount
+}  // setPlayCount
 
 
 float Plateau_::pid(float rpm) {
@@ -202,29 +201,29 @@ float Plateau_::pid(float rpm) {
 
   if (unbalanceCompensation) {
     pp = diffTargetRpm * P;
-    _basicVoltage += diffTargetRpm * I; // bring basic voltage back to average for proper speed
+    _basicVoltage += diffTargetRpm * I;  // bring basic voltage back to average for proper speed
     _basicVoltage = limitFloat(_basicVoltage, 40, 80);
     pd = diffRpm * D;
   }
-  return  pp + _basicVoltage + pd;
-} // pid()
+  return pp + _basicVoltage + pd;
+}  // pid()
 
 
 void Plateau_::play() {
   LOG_DEBUG("plateau.cpp", "[play]");
-  Shared.setState(S_HOMING_BEFORE_PLAYING); // Home first
+  Shared.setState(S_HOMING_BEFORE_PLAYING);  // Home first
   motorStart();
   if (Shared.puristMode) {
     Shared.puristMode = false;
     Serial.println("PURIST MODE: OFF");
   }
-} // play()
+}  // play()
 
 
 void Plateau_::stop() {
   LOG_DEBUG("plateau.cpp", "[stop]");
-  if (Shared.state == S_HOMING_BEFORE_PLAYING) { // To prevent error triggers when stopping during homing
-    Shared.state = S_HOMING; // Seems extreme, but otherwise state-change timer will change
+  if (Shared.state == S_HOMING_BEFORE_PLAYING) {  // To prevent error triggers when stopping during homing
+    Shared.state = S_HOMING;                      // Seems extreme, but otherwise state-change timer will change
   } else {
     Shared.setState(S_STOPPING);
   }
@@ -233,32 +232,32 @@ void Plateau_::stop() {
     Shared.puristMode = false;
     Serial.println("PURIST MODE: OFF");
   }
-} // stop()
+}  // stop()
 
 
 void Plateau_::cleanMode() {
   // LOG_DEBUG("plateau.cpp", "[cleanMode]");
   Shared.setState(S_HOMING_BEFORE_CLEANING);
-} // cleanMode()
+}  // cleanMode()
 
 
 void Plateau_::info() {
-  Serial.println(padRight("PLATEAU_P", PADR) +               ": " + String(P, 5));
-  Serial.println(padRight("PLATEAU_I", PADR) +               ": " + String(I, 5));
-  Serial.println(padRight("PLATEAU_D", PADR) +               ": " + String(D, 5));
-  Serial.println(padRight("PLATEAU_MOTOR", PADR) +           ": " + String(motorOn ? "ON" : "OFF"));
-  Serial.println(padRight("PLATEAU_MOTOR_REVERSE", PADR) +   ": " + String(motorReverse ? "YES" : "NO"));
-  Serial.println(padRight("PLATEAU_RPM_MODE", PADR) +        ": " + getRpmState(rpmMode));
-  Serial.println(padRight("PLATEAU_TARGET_RPM", PADR) +      ": " + String(targetRpm, 2));
+  Serial.println(padRight("PLATEAU_P", PADR) + ": " + String(P, 5));
+  Serial.println(padRight("PLATEAU_I", PADR) + ": " + String(I, 5));
+  Serial.println(padRight("PLATEAU_D", PADR) + ": " + String(D, 5));
+  Serial.println(padRight("PLATEAU_MOTOR", PADR) + ": " + String(motorOn ? "ON" : "OFF"));
+  Serial.println(padRight("PLATEAU_MOTOR_REVERSE", PADR) + ": " + String(motorReverse ? "YES" : "NO"));
+  Serial.println(padRight("PLATEAU_RPM_MODE", PADR) + ": " + getRpmState(rpmMode));
+  Serial.println(padRight("PLATEAU_TARGET_RPM", PADR) + ": " + String(targetRpm, 2));
   Serial.println(padRight("PLATEAU_TOTAL_PLAYCOUNT", PADR) + ": " + String(_playCount7 + _playCount10 + _playCount12 + _playCountOther) + " [7\":" + String(_playCount7) + " 10\":" + String(_playCount10) + " 12\":" + String(_playCount12) + " ?:" + String(_playCountOther) + "]");
-  Serial.println(padRight("PLATEAU_TOTAL_PLAYTIME", PADR) +  ": " + getUseCounter());
+  Serial.println(padRight("PLATEAU_TOTAL_PLAYTIME", PADR) + ": " + getUseCounter());
   Serial.println();
-} // info()
+}  // info()
 
 
 void Plateau_::startUseCounter() {
   _tsMotorOn = millisSinceBoot();
-} // startUseCounter()
+}  // startUseCounter()
 
 
 void Plateau_::stopUseCounter() {
@@ -268,7 +267,7 @@ void Plateau_::stopUseCounter() {
     Serial.println("TOTAL_PLAYCOUNT: " + String(_playCount7 + _playCount10 + _playCount12 + _playCountOther));
     Serial.println("TOTAL_PLAYTIME: " + getUseCounter());
   }
-} // stopUseCounter()
+}  // stopUseCounter()
 
 
 String Plateau_::getUseCounter() {
@@ -276,13 +275,13 @@ String Plateau_::getUseCounter() {
     return msToString(_motorUsed + (millisSinceBoot() - _tsMotorOn));
   }
   return msToString(_motorUsed);
-} // getUseCounter()
+}  // getUseCounter()
 
 
 Plateau_ &Plateau_::getInstance() {
   static Plateau_ instance;
   return instance;
-} // getInstance()
+}  // getInstance()
 
 
 Plateau_ &Plateau = Plateau.getInstance();
